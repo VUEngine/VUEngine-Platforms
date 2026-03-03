@@ -1,0 +1,15 @@
+{
+	"_version": "0.7.0",
+	"author": "Team VUEngine",
+	"configuration": [],
+	"dependencies": [],
+	"description": {
+		"en": "Implements the hardware layer for the Virtual Boy"
+	},
+	"displayName": {
+		"en": "VirtualBoy"
+	},
+	"license": "None",
+	"repository": "",
+	"tags": []
+}

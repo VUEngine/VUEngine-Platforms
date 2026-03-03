@@ -1,0 +1,54 @@
+/*
+ * VUEngine Core
+ *
+ * © Jorge Eremiev <jorgech3@gmail.com> and Christian Radke <c.radke@posteo.de>
+ *
+ * For the full copyright and license information, please view the LICENSE file
+ * that was distributed with this source code.
+ */
+
+#ifndef SRAM_H_
+#define SRAM_H_
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// INCLUDES
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+#include <Object.h>
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// FORWARD DECLARATIONS
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+// Forward declaration of a struct that each game has to define
+struct SaveData;
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// CLASS' DECLARATION
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+/// Class SRAM
+///
+/// Inherits from Object
+///
+/// Manages SRAM space since most carts requiere a proxy to address 
+/// by not having all the pins routed.
+singleton class SRAM : Object
+{
+	/// Save data to SRAM.
+	/// @param source			WRAM address from were data will be copied
+	/// @param memberOffset		WRAM address offset
+	/// @param dataSize			Number of BYTES to read
+	static void save(const uint8* const source, int32 memberOffset, int32 dataSize);
+
+	/// Retrieve data from SRAM.
+	/// @param destination		WRAM address were data will be loaded
+	/// @param memberOffset		WRAM address offset
+	/// @param dataSize			Number of BYTES to read
+	static void read(uint8* destination, int32 memberOffset, int32 dataSize);
+
+	/// Reset the manager's state.
+	static void reset();
+}
+
+#endif
