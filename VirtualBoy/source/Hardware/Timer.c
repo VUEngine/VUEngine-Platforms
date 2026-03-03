@@ -564,6 +564,23 @@ static void Timer::print(int32 x, int32 y)
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+static void Timer::printStats(int x, int y)
+{
+	PRINT_TEXT("TIMER STATUS", x, y++);
+	PRINT_TEXT("Inter./sec.:          ", x, y);
+	PRINT_INT(_interruptsPerSecond, x + 17, y++);
+	PRINT_TEXT("Inter./frm:           ", x, y);
+	PRINT_INT(_interruptsPerSecond / __TARGET_FPS, x + 17, y++);
+	PRINT_TEXT("Aver. us/inter.:      ", x, y);
+	PRINT_INT(__MICROSECONDS_PER_SECOND / _interruptsPerSecond, x + 17, y++);
+	PRINT_TEXT("Real us/inter.:       ", x, y);
+	PRINT_INT(_elapsedMicrosecondsPerInterrupt, x + 17, y++);
+
+	_interruptsPerSecond = 0;
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 static void Timer::reset()
 {
 	Timer::getInstance();
