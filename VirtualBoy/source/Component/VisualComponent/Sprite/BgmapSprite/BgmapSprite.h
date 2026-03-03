@@ -177,6 +177,18 @@ class BgmapSprite : Sprite
 
 	/// Start rewriting the sprite's param table for hbias effects.
 	void applyHbiasEffects();
+
+	/// Check if the sprite is a normal BGMAP sprite.
+	/// @return True if BGMAP mode is used
+	bool isBgmap();
+
+	/// Check if the sprite is an AFFINE sprite.
+	/// @return True if AFFINE mode is used
+	bool isAffine();
+
+	/// Check if the sprite is an H-BIAS sprite.
+	/// @return True if H-BIAS  mode is used
+	bool isHBias();
 }
 
 #endif
