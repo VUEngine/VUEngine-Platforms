@@ -11,6 +11,7 @@
 // INCLUDES
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+#include <BgmapSprite.h>
 #include <CharSet.h>
 #ifdef __DEBUG_TOOL
 #include <Debug.h>
@@ -18,6 +19,7 @@
 #include <DebugConfig.h>
 #include <Hardware.h>
 #include <Mem.h>
+#include <ObjectSprite.h>
 #include <Printer.h>
 #include <Profiler.h>
 #include <Singleton.h>
@@ -479,6 +481,54 @@ static void DisplayUnit::reset()
 
 	DisplayUnit::setFrameCycle(__FRAME_CYCLE);
 	DisplayUnit::configureColumnTable(NULL);
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static void DisplayUnit::clearGraphicMemory()
+{
+	WorldAttributes* worldAttributesBaseAddress = (WorldAttributes*)__WORLD_SPACE_BASE_ADDRESS;
+	ObjectAttributes* objectAttributesBaseAddress = (ObjectAttributes*)__OBJECT_SPACE_BASE_ADDRESS;
+
+	for(int32 i = 0; i < __TOTAL_LAYERS; i++)
+	{
+		_worldAttributesCache[i].head = 0;
+		_worldAttributesCache[i].gx = 0;
+		_worldAttributesCache[i].gp = 0;
+		_worldAttributesCache[i].gy = 0;
+		_worldAttributesCache[i].mx = 0;
+		_worldAttributesCache[i].mp = 0;
+		_worldAttributesCache[i].my = 0;
+		_worldAttributesCache[i].w = 0;
+		_worldAttributesCache[i].h = 0;
+		_worldAttributesCache[i].param = 0;
+		_worldAttributesCache[i].ovr = 0;
+
+		worldAttributesBaseAddress[i].head = 0;
+		worldAttributesBaseAddress[i].gx = 0;
+		worldAttributesBaseAddress[i].gp = 0;
+		worldAttributesBaseAddress[i].gy = 0;
+		worldAttributesBaseAddress[i].mx = 0;
+		worldAttributesBaseAddress[i].mp = 0;
+		worldAttributesBaseAddress[i].my = 0;
+		worldAttributesBaseAddress[i].w = 0;
+		worldAttributesBaseAddress[i].h = 0;
+		worldAttributesBaseAddress[i].param = 0;
+		worldAttributesBaseAddress[i].ovr = 0;
+	}
+
+	for(int32 i = 0; i < __TOTAL_OBJECTS; i++)
+	{
+		_objectAttributesCache[i].jx = 0;
+		_objectAttributesCache[i].head = 0;
+		_objectAttributesCache[i].jy = 0;
+		_objectAttributesCache[i].tile = 0;
+
+		objectAttributesBaseAddress[i].jx = 0;
+		objectAttributesBaseAddress[i].head = 0;
+		objectAttributesBaseAddress[i].jy = 0;
+		objectAttributesBaseAddress[i].tile = 0;
+	}
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
