@@ -34,7 +34,7 @@ static void TextureManager::reset()
 
 static Texture TextureManager::get
 (
-	ClassPointer textureClass, const TextureSpec* textureSpec, int16 minimumSegment, bool mustLiveAtEvenSegment, uint32 scValue
+	ClassPointer textureClass, const TextureSpec* textureSpec
 )
 {
 	if(NULL == textureSpec)
@@ -49,7 +49,7 @@ static Texture TextureManager::get
 			(
 				BgmapTextureManager::getTexture
 				(
-					BgmapTextureManager::getInstance(), (BgmapTextureSpec*)textureSpec, minimumSegment, mustLiveAtEvenSegment, scValue
+					BgmapTextureManager::getInstance(), (BgmapTextureSpec*)textureSpec, 0, false, 0
 				)
 			);
 	}

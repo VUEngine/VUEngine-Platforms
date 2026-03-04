@@ -12,6 +12,7 @@
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 #include <BgmapTexture.h>
+#include <BgmapTextureManager.h>
 #include <DebugConfig.h>
 #include <ParamTableManager.h>
 #include <TextureManager.h>
@@ -320,9 +321,9 @@ void MBgmapSprite::loadMapTexture(TextureSpec* textureSpec, bool isFirstTextureA
 	BgmapTexture bgmapTexture = 
 		BgmapTexture::safeCast
 		(
-			TextureManager::get
+			BgmapTextureManager::getTexture
 			(
-				typeofclass(BgmapTexture), textureSpec, minimumSegment, 
+				BgmapTextureManager::getInstance(), (BgmapTextureSpec*)textureSpec, minimumSegment, 
 				isFirstTextureAndHasMultipleTextures, ((MBgmapSpriteSpec*)this->componentSpec)->scValue
 			)
 		);
