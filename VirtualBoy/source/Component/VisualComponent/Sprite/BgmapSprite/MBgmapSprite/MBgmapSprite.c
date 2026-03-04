@@ -14,6 +14,7 @@
 #include <BgmapTexture.h>
 #include <DebugConfig.h>
 #include <ParamTableManager.h>
+#include <TextureManager.h>
 #include <VirtualList.h>
 #include <VirtualNode.h>
 
@@ -50,7 +51,7 @@ void MBgmapSprite::constructor(Entity owner, const MBgmapSpriteSpec* mBgmapSprit
 
 	if(!isDeleted(this->texture))
 	{
-		Texture::release(this->texture);
+		TextureManager::release(this->texture);
 		this->texture = NULL;
 	}
 
@@ -99,7 +100,7 @@ void MBgmapSprite::releaseTexture()
 
 			if(!isDeleted(bgmapTexture))
 			{				
-				Texture::release(Texture::safeCast(bgmapTexture));
+				TextureManager::release(Texture::safeCast(bgmapTexture));
 			}
 		}
 
@@ -319,7 +320,7 @@ void MBgmapSprite::loadMapTexture(TextureSpec* textureSpec, bool isFirstTextureA
 	BgmapTexture bgmapTexture = 
 		BgmapTexture::safeCast
 		(
-			Texture::get
+			TextureManager::get
 			(
 				typeofclass(BgmapTexture), textureSpec, minimumSegment, 
 				isFirstTextureAndHasMultipleTextures, ((MBgmapSpriteSpec*)this->componentSpec)->scValue
