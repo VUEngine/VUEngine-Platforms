@@ -78,7 +78,7 @@ int16 PrintingSprite::doRender(int16 index)
 	worldPointer->h = this->halfHeight << 1;
 	worldPointer->head = __WORLD_ON | __WORLD_BGMAP | __WORLD_OVR |  (BgmapTexture::safeCast(this->texture))->segment;
 
-	return index;
+	return 1;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

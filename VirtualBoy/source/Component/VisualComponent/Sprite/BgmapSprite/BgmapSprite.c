@@ -41,7 +41,7 @@ WorldAttributes _worldAttributesCache[__TOTAL_LAYERS] __attribute__((section(".d
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static int16 BgmapSprite::doApplyAffineTransformations(BgmapSprite bgmapSprite, int32 maximumParamTableRowsToComputePerCall)
+static int16 BgmapSprite::doApplyAffineTransformations(BgmapSprite bgmapSprite, int32 specialEffectsRowsPerFrame)
 {
 	ASSERT(bgmapSprite->texture, "BgmapSprite::doApplyAffineTransformations: null texture");
 
@@ -49,7 +49,7 @@ static int16 BgmapSprite::doApplyAffineTransformations(BgmapSprite bgmapSprite, 
 	{
 		return Affine::transform
 		(
-			maximumParamTableRowsToComputePerCall,
+			specialEffectsRowsPerFrame,
 			bgmapSprite->param,
 			bgmapSprite->paramTableRow,
 			// Geometrically accurate, but kills the CPU
@@ -167,7 +167,7 @@ bool BgmapSprite::hasSpecialEffects()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-void BgmapSprite::processEffects(int32 maximumParamTableRowsToComputePerCall)
+void BgmapSprite::processEffects(int32 specialEffectsRowsPerFrame)
 {
 	// Set the world size according to the zoom
 	if(0 < this->param && (uint8)__NO_RENDER_INDEX != this->index)
@@ -177,7 +177,7 @@ void BgmapSprite::processEffects(int32 maximumParamTableRowsToComputePerCall)
 			if(0 <= this->paramTableRow)
 			{
 				// Apply affine transformation
-				this->paramTableRow = this->applyParamTableEffect(this, maximumParamTableRowsToComputePerCall);
+				this->paramTableRow = this->applyParamTableEffect(this, specialEffectsRowsPerFrame);
 
 				if(0 > this->paramTableRow)
 				{
@@ -245,7 +245,7 @@ int16 BgmapSprite::doRender(int16 index)
 
 	if (__WORLD_SIZE_DISPLACEMENT >= w)
 	{		
-		return __NO_RENDER_INDEX;
+		return 0;
 	}
 
 	if (gy + h >= cameraFrustumY1)
@@ -258,14 +258,14 @@ int16 BgmapSprite::doRender(int16 index)
 	{
 		if (__WORLD_SIZE_DISPLACEMENT >= h)
 		{
-			return __NO_RENDER_INDEX;
+			return 0;
 		}
 		my -= (__MINIMUM_BGMAP_SPRITE_HEIGHT - h);
 	}
 #else
 	if (__WORLD_SIZE_DISPLACEMENT >= h)
 	{
-		return __NO_RENDER_INDEX;
+		return 0;
 	}
 #endif
 
@@ -288,7 +288,7 @@ int16 BgmapSprite::doRender(int16 index)
 		worldPointer->param = (uint16)((((param + (myDisplacement << 4))) - 0x20000) >> 1) & 0xFFF0;
 	}
 
-	return index;
+	return 1;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

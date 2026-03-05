@@ -100,6 +100,11 @@ extern uint32 _dramDirtyStart;
 #define __JPLT2						0x36  // OBJ Palette 2
 #define __JPLT3						0x37  // OBJ Palette 3
 
+#define __SPT0						0x24  // OBJ Group 0 Pointer
+#define __SPT1						0x25  // OBJ Group 1 Pointer
+#define __SPT2						0x26  // OBJ Group 2 Pointer
+#define __SPT3						0x27  // OBJ Group 3 Pointer
+
 #define __BACKGROUND_COLOR			0x38  // Background Color
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -529,6 +534,20 @@ static void DisplayUnit::clearGraphicMemory()
 		objectAttributesBaseAddress[i].jy = 0;
 		objectAttributesBaseAddress[i].tile = 0;
 	}
+
+	for(int32 i = __TOTAL_OBJECTS - 1; 0 <= i; i--)
+	{
+		_objectAttributesCache[i].head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
+	}
+
+	for(int32 i = 0; i < __TOTAL_OBJECTS; i++)
+	{
+		_vipRegisters[__SPT3 - i] = 0;
+		_objectAttributesCache[i].jx = 0;
+		_objectAttributesCache[i].head = 0;
+		_objectAttributesCache[i].jy = 0;
+		_objectAttributesCache[i].tile = 0;
+	}
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -953,3 +972,379 @@ void DisplayUnit::destructor()
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+
+///////////////////////////////////////////////////////
+
+enum SpriteListTypes
+{
+	kSpriteListBgmap1 = 0,
+	kSpriteListObject1,
+	kSpriteListObject2,
+	kSpriteListObject3,
+	kSpriteListObject4,
+
+	kSpriteListEnd
+};
+
+const int16* bgmapIndex = NULL;
+const int16* objectIndex = NULL;
+
+static void DisplayUnit::fillAvailableSlots(int16* availableSlots,  const int16** nextSlotIndex, int16 totalSpriteLists __attribute__((unused)))
+{
+/*	
+	for(int16 i = 0; i < __TOTAL_OBJECT_SEGMENTS; i++)
+	{
+		this->vipSPTRegistersCache[i] = this->objectIndex;
+		this->objectSpriteContainers[i] = NULL;
+	}
+*/
+
+	availableSlots[kSpriteListBgmap1] = __TOTAL_LAYERS;
+	availableSlots[kSpriteListObject1] = __TOTAL_OBJECTS;
+
+	bgmapIndex = nextSlotIndex[kSpriteListBgmap1];
+	objectIndex = nextSlotIndex[kSpriteListObject1];	
+
+	for(int16 i = 0; i < __TOTAL_OBJECT_SEGMENTS; i++)
+	{
+//		this->vipSPTRegistersCache[i] = this->objectIndex;
+	}
+	
+}
+
+
+friend class Sprite;
+static uint16 DisplayUnit::getSpriteListIndex(Sprite sprite)
+{
+	ClassPointer classPointer = Sprite::getBasicType(sprite);
+	
+	if(typeofclass(ObjectSprite) == classPointer)
+	{
+		int16 z = 0;
+
+		if(NULL != sprite->transformation)
+		{
+			z = __METERS_TO_PIXELS(sprite->transformation->position.z);
+		}
+		
+		return 1;//DisplayUnit::getObjectSpriteContainer(this, z + sprite->displacement.z);
+	}
+
+	return kSpriteListBgmap1;
+}
+
+static void DisplayUnit::disableRendering()
+{
+	/*
+	for(int16 i = 0; i < __TOTAL_OBJECT_SEGMENTS; i++)
+	{
+		this->vipSPTRegistersCache[i] = this->objectIndex;
+
+		if(!isDeleted(this->objectSpriteContainers[i]))
+		{
+			delete this->objectSpriteContainers[i];
+			this->objectSpriteContainers[i] = NULL;
+		}
+	}
+*/
+}
+
+static void DisplayUnit::startRendering()
+{
+	/*
+	this->spt = __TOTAL_OBJECT_SEGMENTS - 1;
+	this->objectIndex = __TOTAL_OBJECTS - 1;
+	
+	*/
+	//ParamTableManager::defragment(ParamTableManager::getInstance(), true);
+
+}
+
+static void DisplayUnit::stopRendering()
+{
+	/*
+	this->bgmapIndex = __TOTAL_LAYERS - 1;
+	this->spt = __TOTAL_OBJECT_SEGMENTS - 1;
+	this->objectIndex = __TOTAL_OBJECTS - 1;
+	this->previousObjectIndex = __TOTAL_OBJECTS - 1;
+*/
+
+/*
+		if(firstObjectIndex == this->objectIndex)
+		{
+			_objectAttributesCache[this->objectIndex].head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
+			this->objectIndex--;
+
+			_worldAttributesCache[objectSpriteContainer->index].head = __WORLD_OFF;
+		}
+		else
+		{
+			_worldAttributesCache[objectSpriteContainer->index].head = (__WORLD_ON | __WORLD_OBJECT | __WORLD_OVR) & (~__WORLD_END);
+
+			// Make sure that the rest of spt segments only run up to the last
+			// Used object index
+			for(int32 i = this->spt--; i--;)
+			{
+				this->vipSPTRegistersCache[i] = this->objectIndex;
+			}
+		}
+*/
+
+
+
+	NM_ASSERT(-1 <= (int8)*bgmapIndex, "SpriteManager::stopRendering: no more layers");
+	if(0 <= *bgmapIndex)
+	{
+		_worldAttributesCache[*bgmapIndex].head = __WORLD_END;
+	}
+
+	static int previousObjectIndex = 0;
+
+	// Clear OBJ memory
+	for(int32 i = *objectIndex; previousObjectIndex <= i; i--)
+	{
+		_objectAttributesCache[i].head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
+	}
+
+	previousObjectIndex = *objectIndex;	
+}
+
+
+
+static void DisplayUnit::commitGraphics()
+{
+#ifdef __DEBUGGING_SPRITES
+	_writtenObjectTiles = __TOTAL_OBJECTS - this->objectIndex;
+#endif
+
+	for(int32 i = __TOTAL_OBJECT_SEGMENTS; i--;)
+	{
+//		_vipRegisters[__SPT0 + i] = this->vipSPTRegistersCache[i] - this->objectIndex;
+	}
+
+	WorldAttributes* worldAttributesBaseAddress = (WorldAttributes*)__WORLD_SPACE_BASE_ADDRESS;
+	ObjectAttributes* objectAttributesBaseAddress = (ObjectAttributes*)__OBJECT_SPACE_BASE_ADDRESS;
+
+	CACHE_RESET;
+	Mem::copyWORD
+	(
+		(uint32*)(objectAttributesBaseAddress), (uint32*)(_objectAttributesCache + *objectIndex), 
+		sizeof(ObjectAttributes) * (__TOTAL_OBJECTS - *objectIndex) >> 2
+	);
+
+	Mem::copyWORD
+	(
+		(uint32*)(worldAttributesBaseAddress + *bgmapIndex), (uint32*)(_worldAttributesCache + *bgmapIndex), 
+		sizeof(WorldAttributes) * (__TOTAL_LAYERS - (*bgmapIndex)) >> 2
+	);
+}
+
+
+/*int16 SpriteManager::getObjectSpriteContainer(fixed_t z)
+{
+	int16 index = -1;
+
+	for(int16 i = 0; i < __TOTAL_OBJECT_SEGMENTS; i++)
+	{
+		if(NULL == this->objectSpriteContainers[i])
+		{
+			continue;
+		}
+
+		if(0 > index)
+		{
+			index = i;
+		}
+		else
+		{
+			if
+			(
+				__ABS
+				(
+					Sprite::getPosition(this->objectSpriteContainers[i])->z - z) 
+					< 
+					__ABS(Sprite::getPosition(this->objectSpriteContainers[index])->z - z
+				)
+			)
+			{
+				index = i;
+			}
+		}
+	}
+
+	return index;
+}
+
+*/
+
+
+/*
+
+	/// List of object sprite containers
+	ObjectSpriteContainer objectSpriteContainers[__TOTAL_OBJECT_SEGMENTS];
+
+	for(int16 i = 0; i < __TOTAL_OBJECT_SEGMENTS; i++)
+	{
+		if(!isDeleted(this->objectSpriteContainers[i]))
+		{
+			delete this->objectSpriteContainers[i];
+			this->objectSpriteContainers[i] = NULL;
+		}
+	}
+
+
+
+void SpriteManager::configureObjectSpriteContainers
+(
+	const ObjectSpritesContainerConfiguration objectSpritesContainersConfiguration[__TOTAL_OBJECT_SEGMENTS]
+)
+{
+#ifndef __RELEASE
+	int16 previousZ = objectSpritesContainersConfiguration[__TOTAL_OBJECT_SEGMENTS - 1].zPosition;
+#endif
+
+	for(int32 i = __TOTAL_OBJECT_SEGMENTS; i--; )
+	{
+		if(objectSpritesContainersConfiguration[i].instantiate)
+		{
+			NM_ASSERT(objectSpritesContainersConfiguration[i].zPosition <= previousZ, "SpriteManager::configureObjectSpriteContainers: wrong z");
+			NM_ASSERT(isDeleted(this->objectSpriteContainers[i]), "SpriteManager::configureObjectSpriteContainers: error creating container");
+
+			if(!isDeleted(this->objectSpriteContainers[i]))
+			{
+				delete this->objectSpriteContainers[i];
+				this->objectSpriteContainers[i] = NULL;
+			}
+			
+			this->objectSpriteContainers[i] = new ObjectSpriteContainer();
+			
+//			SpriteManager::registerSprite(this, Sprite::safeCast(this->objectSpriteContainers[i]), &this->spriteRegistry[kSpriteListBgmap1]);
+
+			PixelVector position =
+			{
+				0, 0, objectSpritesContainersConfiguration[i].zPosition, 0
+			};
+
+			ObjectSpriteContainer::setPosition(this->objectSpriteContainers[i], &position);
+
+#ifndef __RELEASE
+			previousZ = objectSpritesContainersConfiguration[i].zPosition;
+#endif
+		}
+	}
+}
+
+	/// Print OBJECT related stats.
+	/// @param x: Screen x coordinate where to print
+	/// @param y: Screen y coordinate where to print
+	void printSPTInfo(int16 spt, int32 x, int32 y);
+
+*/
+
+/*
+void SpriteManager::printSPTInfo(int16 spt, int32 x, int32 y)
+{
+	int32 totalUsedObjects = 0;
+	int32 totalPixels = 0;
+
+	for(int16 i = kSpriteListObject1; i < kSpriteListObject1 + __TOTAL_OBJECT_SEGMENTS; i++)
+	{
+		for(VirtualNode node = this->spriteRegistry[i].sprites->head; NULL != node; node = node->next)
+		{
+			ObjectSprite objectSprite = ObjectSprite::safeCast(node->data);
+
+			if(objectSprite->deleteMe)
+			{
+				continue;
+			}
+
+			totalUsedObjects += objectSprite->totalObjects;
+		}
+	}
+	
+	Printer::text("Total used objects: ", x, ++y, NULL);
+	Printer::int32(totalUsedObjects, x + 20, y++, NULL);
+
+	if(__TOTAL_OBJECT_SEGMENTS <= (unsigned)spt)
+	{
+		return;
+	}
+
+	ObjectSpriteContainer objectSpriteContainer = this->objectSpriteContainers[spt];
+
+	y++;
+
+	Printer::text("OBJECT ", x, y++, NULL);
+
+	if(NULL != objectSpriteContainer)
+	{
+#ifdef __TOOLS
+		SpriteManager::hideAllSprites(this, Sprite::safeCast(objectSpriteContainer), false);
+#endif
+
+		for(VirtualNode node = this->spriteRegistry[spt + kSpriteListObject1].sprites->head; NULL != node; node = node->next)
+		{
+			ObjectSprite objectSprite = ObjectSprite::safeCast(node->data);
+
+			if(objectSprite->deleteMe)
+			{
+				continue;
+			}
+
+			ObjectSprite::show(objectSprite);
+		}
+
+		Timer::wait(40);
+	}
+
+	totalUsedObjects = 0;
+	totalPixels = 0;
+
+	int16 firstObjectIndex = -1;
+	int16 lastObjectIndex = -1;
+
+	for(VirtualNode node = this->spriteRegistry[spt + kSpriteListObject1].sprites->head; NULL != node; node = node->next)
+	{
+		ObjectSprite objectSprite = ObjectSprite::safeCast(node->data);
+
+		if(objectSprite->deleteMe || __NO_RENDER_INDEX == objectSprite->index)
+		{
+			continue;
+		}
+
+		totalUsedObjects += objectSprite->totalObjects;
+		totalPixels += ObjectSprite::getTotalPixels(objectSprite);
+
+		if(0 > firstObjectIndex)
+		{
+			firstObjectIndex = objectSprite->index;
+		}
+
+		lastObjectIndex = objectSprite->index - objectSprite->totalObjects;
+	}
+
+	Printer::text("Index: ", x, ++y, NULL);
+	Printer::int32(NULL != objectSpriteContainer ? objectSpriteContainer->index : -1, x + 18, y, NULL);
+	Printer::text("Class: ", x, ++y, NULL);
+	Printer::text(NULL != objectSpriteContainer ? __GET_CLASS_NAME(objectSpriteContainer) : "N/A", x + 18, y, NULL);
+	Printer::text("Mode:", x, ++y, NULL);
+	Printer::text("OBJECT   ", x + 18, y, NULL);
+	Printer::text("Segment:                ", x, ++y, NULL);
+	Printer::int32(spt, x + 18, y++, NULL);
+	Printer::text("SPT value:                ", x, y, NULL);
+	Printer::int32(NULL != objectSpriteContainer ? _vipRegisters[__SPT0 + spt] : 0, x + 18, y, NULL);
+	Printer::text("HEAD:                   ", x, ++y, NULL);
+	Printer::hex(this->worldAttributesBaseAddress[objectSpriteContainer->index].head, x + 18, y, 4, NULL);
+	Printer::text("Total OBJs:            ", x, ++y, NULL);
+	Printer::int32(totalUsedObjects, x + 18, y, NULL);
+	Printer::text("OBJ index range:      ", x, ++y, NULL);
+	Printer::int32(lastObjectIndex, x + 18, y, NULL);
+	Printer::text("-", x  + 18 + 0 <= firstObjectIndex ? Math::getDigitsCount(firstObjectIndex) : 0, y, NULL);
+	Printer::int32(firstObjectIndex, x  + 18 + Math::getDigitsCount(firstObjectIndex) + 1, y, NULL);
+	Printer::text("Z Position: ", x, ++y, NULL);
+	Printer::int32(NULL != objectSpriteContainer ? objectSpriteContainer->position.z : 0, x + 18, y, NULL);
+	Printer::text("Pixels: ", x, ++y, NULL);
+	Printer::int32(totalPixels, x + 18, y, NULL);
+}
+*/

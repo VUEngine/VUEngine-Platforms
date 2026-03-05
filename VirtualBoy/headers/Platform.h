@@ -7,6 +7,13 @@
 #ifndef PLATFORM_H_
 #define PLATFORM_H_
 
+
+// VB Platform.h
+#define __TOTAL_OBJECT_SEGMENTS 	4
+
+//#define __TOTAL_BGMAP_SPRITE_LISTS       1
+//#define __TOTAL_OBJECT_SPRITE_LISTS      4  // one per SPT segment
+
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // HARDWARE
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

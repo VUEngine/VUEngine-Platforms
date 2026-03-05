@@ -88,6 +88,8 @@ int16 TextObjectSprite::doRender(int16 index)
 	uint16 fourthWordValue = (this->head & 0x3000);
 	ObjectAttributes* objectPointer = NULL;
 
+	int16 usedObjects = 0;
+
 	for(; i < rows; i++)
 	{
 		// TODO: Account for multiline characters
@@ -132,10 +134,12 @@ int16 TextObjectSprite::doRender(int16 index)
 			objectPointer->head = secondWordValue;
 			objectPointer->jy = outputY;
 			objectPointer->tile |= fourthWordValue;
+
+			usedObjects++;
 		}
 	}
 
-	return index;
+	return usedObjects;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

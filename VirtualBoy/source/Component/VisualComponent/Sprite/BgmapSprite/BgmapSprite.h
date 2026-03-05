@@ -112,9 +112,9 @@ class BgmapSprite : Sprite
 	override bool hasSpecialEffects();
 	
 	/// Process affine and hbias effects
-	/// @param maximumParamTableRowsToComputePerCall: Used to defer param table computations 
+	/// @param specialEffectsRowsPerFrame: Used to defer param table computations 
 	/// (-1 to compute the whole table)
-	override void processEffects(int32 maximumParamTableRowsToComputePerCall);
+	override void processEffects(int32 specialEffectsRowsPerFrame);
 
 	/// Render the sprite by configuring the DRAM assigned to it by means of the provided index.
 	/// @param index: Determines the region of DRAM that this sprite is allowed to configure

@@ -125,6 +125,8 @@ int16 ObjectSprite::doRender(int16 index)
 	int16 yDisplacement = 0;
 	int16 jDisplacement = 0;
 
+	int16 usedObjects = 0;
+
 	for (int16 i = 0; i < rows; i++, jDisplacement += cols, yDisplacement += yDeltaIncrement)
 	{
 		int16 outputY = y + yDisplacement;
@@ -157,10 +159,12 @@ int16 ObjectSprite::doRender(int16 index)
 			object->jy = outputY;
 			object->head = secondWordValue;
 			object->tile = fourthWordValue + frameRow[j];
+
+			usedObjects++;
 		}
 	}
 
-	return index;
+	return usedObjects;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

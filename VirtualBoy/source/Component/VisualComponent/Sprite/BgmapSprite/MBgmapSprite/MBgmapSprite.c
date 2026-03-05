@@ -180,7 +180,7 @@ int16 MBgmapSprite::doRender(int16 index)
 
 		if(0 >= w)
 		{
-			return __NO_RENDER_INDEX;
+			return 0;
 		}
 	}
 	else
@@ -205,7 +205,7 @@ int16 MBgmapSprite::doRender(int16 index)
 		{
 			if (0 >= h)
 			{
-				return __NO_RENDER_INDEX;
+				return 0;
 			}
 
 			my -= __MINIMUM_BGMAP_SPRITE_HEIGHT - h;
@@ -213,7 +213,7 @@ int16 MBgmapSprite::doRender(int16 index)
 #else
 		if (0 >= h)
 		{
-			return __NO_RENDER_INDEX;
+			return 0;
 		}
 #endif
 	}
@@ -245,7 +245,7 @@ int16 MBgmapSprite::doRender(int16 index)
 		worldPointer->param = (uint16)((((this->param)) - 0x20000) >> 1) & 0xFFF0;
 	}
 
-	return index;
+	return 1;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

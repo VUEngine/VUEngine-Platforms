@@ -76,7 +76,9 @@ int16 ObjectSpriteContainer::doRender(int16 index)
 {
 	this->index = index;
 
-	return index;
+	_worldAttributesCache[index].head = (__WORLD_ON | __WORLD_OBJECT | __WORLD_OVR) & (~__WORLD_END);
+
+	return 1;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
