@@ -115,11 +115,11 @@ static void Timer::interruptHandler()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void Timer::configure(uint16 timerResolution, uint16 targetTimePerInterrupt, uint16 targetTimePerInterrupttUnits)
+static void Timer::configure(TimerConfig timerConfig)
 {
-	Timer::setResolution(timerResolution);
-	Timer::setTargetTimePerInterruptUnits(targetTimePerInterrupttUnits);
-	Timer::setTargetTimePerInterrupt(targetTimePerInterrupt);
+	Timer::setResolution(timerConfig.resolution);
+	Timer::setTargetTimePerInterruptUnits(timerConfig.targetTimePerInterrupttUnits);
+	Timer::setTargetTimePerInterrupt(timerConfig.targetTimePerInterrupt);
 	Timer::applySettings(true);
 }
 

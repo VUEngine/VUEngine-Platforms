@@ -107,6 +107,9 @@ extern uint32 _dramDirtyStart;
 
 #define __BACKGROUND_COLOR			0x38  // Background Color
 
+#define __DIMM_VALUE_1				0x54
+#define __DIMM_VALUE_2				0x50
+
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' DATA
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -168,6 +171,9 @@ static volatile bool _processingXPEND 				__STATIC_SINGLETONS_DATA_SECTION_ATTRI
 
 /// If true, FRAMESTART happened during XPEND
 static volatile bool _FRAMESTARTDuringXPEND 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
+
+/// Color related configuration
+static DisplayUnitConfig _displayUnitConfig __STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE;
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC STATIC METHODS
@@ -312,71 +318,52 @@ static void DisplayUnit::setFrameCycle(uint8 frameCycle __attribute__((unused)))
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void DisplayUnit::configurePalettes(PaletteConfig paletteConfig)
+static void DisplayUnit::configure(DisplayUnitConfig displayUnitConfig)
 {
-	_vipRegisters[__GPLT0] = paletteConfig.bgmap.gplt0;
-	_vipRegisters[__GPLT1] = paletteConfig.bgmap.gplt1;
-	_vipRegisters[__GPLT2] = paletteConfig.bgmap.gplt2;
-	_vipRegisters[__GPLT3] = paletteConfig.bgmap.gplt3;
+	_displayUnitConfig = displayUnitConfig;
+	
+	_vipRegisters[__BACKGROUND_COLOR] = (_displayUnitConfig.colorConfig.backgroundColor <= __COLOR_BRIGHT_RED)
+		? _displayUnitConfig.colorConfig.backgroundColor
+		: __COLOR_BRIGHT_RED;
 
-	_vipRegisters[__JPLT0] = paletteConfig.object.jplt0;
-	_vipRegisters[__JPLT1] = paletteConfig.object.jplt1;
-	_vipRegisters[__JPLT2] = paletteConfig.object.jplt2;
-	_vipRegisters[__JPLT3] = paletteConfig.object.jplt3;
-}
+	_vipRegisters[__GPLT0] = _displayUnitConfig.paletteConfig.bgmap.gplt0;
+	_vipRegisters[__GPLT1] = _displayUnitConfig.paletteConfig.bgmap.gplt1;
+	_vipRegisters[__GPLT2] = _displayUnitConfig.paletteConfig.bgmap.gplt2;
+	_vipRegisters[__GPLT3] = _displayUnitConfig.paletteConfig.bgmap.gplt3;
 
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+	_vipRegisters[__JPLT0] = _displayUnitConfig.paletteConfig.object.jplt0;
+	_vipRegisters[__JPLT1] = _displayUnitConfig.paletteConfig.object.jplt1;
+	_vipRegisters[__JPLT2] = _displayUnitConfig.paletteConfig.object.jplt2;
+	_vipRegisters[__JPLT3] = _displayUnitConfig.paletteConfig.object.jplt3;
 
-static void DisplayUnit::configureColumnTable(const ColumnTableSpec* columnTableSpec)
-{
 	int32 i, value;
 
 	// Use the default column table as fallback
-	if(columnTableSpec == NULL)
+	if(_displayUnitConfig.columnTableSpec == NULL)
 	{
-		columnTableSpec = (ColumnTableSpec*)&DefaultColumnTableSpec;
+		_displayUnitConfig.columnTableSpec = (ColumnTableSpec*)&DefaultColumnTableSpec;
 	}
 
 	// Write column table
 	for(i = 0; i < 256; i++)
 	{
-		value = (columnTableSpec->mirror && (i > (__COLUMN_TABLE_ENTRIES / 2 - 1)))
-			? columnTableSpec->columnTable[(__COLUMN_TABLE_ENTRIES - 1) - i]
-			: columnTableSpec->columnTable[i];
+		value = (_displayUnitConfig.columnTableSpec->mirror && (i > (__COLUMN_TABLE_ENTRIES / 2 - 1)))
+			? _displayUnitConfig.columnTableSpec->columnTable[(__COLUMN_TABLE_ENTRIES - 1) - i]
+			: _displayUnitConfig.columnTableSpec->columnTable[i];
 
 		_columnTableBaseAddressLeft[i] = value;
 		_columnTableBaseAddressRight[i] = value;
 	}
-}
 
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static void DisplayUnit::configureBrightness(Brightness brightness)
-{
+	// Configure brightness
 	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
 	
-	_vipRegisters[__BRTA] = brightness.darkRed;
-	_vipRegisters[__BRTB] = brightness.mediumRed;
-	_vipRegisters[__BRTC] = brightness.brightRed - (brightness.mediumRed + brightness.darkRed);
-}
+	_vipRegisters[__BRTA] = _displayUnitConfig.colorConfig.brightness.darkRed;
+	_vipRegisters[__BRTB] = _displayUnitConfig.colorConfig.brightness.mediumRed;
+	_vipRegisters[__BRTC] = _displayUnitConfig.colorConfig.brightness.brightRed - 
+		(_displayUnitConfig.colorConfig.brightness.mediumRed + _displayUnitConfig.colorConfig.brightness.darkRed);
 
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static Brightness DisplayUnit::getBrightness()
-{
-	return 	
-		(Brightness)
-		{
-			_vipRegisters[__BRTA],
-			_vipRegisters[__BRTB],
-			_vipRegisters[__BRTC] + (_vipRegisters[__BRTB] + _vipRegisters[__BRTA])
-		};
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static void DisplayUnit::configureBrightnessRepeat(const BrightnessRepeatSpec* brightnessRepeatSpec)
-{
+/*
 	// Use the default repeat values as fallback
 	if(brightnessRepeatSpec == NULL)
 	{
@@ -398,30 +385,15 @@ static void DisplayUnit::configureBrightnessRepeat(const BrightnessRepeatSpec* b
 		_columnTableBaseAddressLeft[leftCta - i] = (_columnTableBaseAddressLeft[leftCta - i] & 0xff) | value;
 		_columnTableBaseAddressRight[rightCta - i] = (_columnTableBaseAddressRight[rightCta - i] & 0xff) | value;
 	}
+
+*/
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void DisplayUnit::configureBackgroundColor(uint8 color)
+static DisplayUnitConfig DisplayUnit::getConfig()
 {
-	_vipRegisters[__BACKGROUND_COLOR] = (color <= __COLOR_BRIGHT_RED)
-		? color
-		: __COLOR_BRIGHT_RED;
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static void DisplayUnit::configurePostProcessingEffects(PostProcessingEffect* postProcessingEffects)
-{
-	if(NULL == postProcessingEffects)
-	{
-		return;
-	}
-
-	for(int32 i = 0; NULL != postProcessingEffects[i]; i++)
-	{
-		DisplayUnit::pushFrontPostProcessingEffect(postProcessingEffects[i], NULL);
-	}
+	return _displayUnitConfig;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -430,9 +402,9 @@ static void DisplayUnit::upBrightness()
 {
 	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
 
-	_vipRegisters[__BRTA] = 32;
-	_vipRegisters[__BRTB] = 64;
-	_vipRegisters[__BRTC] = 32;
+	_vipRegisters[__BRTA] = _displayUnitConfig.colorConfig.brightness.darkRed = 32;
+	_vipRegisters[__BRTB] = _displayUnitConfig.colorConfig.brightness.mediumRed = 64;
+	_vipRegisters[__BRTC] = _displayUnitConfig.colorConfig.brightness.brightRed = 32; 
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -441,9 +413,40 @@ static void DisplayUnit::lowerBrightness()
 {
 	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
 
-	_vipRegisters[__BRTA] = 0;
-	_vipRegisters[__BRTB] = 0;
-	_vipRegisters[__BRTC] = 0;
+	_vipRegisters[__BRTA] = _displayUnitConfig.colorConfig.brightness.darkRed = 0;
+	_vipRegisters[__BRTB] = _displayUnitConfig.colorConfig.brightness.mediumRed = 0;
+	_vipRegisters[__BRTC] = _displayUnitConfig.colorConfig.brightness.brightRed = 0; 
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static void DisplayUnit::debug()
+{
+	_displayUnitConfig.colorConfig.brightness = (Brightness) {32, 64, 32};
+	_displayUnitConfig.colorConfig.backgroundColor = __COLOR_BLACK;
+	_displayUnitConfig.paletteConfig = (PaletteConfig)
+	{
+		{0xE4, __DIMM_VALUE_2, __DIMM_VALUE_2, __DIMM_VALUE_2},
+		{__DIMM_VALUE_2, __DIMM_VALUE_2, __DIMM_VALUE_2, __DIMM_VALUE_2}
+	};
+
+	DisplayUnit::configure(_displayUnitConfig);
+
+	// Error display message
+	WorldAttributes* worldAttributesBaseAddress = (WorldAttributes*)__WORLD_SPACE_BASE_ADDRESS;
+
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].mx = Printer::getPrintingBgmapXOffset();
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].mp = __PRINTING_BGMAP_PARALLAX_OFFSET;
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].my = Printer::getPrintingBgmapYOffset();
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].gx = 0;
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].gp = 0;
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].gy = 0;
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].w = __SCREEN_WIDTH;
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].h = __SCREEN_HEIGHT;
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].head = 
+		__WORLD_ON | __WORLD_BGMAP | __WORLD_OVR | Printer::getPrintingBgmapSegment();
+
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD - 1].head = __WORLD_END;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -485,7 +488,7 @@ static void DisplayUnit::reset()
 	DisplayUnit::removePostProcessingEffects();
 
 	DisplayUnit::setFrameCycle(__FRAME_CYCLE);
-	DisplayUnit::configureColumnTable(NULL);
+//	DisplayUnit::configureColumnTable(NULL);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -548,21 +551,6 @@ static void DisplayUnit::clearGraphicMemory()
 		_objectAttributesCache[i].jy = 0;
 		_objectAttributesCache[i].tile = 0;
 	}
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static void DisplayUnit::configure
-(
-	uint8 backgroundColor, Brightness brightness, const BrightnessRepeatSpec* brightnessRepeat, 
-	PaletteConfig paletteConfig, PostProcessingEffect* postProcessingEffects
-)
-{
-	DisplayUnit::configureBackgroundColor(backgroundColor);
-	DisplayUnit::configureBrightness(brightness);
-	DisplayUnit::configureBrightnessRepeat(brightnessRepeat);
-	DisplayUnit::configurePalettes(paletteConfig);
-	DisplayUnit::configurePostProcessingEffects(postProcessingEffects);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

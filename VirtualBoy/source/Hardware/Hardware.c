@@ -293,9 +293,9 @@ static void Hardware::setInterruptVectors()
 
 static void Hardware::setExceptionVectors()
 {
-	zeroDivisionVector = (uint32)Error::zeroDivisionException;
-	invalidOpcodeVector = (uint32)Error::invalidOpcodeException;
-	floatingPointVector = (uint32)Error::floatingPointException;
+	zeroDivisionVector = (uint32)Hardware::zeroDivisionException;
+	invalidOpcodeVector = (uint32)Hardware::invalidOpcodeException;
+	floatingPointVector = (uint32)Hardware::floatingPointException;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -364,3 +364,131 @@ static int32 Hardware::getPSW()
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static void Hardware::zeroDivisionException()
+{
+#ifndef __SHIPPING
+	uint32 eipc __attribute__((unused)) = 0;
+	// Save EIPC
+    asm
+	(
+		"stsr	eipc, r10		\n\t"      \
+		"mov	r10, %[eipc]	\n\t"
+		: [eipc] "=r" (eipc)
+		: // No Input
+		: "r10" // regs used
+    );
+
+	Error::triggerException("Zero division", NULL);
+#endif
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static void Hardware::invalidOpcodeException()
+{
+#ifndef __SHIPPING
+
+	asm
+	(
+		"mov	sp, %0"
+		: "=r" (_vuengineStackPointer)
+	);
+
+	asm
+	(
+		"mov lp,%0  "
+		: "=r" (_vuengineLinkPointer)
+	);
+
+	uint32 eipc  __attribute__((unused)) = 0;
+	// Save EIPC
+    asm
+	(
+		"stsr	eipc, r10		\n\t"      \
+		"mov	r10, %[eipc]	\n\t"
+		: [eipc] "=r" (eipc)
+		: // No Input
+		: "r10" // regs used
+    );
+
+	uint32 fepc  __attribute__((unused)) = 0;
+	// Save FEPC
+    asm
+	(
+		"stsr	fepc, r11		\n\t"      \
+		"mov	r11, %[fepc]	\n\t"
+		: [fepc] "=r" (fepc)
+		: // No Input
+		: "r11" // regs used
+    );
+
+	uint32 ecr  __attribute__((unused)) = 0;
+	// Save ECR
+    asm
+	(
+		"stsr	ecr, r12		\n\t"      \
+		"mov	r12, %[ecr]		\n\t"
+		: [ecr] "=r" (ecr)
+		: // No Input
+		: "r12" // regs used
+    );
+
+	Error::triggerException("Invalid opcode", NULL);
+#endif
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static void Hardware::floatingPointException()
+{
+#ifndef __SHIPPING
+
+	asm
+	(
+		"mov sp,%0  "
+		: "=r" (_vuengineStackPointer)
+	);
+
+	asm
+	(
+		"mov lp,%0  "
+		: "=r" (_vuengineLinkPointer)
+	);
+
+	uint32 eipc __attribute__((unused)) = 0;
+	// Save EIPC
+    asm
+	(
+		"stsr	eipc, r10		\n\t"      \
+		"mov	r10, %[eipc]	\n\t"
+		: [eipc] "=r" (eipc)
+		: // No Input
+		: "r10" // regs used
+    );
+
+	uint32 fepc __attribute__((unused)) = 0;
+	// Save FEPC
+    asm
+	(
+		"stsr	fepc, r11		\n\t"      \
+		"mov	r11, %[fepc]	\n\t"
+		: [fepc] "=r" (fepc)
+		: // No Input
+		: "r11" // regs used
+    );
+
+	uint32 ecr __attribute__((unused)) = 0;
+	// Save ECR
+    asm
+	(
+		"stsr	ecr, r12		\n\t"      \
+		"mov	r12, %[ecr]		\n\t"
+		: [ecr] "=r" (ecr)
+		: // No Input
+		: "r12" // regs used
+    );
+
+	Error::triggerException("Floating point exception", NULL);
+#endif
+}

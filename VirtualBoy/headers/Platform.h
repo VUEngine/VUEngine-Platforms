@@ -12,7 +12,7 @@
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 #define __CPU_GET_STACK_POINTER(sp)			asm("mov	sp, %0": "=r" (sp))
-#define __CPU_GET_LINK_POINTER(sp)			asm("mov	lp, %0": "=r" (lp))
+#define __CPU_GET_LINK_POINTER(lp)			asm("mov	lp, %0": "=r" (lp))
 
 #define __CPU_HALT							asm("halt"::)
 #define __CPU_ENABLE_INTERRUPTS				asm("cli")
@@ -51,50 +51,50 @@
 											)
 
 // Cache management
-#define CACHE_ENABLE		asm("mov 2,r1 \n  ldsr r1,sr24": /* No Output */: /* No Input */: "r1" /* Reg r1 Used */)
-#define CACHE_DISABLE		asm("ldsr r0,sr24")
-#define CACHE_CLEAR			asm("mov 1,r1 \n  ldsr r1,sr24": /* No Output */: /* No Input */: "r1" /* Reg r1 Used */)
-#define CACHE_RESET			CACHE_DISABLE; CACHE_CLEAR; CACHE_ENABLE
+#define CACHE_ENABLE						asm("mov 2,r1 \n  ldsr r1,sr24": /* No Output */: /* No Input */: "r1" /* Reg r1 Used */)
+#define CACHE_DISABLE						asm("ldsr r0,sr24")
+#define CACHE_CLEAR							asm("mov 1,r1 \n  ldsr r1,sr24": /* No Output */: /* No Input */: "r1" /* Reg r1 Used */)
+#define CACHE_RESET							CACHE_DISABLE; CACHE_CLEAR; CACHE_ENABLE
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // KEYPAD
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 // keypad specs
-#define K_NON			0x0000	// No key
-#define K_PWR			0x0001  // Low Power
-#define K_SGN			0x0002  // Signature; 1 = Standard Pad
-#define K_A				0x0004  // A Button
-#define K_B				0x0008  // B Button
-#define K_RT			0x0010  // R Trigger
-#define K_LT			0x0020  // L Trigger
-#define K_RU			0x0040  // Right Pad, Up
-#define K_RR			0x0080  // Right Pad, Right
-#define K_LR			0x0100  // Left Pad, Right
-#define K_LL			0x0200  // Left Pad, Left
-#define K_LD			0x0400  // Left Pad, Down
-#define K_LU			0x0800  // Left Pad, Up
-#define K_STA			0x1000  // Start Button
-#define K_SEL			0x2000  // Select Button
-#define K_RL			0x4000  // Right Pad, Left
-#define K_RD			0x8000  // Right Pad, Down
-#define K_ANY			0xFFFC  // All keys, without pwr & sgn
-#define K_BTNS			0x303C  // All buttons; no d-pads, pwr or sgn
-#define K_PADS			0xCFC0  // All d-pads
-#define K_LPAD			0x0F00  // Left d-pad only
-#define K_RPAD			0xC0C0  // Right d-pad only
+#define K_NON								0x0000	// No key
+#define K_PWR								0x0001  // Low Power
+#define K_SGN								0x0002  // Signature; 1 = Standard Pad
+#define K_A									0x0004  // A Button
+#define K_B									0x0008  // B Button
+#define K_RT								0x0010  // R Trigger
+#define K_LT								0x0020  // L Trigger
+#define K_RU								0x0040  // Right Pad, Up
+#define K_RR								0x0080  // Right Pad, Right
+#define K_LR								0x0100  // Left Pad, Right
+#define K_LL								0x0200  // Left Pad, Left
+#define K_LD								0x0400  // Left Pad, Down
+#define K_LU								0x0800  // Left Pad, Up
+#define K_STA								0x1000  // Start Button
+#define K_SEL								0x2000  // Select Button
+#define K_RL								0x4000  // Right Pad, Left
+#define K_RD								0x8000  // Right Pad, Down
+#define K_ANY								0xFFFC  // All keys, without pwr & sgn
+#define K_BTNS								0x303C  // All buttons; no d-pads, pwr or sgn
+#define K_PADS								0xCFC0  // All d-pads
+#define K_LPAD								0x0F00  // Left d-pad only
+#define K_RPAD								0xC0C0  // Right d-pad only
 
-#define __KEY_NONE		0x0000
-#define __KEY_PRESSED   0x0001
-#define __KEY_RELEASED  0x0010
-#define __KEY_HOLD		0x0100
+#define __KEY_NONE							0x0000
+#define __KEY_PRESSED   					0x0001
+#define __KEY_RELEASED  					0x0010
+#define __KEY_HOLD							0x0100
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // TIMER
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-#define __TIMER_20US								0x10
-#define __TIMER_100US								0x00
+#define __TIMER_20US						0x10
+#define __TIMER_100US						0x00
 
 enum TimerResolutionScales
 {
@@ -102,17 +102,23 @@ enum TimerResolutionScales
 	kMS,				// Milliseconds
 };
 
+typedef struct TimerConfig
+{
+	/// Timer's resolution (__TIMER_100US or __TIMER_20US)
+	uint16 resolution;
+
+	/// Target elapsed time between timer interrupts
+	uint16 targetTimePerInterrupt;
+
+	/// Timer interrupt's target time units
+	uint16 targetTimePerInterrupttUnits;
+
+} TimerConfig;
+
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // SOUND UNIT
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-#define __DEFAULT_PCM_HZ						8000
-#define __TOTAL_WAVEFORMS						5
-#define __TOTAL_SOUND_SOURCES					6
-#define __TOTAL_MODULATION_CHANNELS 			1
-#define __TOTAL_NOISE_CHANNELS					1
-#define __TOTAL_NORMAL_CHANNELS					(__TOTAL_SOUND_SOURCES - __TOTAL_MODULATION_CHANNELS - __TOTAL_NOISE_CHANNELS)
-#define __TOTAL_POTENTIAL_NORMAL_CHANNELS 		(__TOTAL_NORMAL_CHANNELS + __TOTAL_MODULATION_CHANNELS)
 #define __MAXIMUM_VOLUME						0xF
 
 /// Sound source types
@@ -293,46 +299,19 @@ typedef struct SoundSourceConfigurationRequest
 // DISPLAY UNIT
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-#define __WORLD_OFF								0x0000
-#define __WORLD_ON								0xC000
-#define __WORLD_LON								0x8000
-#define __WORLD_RON								0x4000
-#define __WORLD_OBJECT							0x3000
-#define __WORLD_AFFINE							0x2000
-#define __WORLD_HBIAS							0x1000
-#define __WORLD_BGMAP							0x0000
+#define __BRIGHTNESS_REPEAT_ENTRIES 			96
+#define __COLUMN_TABLE_ENTRIES					256
+#define __TOTAL_OBJECT_SEGMENTS 				4
 
-#define __WORLD_1x1								0x0000
-#define __WORLD_1x2								0x0100
-#define __WORLD_1x4								0x0200
-#define __WORLD_1x8								0x0300
-#define __WORLD_2x1								0x0400
-#define __WORLD_2x2								0x0500
-#define __WORLD_2x4								0x0600
-#define __WORLD_4x1								0x0800
-#define __WORLD_4x2								0x0900
-#define __WORLD_8x1								0x0C00
+/// Brightness settings
+/// @memberof DisplayUnit
+typedef struct Brightness
+{
+	uint8 darkRed;
+	uint8 mediumRed;
+	uint8 brightRed;
 
-#define __WORLD_OVR								0x0080
-#define __WORLD_END								0x0040
-
-#define __BRTA						0x12  // Brightness A
-#define __BRTB						0x13  // Brightness B
-#define __BRTC						0x14  // Brightness C
-
-#define __GPLT0						0x30  // BGMap Palette 0
-#define __GPLT1						0x31  // BGMap Palette 1
-#define __GPLT2						0x32  // BGMap Palette 2
-#define __GPLT3						0x33  // BGMap Palette 3
-
-#define __JPLT0						0x34  // OBJ Palette 0
-#define __JPLT1						0x35  // OBJ Palette 1
-#define __JPLT2						0x36  // OBJ Palette 2
-#define __JPLT3						0x37  // OBJ Palette 3
-
-// Column table
-#define __COLUMN_TABLE_ENTRIES				256
-#define __BRIGHTNESS_REPEAT_ENTRIES 		96
+} Brightness;
 
 /// Brigtness control specification
 /// @memberof DisplayUnit
@@ -387,5 +366,55 @@ typedef struct PaletteConfig
 	} object;
 
 } PaletteConfig;
+
+/// Configuration specification for the containers that manage STPs
+/// @memberof DisplayUnit
+typedef struct ObjectSpritesContainerConfiguration
+{
+	/// Instantiate
+	bool instantiate;
+
+	/// Z position
+	int16 zPosition;
+
+} ObjectSpritesContainerConfiguration;
+
+/// Column table specification
+/// @memberof DisplayUnit
+typedef struct ColumnTableSpec
+{
+	/// Defines whether the spec's first half should be mirrored (true)
+	/// or if a full 256 entry table is provided (false)
+	bool mirror;
+
+	/// Column table entries array
+	uint8 columnTable[__COLUMN_TABLE_ENTRIES];
+
+} ColumnTableSpec;
+
+/// A ColumnTable spec that is stored in ROM
+/// @memberof DisplayUnit
+typedef const ColumnTableSpec ColumnTableROMSpec;
+
+/// DisplayUnit's configuration specification
+/// @memberof DisplayUnit
+typedef struct DisplayUnitConfig
+{
+	/// Pointer to the column table's configuration data
+	const ColumnTableSpec* columnTableSpec;
+
+	/// Color configuration
+	ColorConfig colorConfig;
+
+	/// Palettes' configuration
+	PaletteConfig paletteConfig;
+
+	/// Number of BGMAP segments reserved for the param tables
+	int32 paramTableSegments;
+
+	/// Object Sprite Containers configuration
+	ObjectSpritesContainerConfiguration objectSpritesContainersConfiguration[__TOTAL_OBJECT_SEGMENTS];
+
+} DisplayUnitConfig;
 
 #endif
