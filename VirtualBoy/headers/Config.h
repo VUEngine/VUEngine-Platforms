@@ -155,6 +155,11 @@
 #define __JPLT2									0x36  // OBJ Palette 2
 #define __JPLT3									0x37  // OBJ Palette 3
 
+#define __SPT0									0x24  // OBJ Group 0 Pointer
+#define __SPT1									0x25  // OBJ Group 1 Pointer
+#define __SPT2									0x26  // OBJ Group 2 Pointer
+#define __SPT3									0x27  // OBJ Group 3 Pointer
+
 /// Represents an entry in WORLD space in DRAM
 /// @memberof DisplayUnit
 typedef struct WorldAttributes
@@ -186,7 +191,7 @@ typedef struct ObjectAttributes
 } ObjectAttributes;
 
 // Pointers to access DRAM caches
-extern WorldAttributes _worldAttributesCache[__TOTAL_LAYERS];
+extern WorldAttributes _worldAttributesCache[__TOTAL_WORLD_LAYERS];
 extern ObjectAttributes _objectAttributesCache[__TOTAL_OBJECTS];
 
 /// Enums used to control VIP interrupts

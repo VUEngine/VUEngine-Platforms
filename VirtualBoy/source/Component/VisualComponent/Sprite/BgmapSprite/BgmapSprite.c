@@ -33,7 +33,7 @@ friend class BgmapTexture;
 // CLASS' ATTRIBUTES
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-WorldAttributes _worldAttributesCache[__TOTAL_LAYERS] __attribute__((section(".dram_bss")));
+WorldAttributes _worldAttributesCache[__TOTAL_WORLD_LAYERS] __attribute__((section(".dram_bss")));
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC STATIC METHODS

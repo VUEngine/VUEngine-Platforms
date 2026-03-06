@@ -306,6 +306,7 @@ typedef struct SoundSourceConfigurationRequest
 #define __BRIGHTNESS_REPEAT_ENTRIES 			96
 #define __COLUMN_TABLE_ENTRIES					256
 #define __TOTAL_OBJECT_SEGMENTS 				4
+#define __TOTAL_WORLD_LAYERS 					32
 
 /// Brightness settings
 /// @memberof DisplayUnit
@@ -373,7 +374,7 @@ typedef struct PaletteConfig
 
 /// Configuration specification for the containers that manage STPs
 /// @memberof DisplayUnit
-typedef struct ObjectSpritesContainerConfiguration
+typedef struct ObjectSpritesConfig
 {
 	/// Instantiate
 	bool instantiate;
@@ -381,7 +382,7 @@ typedef struct ObjectSpritesContainerConfiguration
 	/// Z position
 	int16 zPosition;
 
-} ObjectSpritesContainerConfiguration;
+} ObjectSpritesConfig;
 
 /// Column table specification
 /// @memberof DisplayUnit
@@ -417,7 +418,7 @@ typedef struct DisplayUnitConfig
 	int32 paramTableSegments;
 
 	/// Object Sprite Containers configuration
-	ObjectSpritesContainerConfiguration objectSpritesContainersConfiguration[__TOTAL_OBJECT_SEGMENTS];
+	ObjectSpritesConfig objectSpritesContainersConfiguration[__TOTAL_OBJECT_SEGMENTS];
 
 } DisplayUnitConfig;
 
