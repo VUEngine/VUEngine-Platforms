@@ -420,7 +420,7 @@ static void DisplayUnit::lowerBrightness()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void DisplayUnit::debug()
+static void DisplayUnit::showException()
 {
 	_displayUnitConfig.colorConfig.brightness = (Brightness) {32, 64, 32};
 	_displayUnitConfig.colorConfig.backgroundColor = __COLOR_BLACK;

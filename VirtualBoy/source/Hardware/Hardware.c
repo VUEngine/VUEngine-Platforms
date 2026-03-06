@@ -81,8 +81,8 @@ ROMInfo romInfo __attribute__((section(".rominfo"))) =
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 uint8* const _hardwareRegisters 	 = (uint8*)0x02000000;
-int32 _vuengineLinkPointer 			__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 0;
-int32 _vuengineStackPointer 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 0;
+int32 _exceptionLinkPointer 			__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 0;
+int32 _exceptionStackPointer 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 0;
 bool _stackHeadroomViolation 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
 bool _enabledInterrupts 			__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
 int16 _suspendInterruptRequest 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE  = 0;
@@ -392,13 +392,13 @@ static void Hardware::invalidOpcodeException()
 	asm
 	(
 		"mov	sp, %0"
-		: "=r" (_vuengineStackPointer)
+		: "=r" (_exceptionStackPointer)
 	);
 
 	asm
 	(
 		"mov lp,%0  "
-		: "=r" (_vuengineLinkPointer)
+		: "=r" (_exceptionLinkPointer)
 	);
 
 	uint32 eipc  __attribute__((unused)) = 0;
@@ -447,13 +447,13 @@ static void Hardware::floatingPointException()
 	asm
 	(
 		"mov sp,%0  "
-		: "=r" (_vuengineStackPointer)
+		: "=r" (_exceptionStackPointer)
 	);
 
 	asm
 	(
 		"mov lp,%0  "
-		: "=r" (_vuengineLinkPointer)
+		: "=r" (_exceptionLinkPointer)
 	);
 
 	uint32 eipc __attribute__((unused)) = 0;

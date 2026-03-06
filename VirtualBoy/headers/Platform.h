@@ -11,6 +11,10 @@
 // CPU
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+#define __CAPTURE_EXCEPTION_REGISTERS											\
+	asm(" mov sp,%0  ": "=r" (_exceptionStackPointer));							\
+	asm(" mov lp,%0  ": "=r" (_exceptionLinkPointer));							\
+
 #define __CPU_GET_STACK_POINTER(sp)			asm("mov	sp, %0": "=r" (sp))
 #define __CPU_GET_LINK_POINTER(lp)			asm("mov	lp, %0": "=r" (lp))
 
