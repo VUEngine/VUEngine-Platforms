@@ -177,7 +177,7 @@ void VIPSpriteManager::stopRendering()
 		_objectAttributesCache[i].head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
 	}
 
-	this->previousObjectIndex = *this->objectIndex;	
+	this->previousObjectIndex = *this->objectIndex;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -213,6 +213,7 @@ void VIPSpriteManager::commitGraphics()
 	ObjectAttributes* objectAttributesBaseAddress = (ObjectAttributes*)__OBJECT_SPACE_BASE_ADDRESS;
 
 	CACHE_RESET;
+
 	Mem::copyWORD
 	(
 		(uint32*)(objectAttributesBaseAddress), (uint32*)(_objectAttributesCache + *this->objectIndex), 
@@ -230,11 +231,11 @@ void VIPSpriteManager::commitGraphics()
 
 void VIPSpriteManager::fillAvailableSlots(int16* availableSlots, const int16** nextSlotIndex, int16 totalSpriteLists __attribute__((unused)))
 {
-	availableSlots[kSpriteListBgmap] = __TOTAL_WORLD_LAYERS;
-	availableSlots[kSpriteListObject] = __TOTAL_OBJECTS;
-
 	this->bgmapIndex = nextSlotIndex[kSpriteListBgmap];
+	availableSlots[kSpriteListBgmap] = __TOTAL_WORLD_LAYERS;
+	
 	this->objectIndex = nextSlotIndex[kSpriteListObject];	
+	availableSlots[kSpriteListObject] = __TOTAL_OBJECTS;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
