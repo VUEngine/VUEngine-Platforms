@@ -33,11 +33,15 @@ class ObjectSpriteContainer : Sprite
 	/// @publicsection
 
 	/// Class' constructor
-	void constructor();
+	void constructor(Entity owner, const SpriteSpec* spriteSpec);
 
 	/// Retrieve the basic class of this kind of sprite.
 	/// @return ClassPointer the basic class
 	override ClassPointer getBasicType();
+
+	/// Load a texture.
+	/// @param textureClass: Class of the texture to load
+	override void loadTexture(ClassPointer textureClass);
 
 	/// Render the sprite by configuring the DRAM assigned to it by means of the provided index.
 	/// @param index: Determines the region of DRAM that this sprite is allowed to configure

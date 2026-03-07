@@ -19,10 +19,10 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-void ObjectSpriteContainer::constructor()
+void ObjectSpriteContainer::constructor(Entity owner, const SpriteSpec* spriteSpec)
 {
 	// Always explicitly call the base's constructor 
-	Base::constructor(NULL, NULL);
+	Base::constructor(owner, spriteSpec);
 
 	this->sptBoundaryObjectIndex = __TOTAL_OBJECTS;
 	this->hasTextures = false;
@@ -43,8 +43,13 @@ void ObjectSpriteContainer::destructor()
 
 ClassPointer ObjectSpriteContainer::getBasicType()
 {
-	return typeofclass(Sprite);
+	return typeofclass(ObjectSpriteContainer);
 }
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+void ObjectSpriteContainer::loadTexture(ClassPointer textureClass __attribute__((unused)))
+{}
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
