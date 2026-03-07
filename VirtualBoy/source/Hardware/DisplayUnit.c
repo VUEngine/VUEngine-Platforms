@@ -318,34 +318,50 @@ static void DisplayUnit::configure(DisplayUnitConfig displayUnitConfig)
 {
 	_displayUnitConfig = displayUnitConfig;
 	
-	_vipRegisters[__BACKGROUND_COLOR] = (_displayUnitConfig.colorConfig.backgroundColor <= __COLOR_BRIGHT_RED)
-		? _displayUnitConfig.colorConfig.backgroundColor
+	VIPSpriteManager::configure
+	(
+		VIPSpriteManager::getInstance(), 
+		_displayUnitConfig.paramTableSegments, 
+		_displayUnitConfig.objectSpritesContainersConfiguration
+	);
+
+	DisplayUnit::applyColorConfig(displayUnitConfig.displayColorConfig);
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static void DisplayUnit::applyColorConfig(DisplayColorConfig displayColorConfig)
+{
+	_displayUnitConfig.displayColorConfig = displayColorConfig;
+	
+	_vipRegisters[__BACKGROUND_COLOR] = (displayColorConfig.colorConfig.backgroundColor <= __COLOR_BRIGHT_RED)
+		? displayColorConfig.colorConfig.backgroundColor
 		: __COLOR_BRIGHT_RED;
 
-	_vipRegisters[__GPLT0] = _displayUnitConfig.paletteConfig.bgmap.gplt0;
-	_vipRegisters[__GPLT1] = _displayUnitConfig.paletteConfig.bgmap.gplt1;
-	_vipRegisters[__GPLT2] = _displayUnitConfig.paletteConfig.bgmap.gplt2;
-	_vipRegisters[__GPLT3] = _displayUnitConfig.paletteConfig.bgmap.gplt3;
+	_vipRegisters[__GPLT0] = displayColorConfig.paletteConfig.bgmap.gplt0;
+	_vipRegisters[__GPLT1] = displayColorConfig.paletteConfig.bgmap.gplt1;
+	_vipRegisters[__GPLT2] = displayColorConfig.paletteConfig.bgmap.gplt2;
+	_vipRegisters[__GPLT3] = displayColorConfig.paletteConfig.bgmap.gplt3;
 
-	_vipRegisters[__JPLT0] = _displayUnitConfig.paletteConfig.object.jplt0;
-	_vipRegisters[__JPLT1] = _displayUnitConfig.paletteConfig.object.jplt1;
-	_vipRegisters[__JPLT2] = _displayUnitConfig.paletteConfig.object.jplt2;
-	_vipRegisters[__JPLT3] = _displayUnitConfig.paletteConfig.object.jplt3;
+	_vipRegisters[__JPLT0] = displayColorConfig.paletteConfig.object.jplt0;
+	_vipRegisters[__JPLT1] = displayColorConfig.paletteConfig.object.jplt1;
+	_vipRegisters[__JPLT2] = displayColorConfig.paletteConfig.object.jplt2;
+	_vipRegisters[__JPLT3] = displayColorConfig.paletteConfig.object.jplt3;
 
 	int32 i, value;
 
 	// Use the default column table as fallback
-	if(_displayUnitConfig.columnTableSpec == NULL)
+	if(displayColorConfig.columnTableSpec == NULL)
 	{
-		_displayUnitConfig.columnTableSpec = (ColumnTableSpec*)&DefaultColumnTableSpec;
+		displayColorConfig.columnTableSpec = (ColumnTableSpec*)&DefaultColumnTableSpec;
 	}
 
 	// Write column table
 	for(i = 0; i < 256; i++)
 	{
-		value = (_displayUnitConfig.columnTableSpec->mirror && (i > (__COLUMN_TABLE_ENTRIES / 2 - 1)))
-			? _displayUnitConfig.columnTableSpec->columnTable[(__COLUMN_TABLE_ENTRIES - 1) - i]
-			: _displayUnitConfig.columnTableSpec->columnTable[i];
+		value = (displayColorConfig.columnTableSpec->mirror && (i > (__COLUMN_TABLE_ENTRIES / 2 - 1)))
+			? displayColorConfig.columnTableSpec->columnTable[(__COLUMN_TABLE_ENTRIES - 1) - i]
+			: displayColorConfig.columnTableSpec->columnTable[i];
 
 		_columnTableBaseAddressLeft[i] = value;
 		_columnTableBaseAddressRight[i] = value;
@@ -354,23 +370,17 @@ static void DisplayUnit::configure(DisplayUnitConfig displayUnitConfig)
 	// Configure brightness
 	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
 	
-	_vipRegisters[__BRTA] = _displayUnitConfig.colorConfig.brightness.darkRed;
-	_vipRegisters[__BRTB] = _displayUnitConfig.colorConfig.brightness.mediumRed;
-	_vipRegisters[__BRTC] = _displayUnitConfig.colorConfig.brightness.brightRed - 
-		(_displayUnitConfig.colorConfig.brightness.mediumRed + _displayUnitConfig.colorConfig.brightness.darkRed);
+	_vipRegisters[__BRTA] = displayColorConfig.colorConfig.brightness.darkRed;
+	_vipRegisters[__BRTB] = displayColorConfig.colorConfig.brightness.mediumRed;
+	_vipRegisters[__BRTC] = displayColorConfig.colorConfig.brightness.brightRed - 
+		(displayColorConfig.colorConfig.brightness.mediumRed + displayColorConfig.colorConfig.brightness.darkRed);
 
-	VIPSpriteManager::configure
-	(
-		VIPSpriteManager::getInstance(), 
-		_displayUnitConfig.paramTableSegments, 
-		_displayUnitConfig.objectSpritesContainersConfiguration
-	);
-/*
 	// Use the default repeat values as fallback
-	if(brightnessRepeatSpec == NULL)
+	if(displayColorConfig.colorConfig.brightnessRepeat == NULL)
 	{
-		brightnessRepeatSpec = (BrightnessRepeatSpec*)&DefaultBrightnessRepeatSpec;
+		displayColorConfig.colorConfig.brightnessRepeat = (BrightnessRepeatSpec*)&DefaultBrightnessRepeatSpec;
 	}
+	
 	// Column table offsets
 	int16 leftCta = _vipRegisters[__CTA] & 0xFF;
 	int16 rightCta = _vipRegisters[__CTA] >> 8;
@@ -380,22 +390,20 @@ static void DisplayUnit::configure(DisplayUnitConfig displayUnitConfig)
 	// Write repeat values to column table
 	for(int16 i = 0; i < 96; i++)
 	{
-		int16 value = (brightnessRepeatSpec->mirror && (i > (__BRIGHTNESS_REPEAT_ENTRIES / 2 - 1)))
-			? brightnessRepeatSpec->brightnessRepeat[__BRIGHTNESS_REPEAT_ENTRIES - 1 - i] << 8
-			: brightnessRepeatSpec->brightnessRepeat[i] << 8;
+		int16 value = (displayColorConfig.colorConfig.brightnessRepeat->mirror && (i > (__BRIGHTNESS_REPEAT_ENTRIES / 2 - 1)))
+			? displayColorConfig.colorConfig.brightnessRepeat->brightnessRepeat[__BRIGHTNESS_REPEAT_ENTRIES - 1 - i] << 8
+			: displayColorConfig.colorConfig.brightnessRepeat->brightnessRepeat[i] << 8;
 
 		_columnTableBaseAddressLeft[leftCta - i] = (_columnTableBaseAddressLeft[leftCta - i] & 0xff) | value;
 		_columnTableBaseAddressRight[rightCta - i] = (_columnTableBaseAddressRight[rightCta - i] & 0xff) | value;
 	}
-
-*/
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static DisplayUnitConfig DisplayUnit::getConfig()
+static DisplayColorConfig DisplayUnit::getColorConfig()
 {
-	return _displayUnitConfig;
+	return _displayUnitConfig.displayColorConfig;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -404,9 +412,9 @@ static void DisplayUnit::upBrightness()
 {
 	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
 
-	_vipRegisters[__BRTA] = _displayUnitConfig.colorConfig.brightness.darkRed = 32;
-	_vipRegisters[__BRTB] = _displayUnitConfig.colorConfig.brightness.mediumRed = 64;
-	_vipRegisters[__BRTC] = _displayUnitConfig.colorConfig.brightness.brightRed = 32; 
+	_vipRegisters[__BRTA] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed = 32;
+	_vipRegisters[__BRTB] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed = 64;
+	_vipRegisters[__BRTC] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed = 32; 
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -415,18 +423,18 @@ static void DisplayUnit::lowerBrightness()
 {
 	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
 
-	_vipRegisters[__BRTA] = _displayUnitConfig.colorConfig.brightness.darkRed = 0;
-	_vipRegisters[__BRTB] = _displayUnitConfig.colorConfig.brightness.mediumRed = 0;
-	_vipRegisters[__BRTC] = _displayUnitConfig.colorConfig.brightness.brightRed = 0; 
+	_vipRegisters[__BRTA] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed = 0;
+	_vipRegisters[__BRTB] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed = 0;
+	_vipRegisters[__BRTC] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed = 0; 
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static void DisplayUnit::showException()
 {
-	_displayUnitConfig.colorConfig.brightness = (Brightness) {32, 64, 32};
-	_displayUnitConfig.colorConfig.backgroundColor = __COLOR_BLACK;
-	_displayUnitConfig.paletteConfig = (PaletteConfig)
+	_displayUnitConfig.displayColorConfig.colorConfig.brightness = (Brightness) {32, 64, 32};
+	_displayUnitConfig.displayColorConfig.colorConfig.backgroundColor = __COLOR_BLACK;
+	_displayUnitConfig.displayColorConfig.paletteConfig = (PaletteConfig)
 	{
 		{0xE4, __DIMM_VALUE_2, __DIMM_VALUE_2, __DIMM_VALUE_2},
 		{__DIMM_VALUE_2, __DIMM_VALUE_2, __DIMM_VALUE_2, __DIMM_VALUE_2}
@@ -490,7 +498,6 @@ static void DisplayUnit::reset()
 	DisplayUnit::removePostProcessingEffects();
 
 	DisplayUnit::setFrameCycle(__FRAME_CYCLE);
-//	DisplayUnit::configureColumnTable(NULL);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

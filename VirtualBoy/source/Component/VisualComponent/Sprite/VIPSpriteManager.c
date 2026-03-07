@@ -44,10 +44,6 @@ friend class VirtualList;
 extern volatile uint16* _vipRegisters;
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-// CLASS' MACROS
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' DATA
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -414,7 +410,7 @@ void VIPSpriteManager::configureObjectSprites
 
 	for(int32 i = __TOTAL_OBJECT_SEGMENTS; i--; )
 	{
-		if(objectSpritesConfig[i].instantiate)
+		if(true || objectSpritesConfig[i].instantiate)
 		{
 			NM_ASSERT(objectSpritesConfig[i].zPosition <= previousZ, "VIPSpriteManager::configureObjectSprites: wrong z");
 			NM_ASSERT(isDeleted(this->objectSpriteContainers[i]), "VIPSpriteManager::configureObjectSprites: container already created");

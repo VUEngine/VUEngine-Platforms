@@ -401,9 +401,9 @@ typedef struct ColumnTableSpec
 /// @memberof DisplayUnit
 typedef const ColumnTableSpec ColumnTableROMSpec;
 
-/// DisplayUnit's configuration specification
+	/// Color configuration data
 /// @memberof DisplayUnit
-typedef struct DisplayUnitConfig
+typedef struct DisplayColorConfig
 {
 	/// Pointer to the column table's configuration data
 	const ColumnTableSpec* columnTableSpec;
@@ -414,6 +414,15 @@ typedef struct DisplayUnitConfig
 	/// Palettes' configuration
 	PaletteConfig paletteConfig;
 
+} DisplayColorConfig;
+
+/// DisplayUnit's configuration specification
+/// @memberof DisplayUnit
+typedef struct DisplayUnitConfig
+{
+	/// Color configuration data
+	DisplayColorConfig displayColorConfig;
+	
 	/// Number of BGMAP segments reserved for the param tables
 	int32 paramTableSegments;
 
