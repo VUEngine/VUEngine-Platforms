@@ -317,6 +317,8 @@ static void DisplayUnit::setFrameCycle(uint8 frameCycle __attribute__((unused)))
 static void DisplayUnit::configure(DisplayUnitConfig displayUnitConfig)
 {
 	_displayUnitConfig = displayUnitConfig;
+
+	DisplayUnit::applyColorConfig(displayUnitConfig.displayColorConfig);
 	
 	VIPSpriteManager::configure
 	(
@@ -324,8 +326,6 @@ static void DisplayUnit::configure(DisplayUnitConfig displayUnitConfig)
 		_displayUnitConfig.paramTableSegments, 
 		_displayUnitConfig.objectSpritesContainersConfiguration
 	);
-
-	DisplayUnit::applyColorConfig(displayUnitConfig.displayColorConfig);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
