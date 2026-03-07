@@ -117,8 +117,6 @@ void VIPSpriteManager::configure(int32 paramTableSegments, ObjectSpritesConfig o
 
 void VIPSpriteManager::startRendering()
 {
-	this->spt = __TOTAL_OBJECT_SEGMENTS - 1;
-
 	ParamTableManager::defragment(ParamTableManager::getInstance(), true);
 }
 
@@ -126,41 +124,47 @@ void VIPSpriteManager::startRendering()
 
 void VIPSpriteManager::stopRendering()
 {
-/*
-	if(firstObjectIndex == *this->objectIndex)
-	{
-		_objectAttributesCache[*this->objectIndex].head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
-		*this->objectIndex--;
+	int16 spt = __TOTAL_OBJECT_SEGMENTS - 1;
 
-		_worldAttributesCache[objectSpriteContainer->index].head = __WORLD_OFF;
-	}
-	else
+	for(int16 i = 0; i < __TOTAL_OBJECT_SEGMENTS; i++)
 	{
-		_worldAttributesCache[objectSpriteContainer->index].head = (__WORLD_ON | __WORLD_OBJECT | __WORLD_OVR) & (~__WORLD_END);
-
-		// Make sure that the rest of spt segments only run up to the last
-		// Used object index
-		for(int32 i = this->spt--; i--;)
+		if(!isDeleted(this->objectSpriteContainers[i]))
 		{
-			this->vipSPTRegistersCache[i] = *this->objectIndex;
+			int16 sptBoundaryObjectIndex = ObjectSpriteContainer::getSPTBoundaryObjectIndex(this->objectSpriteContainers[i]);
+
+			if(__TOTAL_OBJECTS == sptBoundaryObjectIndex)
+			{
+				int16 index = ObjectSpriteContainer::getIndex(this->objectSpriteContainers[i]);
+				_worldAttributesCache[index].head = __WORLD_OFF;
+			}
+			else
+			{
+				this->vipSPTRegistersCache[i] = sptBoundaryObjectIndex;
+
+				// Make sure that the rest of spt segments only run up to the last
+				// Used object index
+				for(int32 i = spt--; i--;)
+				{
+					this->vipSPTRegistersCache[i] = sptBoundaryObjectIndex;
+				}				
+			}
 		}
 	}
-*/
+	
 	NM_ASSERT(-1 <= (int8)*this->bgmapIndex, "SpriteManager::stopRendering: no more layers");
+
 	if(0 <= *this->bgmapIndex)
 	{
 		_worldAttributesCache[*this->bgmapIndex].head = __WORLD_END;
 	}
 
-	static int previousObjectIndex = 0;
-
 	// Clear OBJ memory
-	for(int32 i = *this->objectIndex; previousObjectIndex <= i; i--)
+	for(int32 i = *this->objectIndex; this->previousObjectIndex <= i; i--)
 	{
 		_objectAttributesCache[i].head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
 	}
 
-	previousObjectIndex = *this->objectIndex;	
+	this->previousObjectIndex = *this->objectIndex;	
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -234,8 +238,10 @@ uint16 VIPSpriteManager::getSpriteListIndex(Sprite sprite)
 		{
 			z = __METERS_TO_PIXELS(sprite->transformation->position.z);
 		}
+
+		ObjectSprite::setObjectSpriteContainer(ObjectSprite::safeCast(sprite), VIPSpriteManager::getObjectSpriteContainer(this, z + sprite->displacement.z));
 		
-		return VIPSpriteManager::getObjectSpriteContainer(this, z + sprite->displacement.z);
+		return kSpriteListObject;
 	}
 
 	return kSpriteListBgmap;
@@ -366,7 +372,6 @@ void VIPSpriteManager::constructor()
 	this->bgmapIndex = NULL;
 	this->objectIndex = NULL;
 	this->previousObjectIndex = __TOTAL_OBJECTS - 1;
-	this->spt = __TOTAL_OBJECT_SEGMENTS - 1;
 
 	// Pointers to access the DRAM space
 	this->worldAttributesBaseAddress = (WorldAttributes*)__WORLD_SPACE_BASE_ADDRESS;
@@ -443,9 +448,9 @@ void VIPSpriteManager::configureObjectSprites
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-int16 VIPSpriteManager::getObjectSpriteContainer(fixed_t z)
+ObjectSpriteContainer VIPSpriteManager::getObjectSpriteContainer(fixed_t z)
 {
-	int16 index = -1;
+	ObjectSpriteContainer objectSpriteContainer = NULL;
 
 	for(int16 i = 0; i < __TOTAL_OBJECT_SEGMENTS; i++)
 	{
@@ -454,9 +459,9 @@ int16 VIPSpriteManager::getObjectSpriteContainer(fixed_t z)
 			continue;
 		}
 
-		if(0 > index)
+		if(NULL == objectSpriteContainer)
 		{
-			index = i;
+			objectSpriteContainer = this->objectSpriteContainers[i];
 		}
 		else
 		{
@@ -466,16 +471,16 @@ int16 VIPSpriteManager::getObjectSpriteContainer(fixed_t z)
 				(
 					Sprite::getPosition(this->objectSpriteContainers[i])->z - z) 
 					< 
-					__ABS(Sprite::getPosition(this->objectSpriteContainers[index])->z - z
+					__ABS(Sprite::getPosition(objectSpriteContainer)->z - z
 				)
 			)
 			{
-				index = i;
+				objectSpriteContainer = this->objectSpriteContainers[i];
 			}
 		}
 	}
 
-	return index;
+	return objectSpriteContainer;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

@@ -27,6 +27,12 @@
 #define __OBJECT_SPRITE_FLIP_Y_DISPLACEMENT			8
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// FORWARD DECLARATIONS
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+class ObjectSpriteContainer;
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' DATA
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -58,6 +64,9 @@ typedef const ObjectSpriteSpec ObjectSpriteROMSpec;
 class ObjectSprite : Sprite
 {
 	/// @protectedsection
+
+	/// Must register with a container that maps to an SPT
+	ObjectSpriteContainer objectSpriteContainer;
 
 	/// Texture's displacement in the map array
 	ObjectTextureSource objectTextureSource;
@@ -126,6 +135,10 @@ class ObjectSprite : Sprite
 	/// @param x: Screen x coordinate where to print
 	/// @param y: Screen y coordinate where to print
 	override void print(int32 x, int32 y);
+
+	/// Set the container (SPT) within which this sprite must be drawn.
+	/// @param objectSpriteContainer: SPT container 
+	void setObjectSpriteContainer(ObjectSpriteContainer objectSpriteContainer);
 
 	/// Force the computation of the number of OBJECTs that the sprite uses.
 	void resetTotalObjects();

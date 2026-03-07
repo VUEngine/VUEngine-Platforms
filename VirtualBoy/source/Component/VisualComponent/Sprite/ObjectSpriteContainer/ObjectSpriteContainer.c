@@ -11,32 +11,7 @@
 // INCLUDES
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-#include <BgmapSprite.h>
-#include <DebugConfig.h>
-#include <Mem.h>
-#include <ObjectSprite.h>
-#include <ObjectTexture.h>
-#include <Optics.h>
-#include <Printer.h>
-#include <Sprite.h>
-#include <SpriteManager.h>
-#include <Texture.h>
-#include <Utilities.h>
-#include <VirtualList.h>
-#include <VirtualNode.h>
-#include <DisplayUnit.h>
-
 #include "ObjectSpriteContainer.h"
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-// CLASS' DECLARATIONS
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-friend class ObjectSprite;
-friend class Sprite;
-friend class Texture;
-friend class VirtualList;
-friend class VirtualNode;
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC METHODS
@@ -49,6 +24,7 @@ void ObjectSpriteContainer::constructor()
 	// Always explicitly call the base's constructor 
 	Base::constructor(NULL, NULL);
 
+	this->sptBoundaryObjectIndex = __TOTAL_OBJECTS;
 	this->hasTextures = false;
 	this->head = __WORLD_ON | __WORLD_OBJECT | __WORLD_OVR;
 	this->head &= ~__WORLD_END;
@@ -75,6 +51,7 @@ ClassPointer ObjectSpriteContainer::getBasicType()
 int16 ObjectSpriteContainer::doRender(int16 index)
 {
 	this->index = index;
+	this->sptBoundaryObjectIndex = __TOTAL_OBJECTS;
 
 	_worldAttributesCache[index].head = (__WORLD_ON | __WORLD_OBJECT | __WORLD_OVR) & (~__WORLD_END);
 
@@ -86,6 +63,23 @@ int16 ObjectSpriteContainer::doRender(int16 index)
 int32 ObjectSpriteContainer::getTotalPixels()
 {
 	return 0;
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+void ObjectSpriteContainer::setSPTBoundaryObjectIndex(int16 sptBoundaryObjectIndex)
+{
+	if(this->sptBoundaryObjectIndex > sptBoundaryObjectIndex)
+	{	
+		this->sptBoundaryObjectIndex = sptBoundaryObjectIndex;
+	}
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+int16 ObjectSpriteContainer::getSPTBoundaryObjectIndex()
+{
+	return this->sptBoundaryObjectIndex;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

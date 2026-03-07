@@ -45,6 +45,7 @@ void ObjectSprite::constructor(Entity owner, const ObjectSpriteSpec* objectSprit
 	Base::constructor(owner, (SpriteSpec*)objectSpriteSpec);
 
 	this->head = objectSpriteSpec->display & __OBJECT_SPRITE_CHAR_SHOW_MASK;
+	this->objectSpriteContainer = NULL;
 	this->totalObjects = 0;
 
 	this->displacement = objectSpriteSpec->spriteSpec.displacement;
@@ -162,6 +163,12 @@ int16 ObjectSprite::doRender(int16 index)
 
 			usedObjects++;
 		}
+	}
+
+	if(0 < usedObjects && !isDeleted(this->objectSpriteContainer))
+	{
+		this->index = index;
+		ObjectSpriteContainer::setSPTBoundaryObjectIndex(this->objectSpriteContainer, this->index + usedObjects);
 	}
 
 	return usedObjects;
@@ -299,6 +306,20 @@ void ObjectSprite::print(int32 x, int32 y)
 	}
 
 	this->transparency = transparency;
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+void ObjectSprite::setObjectSpriteContainer(ObjectSpriteContainer objectSpriteContainer)
+{
+	NM_ASSERT(!isDeleted(objectSpriteContainer), "ObjectSprite::setObjectSpriteContainer: NULL container");
+	
+	if(NULL == objectSpriteContainer)
+	{
+		return;
+	}
+	
+	this->objectSpriteContainer = objectSpriteContainer;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
