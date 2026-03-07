@@ -50,8 +50,12 @@ ClassPointer ObjectSpriteContainer::getBasicType()
 
 int16 ObjectSpriteContainer::doRender(int16 index)
 {
+	if(__TOTAL_OBJECTS <= this->sptBoundaryObjectIndex)
+	{
+		return 0;
+	};
+
 	this->index = index;
-	this->sptBoundaryObjectIndex = __TOTAL_OBJECTS;
 
 	// Force rendering
 	this->rendered = false;
@@ -66,6 +70,13 @@ int16 ObjectSpriteContainer::doRender(int16 index)
 int32 ObjectSpriteContainer::getTotalPixels()
 {
 	return 0;
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+void ObjectSpriteContainer::resetSPTBoundaryObjectIndex()
+{
+	this->sptBoundaryObjectIndex = __TOTAL_OBJECTS;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

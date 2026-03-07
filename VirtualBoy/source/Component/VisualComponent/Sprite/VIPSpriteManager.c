@@ -49,8 +49,8 @@ extern volatile uint16* _vipRegisters;
 
 enum SpriteListTypes
 {
-	kSpriteListBgmap = 0,
-	kSpriteListObject
+	kSpriteListObject = 0,
+	kSpriteListBgmap
 };
 
 static const SpriteSpec ObjectSpriteContainerSpec =
@@ -110,6 +110,14 @@ void VIPSpriteManager::configure(int32 paramTableSegments, ObjectSpritesConfig o
 void VIPSpriteManager::startRendering()
 {
 	ParamTableManager::defragment(ParamTableManager::getInstance(), true);
+
+	for(int16 i = 0; i < __TOTAL_OBJECT_SEGMENTS; i++)
+	{
+		if(!isDeleted(this->objectSpriteContainers[i]))
+		{
+			ObjectSpriteContainer::resetSPTBoundaryObjectIndex(this->objectSpriteContainers[i]);
+		}
+	}
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -406,7 +414,7 @@ void VIPSpriteManager::configureObjectSprites
 
 	for(int32 i = __TOTAL_OBJECT_SEGMENTS; i--; )
 	{
-		if(true || objectSpritesConfig[i].instantiate)
+		if(objectSpritesConfig[i].instantiate)
 		{
 			NM_ASSERT(objectSpritesConfig[i].zPosition <= previousZ, "VIPSpriteManager::configureObjectSprites: wrong z");
 			NM_ASSERT(isDeleted(this->objectSpriteContainers[i]), "VIPSpriteManager::configureObjectSprites: container already created");

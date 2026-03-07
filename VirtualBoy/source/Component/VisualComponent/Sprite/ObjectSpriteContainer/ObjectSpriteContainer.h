@@ -48,6 +48,9 @@ class ObjectSpriteContainer : Sprite
 	/// @return Total number of pixels displayed by all the managed sprites
 	override int32 getTotalPixels();
 
+	/// Reset the last object index boundary.
+	void resetSPTBoundaryObjectIndex();
+
 	/// Set the last object index used during rendering.
 	/// @param sptBoundaryObjectIndex: Index of the last rendered object sprite
 	void setSPTBoundaryObjectIndex(int16 sptBoundaryObjectIndex);
