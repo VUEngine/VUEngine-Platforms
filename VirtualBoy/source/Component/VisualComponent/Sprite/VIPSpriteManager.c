@@ -102,6 +102,15 @@ void VIPSpriteManager::configure(int32 paramTableSegments, ObjectSpritesConfig o
 		)
 	);
 
+	for(int16 i = 0; i < __TOTAL_OBJECT_SEGMENTS; i++)
+	{
+		if(!isDeleted(this->objectSpriteContainers[i]))
+		{
+			ComponentManager::destroyComponent(NULL, Component::safeCast(this->objectSpriteContainers[i]));
+			this->objectSpriteContainers[i] = NULL;
+		}
+	}
+
 	VIPSpriteManager::configureObjectSprites(this, objectSpritesConfig);
 }
 
@@ -135,7 +144,11 @@ void VIPSpriteManager::stopRendering()
 			if(__TOTAL_OBJECTS == sptBoundaryObjectIndex)
 			{
 				int16 index = ObjectSpriteContainer::getIndex(this->objectSpriteContainers[i]);
-				_worldAttributesCache[index].head = __WORLD_OFF;
+
+				if(__NO_RENDER_INDEX != index)
+				{
+					_worldAttributesCache[index].head = __WORLD_OFF;
+				}
 			}
 			else
 			{
@@ -177,7 +190,7 @@ void VIPSpriteManager::disableRendering()
 
 		if(!isDeleted(this->objectSpriteContainers[i]))
 		{
-			delete this->objectSpriteContainers[i];
+			ComponentManager::destroyComponent(NULL, Component::safeCast(this->objectSpriteContainers[i]));
 			this->objectSpriteContainers[i] = NULL;
 		}
 	}
@@ -395,7 +408,7 @@ void VIPSpriteManager::destructor()
 	{
 		if(!isDeleted(this->objectSpriteContainers[i]))
 		{
-			delete this->objectSpriteContainers[i];
+			ComponentManager::destroyComponent(NULL, Component::safeCast(this->objectSpriteContainers[i]));
 			this->objectSpriteContainers[i] = NULL;
 		}
 	}
@@ -424,7 +437,7 @@ void VIPSpriteManager::configureObjectSprites
 
 			if(!isDeleted(this->objectSpriteContainers[i]))
 			{
-				delete this->objectSpriteContainers[i];
+				ComponentManager::destroyComponent(NULL, Component::safeCast(this->objectSpriteContainers[i]));
 				this->objectSpriteContainers[i] = NULL;
 			}
 			
@@ -432,7 +445,7 @@ void VIPSpriteManager::configureObjectSprites
 			(
 				ComponentManager::createComponent(NULL, (ComponentSpec*)&ObjectSpriteContainerSpec)
 			);
-
+	
 			NM_ASSERT(!isDeleted(this->objectSpriteContainers[i]), "VIPSpriteManager::configureObjectSprites: error creating container");
 
 			PixelVector position =
@@ -470,12 +483,9 @@ ObjectSpriteContainer VIPSpriteManager::getObjectSpriteContainer(fixed_t z)
 		{
 			if
 			(
-				__ABS
-				(
-					Sprite::getPosition(this->objectSpriteContainers[i])->z - z) 
+				__ABS(Sprite::getPosition(this->objectSpriteContainers[i])->z - z)
 					< 
-					__ABS(Sprite::getPosition(objectSpriteContainer)->z - z
-				)
+				__ABS(Sprite::getPosition(objectSpriteContainer)->z - z)
 			)
 			{
 				objectSpriteContainer = this->objectSpriteContainers[i];

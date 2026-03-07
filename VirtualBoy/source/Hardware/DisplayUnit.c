@@ -440,7 +440,7 @@ static void DisplayUnit::showException()
 		{__DIMM_VALUE_2, __DIMM_VALUE_2, __DIMM_VALUE_2, __DIMM_VALUE_2}
 	};
 
-	DisplayUnit::configure(_displayUnitConfig);
+	DisplayUnit::applyColorConfig(_displayUnitConfig.displayColorConfig);
 
 	// Error display message
 	WorldAttributes* worldAttributesBaseAddress = (WorldAttributes*)__WORLD_SPACE_BASE_ADDRESS;
