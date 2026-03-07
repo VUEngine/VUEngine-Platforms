@@ -239,7 +239,10 @@ uint16 VIPSpriteManager::getSpriteListIndex(Sprite sprite)
 			z = __METERS_TO_PIXELS(sprite->transformation->position.z);
 		}
 
-		ObjectSprite::setObjectSpriteContainer(ObjectSprite::safeCast(sprite), VIPSpriteManager::getObjectSpriteContainer(this, z + sprite->displacement.z));
+		ObjectSprite::setObjectSpriteContainer
+		(
+			ObjectSprite::safeCast(sprite), VIPSpriteManager::getObjectSpriteContainer(this, z + sprite->displacement.z)
+		);
 		
 		return kSpriteListObject;
 	}
