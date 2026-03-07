@@ -53,6 +53,9 @@ int16 ObjectSpriteContainer::doRender(int16 index)
 	this->index = index;
 	this->sptBoundaryObjectIndex = __TOTAL_OBJECTS;
 
+	// Force rendering
+	this->rendered = false;
+
 	_worldAttributesCache[index].head = (__WORLD_ON | __WORLD_OBJECT | __WORLD_OVR) & (~__WORLD_END);
 
 	return 1;
