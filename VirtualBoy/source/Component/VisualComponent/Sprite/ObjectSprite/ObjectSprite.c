@@ -13,6 +13,7 @@
 
 #include <AnimationController.h>
 #include <DebugConfig.h>
+#include <ObjectSpriteContainer.h>
 #include <ObjectTexture.h>
 #include <Printer.h>
 
