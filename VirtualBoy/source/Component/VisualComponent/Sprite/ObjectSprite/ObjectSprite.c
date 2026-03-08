@@ -121,8 +121,8 @@ int16 ObjectSprite::doRender(int16 index)
 	uint16* framePointer = (uint16*)(texture->textureSpec->map + texture->mapDisplacement);
 	ObjectAttributes* objectAttributesCache = &_objectAttributesCache[index];
 	
-	uint16 yLimit = cameraFrustumY0 - 8;
-	uint16 xLimit = cameraFrustumX0 - 4;
+	int16 yLimit = cameraFrustumY0 - 8;
+	int16 xLimit = cameraFrustumX0 - 4;
 
 	int16 yDisplacement = 0;
 	int16 jDisplacement = 0;
@@ -141,7 +141,10 @@ int16 ObjectSprite::doRender(int16 index)
 			{				
 				object->head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
 			}
-			
+
+			jDisplacement -= cols;
+			framePointer += cols;
+
 			continue;
 		}
 
@@ -150,6 +153,8 @@ int16 ObjectSprite::doRender(int16 index)
 		
 		for (int16 j = 0, xDisplacement = 0; j < cols; j++, xDisplacement += xDeltaIncrement, object--)
 		{
+			usedSlots++;
+
 			int16 outputX = x + xDisplacement;
 
 			if((unsigned)(outputX - xLimit) > (unsigned)(cameraFrustumX1 - xLimit))
@@ -162,8 +167,6 @@ int16 ObjectSprite::doRender(int16 index)
 			object->jy = outputY;
 			object->head = secondWordValue;
 			object->tile = fourthWordValue + frameRow[j];
-
-			usedSlots++;
 		}
 	}
 
@@ -361,11 +364,11 @@ void ObjectSprite::removeFromCache()
 
 		for(int16 i = 0; i < this->rows; i++, jDisplacement += this->cols)
 		{
-			int16 objectIndexStart = this->index + jDisplacement;
+			int16 objectIndexStart = this->index - jDisplacement;
 
 			for(int16 j = 0; j < this->cols; j++)
 			{
-				int16 objectIndex = objectIndexStart + j;
+				int16 objectIndex = objectIndexStart - j;
 				objectPointer = &_objectAttributesCache[objectIndex];
 				objectPointer->head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
 			}
