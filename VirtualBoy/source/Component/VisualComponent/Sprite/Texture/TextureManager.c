@@ -27,7 +27,7 @@
 static void TextureManager::reset()
 {
 	BgmapTextureManager::reset(BgmapTextureManager::getInstance());
-//	ObjectTextureManager::reset(ObjectTextureManager::getInstance());
+	ObjectTextureManager::reset(ObjectTextureManager::getInstance());
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

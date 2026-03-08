@@ -80,7 +80,7 @@ int32 ObjectSpriteContainer::getTotalPixels()
 
 void ObjectSpriteContainer::resetSPTBoundaryObjectIndex()
 {
-	this->sptBoundaryObjectIndex = __TOTAL_OBJECTS;
+	this->sptBoundaryObjectIndex = __TOTAL_OBJECTS - 1;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

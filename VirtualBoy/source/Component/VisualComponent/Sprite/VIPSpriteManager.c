@@ -141,7 +141,7 @@ void VIPSpriteManager::stopRendering()
 		{
 			int16 sptBoundaryObjectIndex = ObjectSpriteContainer::getSPTBoundaryObjectIndex(this->objectSpriteContainers[i]);
 
-			if(__TOTAL_OBJECTS == sptBoundaryObjectIndex)
+			if(__TOTAL_OBJECTS - 1 == sptBoundaryObjectIndex)
 			{
 				int16 index = ObjectSpriteContainer::getIndex(this->objectSpriteContainers[i]);
 
