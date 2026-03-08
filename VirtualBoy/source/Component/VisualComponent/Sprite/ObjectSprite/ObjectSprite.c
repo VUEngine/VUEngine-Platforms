@@ -120,14 +120,14 @@ int16 ObjectSprite::doRender(int16 index)
 
 	uint16* framePointer = (uint16*)(texture->textureSpec->map + texture->mapDisplacement);
 	ObjectAttributes* objectAttributesCache = &_objectAttributesCache[index];
-
+	
 	uint16 yLimit = cameraFrustumY0 - 8;
 	uint16 xLimit = cameraFrustumX0 - 4;
 
 	int16 yDisplacement = 0;
 	int16 jDisplacement = 0;
 
-	int16 usedObjects = 0;
+	int16 usedSlots = 0;
 
 	for (int16 i = 0; i < rows; i++, jDisplacement += cols, yDisplacement += yDeltaIncrement)
 	{
@@ -135,19 +135,20 @@ int16 ObjectSprite::doRender(int16 index)
 
 		if((unsigned)(outputY - yLimit) > (unsigned)(cameraFrustumY1 - yLimit))
 		{
-			ObjectAttributes* object = objectAttributesCache + jDisplacement;
+			ObjectAttributes* object = objectAttributesCache - jDisplacement;
 			
-			for (int16 j = 0; j < cols; j++, object++)
+			for (int16 j = 0; j < cols; j++, object--)
 			{				
 				object->head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
 			}
+			
 			continue;
 		}
 
 		uint16* frameRow = framePointer + jDisplacement;
-		ObjectAttributes* object = objectAttributesCache + jDisplacement;
+		ObjectAttributes* object = objectAttributesCache - jDisplacement;
 		
-		for (int16 j = 0, xDisplacement = 0; j < cols; j++, xDisplacement += xDeltaIncrement, object++)
+		for (int16 j = 0, xDisplacement = 0; j < cols; j++, xDisplacement += xDeltaIncrement, object--)
 		{
 			int16 outputX = x + xDisplacement;
 
@@ -162,17 +163,16 @@ int16 ObjectSprite::doRender(int16 index)
 			object->head = secondWordValue;
 			object->tile = fourthWordValue + frameRow[j];
 
-			usedObjects++;
+			usedSlots++;
 		}
 	}
 
-	if(0 < usedObjects && !isDeleted(this->objectSpriteContainer))
+	if(0 < usedSlots && !isDeleted(this->objectSpriteContainer))
 	{
-		this->index = index;
-		ObjectSpriteContainer::setSPTBoundaryObjectIndex(this->objectSpriteContainer, this->index + usedObjects);
+		ObjectSpriteContainer::setSPTBoundaryObjectIndex(this->objectSpriteContainer, index - usedSlots);
 	}
 
-	return usedObjects;
+	return usedSlots;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
