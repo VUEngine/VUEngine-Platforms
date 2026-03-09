@@ -163,9 +163,11 @@ void VIPSpriteManager::stopRendering()
 			}
 		}
 	}
-	
+
+#ifdef __ALERT_WORLD_MEMORY_DEPLETION
 	NM_ASSERT(-1 <= (int16)(*this->objectIndex), "SpriteManager::stopRendering: no more WORLDS");
 	NM_ASSERT(-1 <= (int16)(*this->bgmapIndex), "SpriteManager::stopRendering: no more OBJECTS");
+#endif
 
 	if(0 <= *this->bgmapIndex)
 	{
