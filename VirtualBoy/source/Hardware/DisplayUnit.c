@@ -670,11 +670,11 @@ static bool DisplayUnit::lowerBrightness(uint8 decrement)
 
 static void DisplayUnit::showException()
 {
-	_displayUnitConfig.displayColorConfig.colorConfig.brightness = (Brightness) {32, 64, 32};
+	_displayUnitConfig.displayColorConfig.colorConfig.brightness = (Brightness) {32, 64, 128};
 	_displayUnitConfig.displayColorConfig.colorConfig.backgroundColor = __COLOR_BLACK;
 	_displayUnitConfig.displayColorConfig.paletteConfig = (PaletteConfig)
 	{
-		{0xE4, __DIMM_VALUE_2, __DIMM_VALUE_2, __DIMM_VALUE_2},
+		{0xE4, 0xE4, 0xE4, 0xE4},
 		{__DIMM_VALUE_2, __DIMM_VALUE_2, __DIMM_VALUE_2, __DIMM_VALUE_2}
 	};
 

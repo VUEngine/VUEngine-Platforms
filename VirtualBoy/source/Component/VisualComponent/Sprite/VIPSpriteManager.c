@@ -164,7 +164,8 @@ void VIPSpriteManager::stopRendering()
 		}
 	}
 	
-	NM_ASSERT(-1 <= (int8)*this->bgmapIndex, "SpriteManager::stopRendering: no more layers");
+	NM_ASSERT(-1 <= (int16)(*this->objectIndex), "SpriteManager::stopRendering: no more WORLDS");
+	NM_ASSERT(-1 <= (int16)(*this->bgmapIndex), "SpriteManager::stopRendering: no more OBJECTS");
 
 	if(0 <= *this->bgmapIndex)
 	{
