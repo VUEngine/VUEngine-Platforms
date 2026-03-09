@@ -74,6 +74,9 @@ class ObjectSprite : Sprite
 	/// The number of OBJECTs that the sprite uses
 	int16 totalObjects;
 
+	/// Head flags for DRAM entries
+	uint16 head;
+
 	// Cache some attributes to speed up rendering
 
 	/// Cache the computed value for the 4th entry of OBJECTs

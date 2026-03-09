@@ -338,7 +338,7 @@ uint32 ParamTableManager::calculateSpriteParamTableSize(BgmapSprite bgmapSprite)
 		return 0;
 	}
 
-	uint16 spriteHead = Sprite::getHead(bgmapSprite);
+	uint16 spriteHead = BgmapSprite::getHead(bgmapSprite);
 	uint32 textureRows = ((SpriteSpec*)Sprite::getSpec(bgmapSprite))->textureSpec->rows + __PARAM_TABLE_PADDING;
 	uint32 size = 0;
 

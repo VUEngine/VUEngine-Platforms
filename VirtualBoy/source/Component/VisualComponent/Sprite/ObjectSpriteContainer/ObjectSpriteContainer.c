@@ -26,7 +26,6 @@ void ObjectSpriteContainer::constructor(Entity owner, const SpriteSpec* spriteSp
 
 	this->sptBoundaryObjectIndex = __TOTAL_OBJECTS;
 	this->hasTextures = false;
-	this->head = (__WORLD_ON | __WORLD_OBJECT | __WORLD_OVR) & (~__WORLD_END);
 	this->transparency = __TRANSPARENCY_NONE;
 }
 
@@ -64,7 +63,7 @@ int16 ObjectSpriteContainer::doRender(int16 index)
 	// Force rendering
 	this->rendered = false;
 
-	_worldAttributesCache[index].head = this->head;
+	_worldAttributesCache[index].head = (__WORLD_ON | __WORLD_OBJECT | __WORLD_OVR) & (~__WORLD_END);
 
 	return 1;
 }

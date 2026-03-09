@@ -73,6 +73,9 @@ class BgmapSprite : Sprite
 {
 	/// @protectedsection
 
+	/// Head flags for DRAM entries
+	uint16 head;
+
 	/// Offset that keeps track of where to continue writing in param table 
 	int16 paramTableRow;
 
@@ -149,6 +152,10 @@ class BgmapSprite : Sprite
 	/// @param display: Displays on which to show the sprite (__WORLD_ON, __WORLD_LON or __WORLD_RON)
 	/// @param mode: The mode to use to display the sprite (__WORLD_BGMAP | __WORLD_AFFINE | __WORLD_HBIAS)
 	void setMode(uint16 display, uint16 mode);
+
+	/// Retrieve the head flags for DRAM entries.
+	/// @return Head flags for DRAM entries
+	uint16 getHead();
 
 	/// Set the offset within param table space that determines the area where 
 	/// this sprite is allowed to write.
