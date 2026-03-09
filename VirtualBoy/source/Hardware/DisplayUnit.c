@@ -169,7 +169,57 @@ static volatile bool _processingXPEND 				__STATIC_SINGLETONS_DATA_SECTION_ATTRI
 static volatile bool _FRAMESTARTDuringXPEND 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
 
 /// Color related configuration
-static DisplayUnitConfig _displayUnitConfig 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE;
+static DisplayUnitConfig _displayUnitConfig 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 
+// Display color configuration
+{
+	// Pointer to the column table's configuration data
+	NULL,
+
+	// Color configuration
+	{
+		// Background color
+		__COLOR_BLACK,
+
+		// Brightness
+		// These values times the repeat values specified in the column table (max. 16) make the final
+		// brightness values on the respective regions of the screen. maximum brightness is 128.
+		{
+			// Dark red
+			__BRIGHTNESS_DARK_RED,
+			// Medium red
+			__BRIGHTNESS_MEDIUM_RED,
+			// Bright red
+			__BRIGHTNESS_BRIGHT_RED,
+		},
+
+		// Brightness repeat
+		(BrightnessRepeatSpec*)NULL,
+	},
+
+	// Palettes' configuration
+	{
+		{
+			// Bgmap palette 0
+			__BGMAP_PALETTE_0,
+			// Bgmap palette 1
+			__BGMAP_PALETTE_1,
+			// Bgmap palette 2
+			__BGMAP_PALETTE_2,
+			// Bgmap palette 3
+			__BGMAP_PALETTE_3,
+		},
+		{
+			// Object palette 0
+			__OBJECT_PALETTE_0,
+			// Object palette 1
+			__OBJECT_PALETTE_1,
+			// Object palette 2
+			__OBJECT_PALETTE_2,
+			// Object palette 3
+			__OBJECT_PALETTE_3,
+		},
+	}
+};
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC STATIC METHODS
@@ -421,11 +471,11 @@ static DisplayColorConfig DisplayUnit::getDarkColorConfig()
 
 static int16 DisplayUnit::getBrightnessDirection(DisplayColorConfig targetDisplayColorConfig)
 {
-	int8 brightRed = 
+	int16 brightRed = 
 		targetDisplayColorConfig.colorConfig.brightness.brightRed - _displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed;
-	int8 mediumRed = 
+	int16 mediumRed = 
 		targetDisplayColorConfig.colorConfig.brightness.mediumRed - _displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed;
-	int8 darkRed = 
+	int16 darkRed = 
 		targetDisplayColorConfig.colorConfig.brightness.darkRed - _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed;
 
 	return ((darkRed > 0) - (darkRed < 0)) * ((mediumRed > 0) - (mediumRed < 0)) * ((brightRed > 0) - (brightRed < 0));
@@ -435,11 +485,11 @@ static int16 DisplayUnit::getBrightnessDirection(DisplayColorConfig targetDispla
 
 static bool DisplayUnit::modifyBrightness(uint8 amount, DisplayColorConfig targetDisplayColorConfig)
 {
-	int8 brightRedDelta = 
+	int16 brightRedDelta = 
 		targetDisplayColorConfig.colorConfig.brightness.brightRed - _displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed;
-	int8 mediumRedDelta = 
+	int16 mediumRedDelta = 
 		targetDisplayColorConfig.colorConfig.brightness.mediumRed - _displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed;
-	int8 darkRedDelta = 
+	int16 darkRedDelta = 
 		targetDisplayColorConfig.colorConfig.brightness.darkRed - _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed;
 
 	// Note: need to cast brightness registers to uint8 because only their lower 8 bits are valid
@@ -447,31 +497,30 @@ static bool DisplayUnit::modifyBrightness(uint8 amount, DisplayColorConfig targe
 	bool mediumRedDone = 0 == mediumRedDelta;
 	bool darkRedDone = 0 == darkRedDelta;
 
-	// Fade light red
 	if(!brightRedDone)
 	{
-		if(__ABS(brightRedDelta) <=  amount)
+		if(__ABS(brightRedDelta) <=  amount * 4)
 		{
 			_displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed = targetDisplayColorConfig.colorConfig.brightness.brightRed;
 			brightRedDone = true;
 		}
 		else
 		{
-			brightRedDelta = (brightRedDelta > 0) - (brightRedDelta < 0) * amount;
-			_displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed += brightRedDelta;		
+			brightRedDelta = ((brightRedDelta > 0) - (brightRedDelta < 0)) * amount * 4;
+			_displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed += brightRedDelta;
 		}
 	}
 
 	if(!mediumRedDone)
 	{
-		if(__ABS(mediumRedDelta) <=  amount)
+		if(__ABS(mediumRedDelta) <=  amount * 2)
 		{
 			_displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed = targetDisplayColorConfig.colorConfig.brightness.mediumRed;
 			mediumRedDone = true;
 		}
 		else
 		{
-			mediumRedDelta = (mediumRedDelta > 0) - (mediumRedDelta < 0) * amount;
+			mediumRedDelta = ((mediumRedDelta > 0) - (mediumRedDelta < 0)) * amount * 2;
 			_displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed += mediumRedDelta;		
 		}
 	}
@@ -485,13 +534,10 @@ static bool DisplayUnit::modifyBrightness(uint8 amount, DisplayColorConfig targe
 		}
 		else
 		{
-			darkRedDelta = (darkRedDelta > 0) - (darkRedDelta < 0) * amount;
+			darkRedDelta = ((darkRedDelta > 0) - (darkRedDelta < 0)) * amount;
 			_displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed += darkRedDelta;		
 		}
 	}
-
-		TERMINAL_INT(targetDisplayColorConfig.colorConfig.brightness.mediumRed);
-
 
 	_vipRegisters[__BRTA] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed;
 	_vipRegisters[__BRTB] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed;
