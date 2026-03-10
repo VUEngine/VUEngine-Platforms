@@ -133,7 +133,7 @@ void VIPSpriteManager::startRendering()
 
 void VIPSpriteManager::stopRendering()
 {
-	int16 spt = __TOTAL_OBJECT_SEGMENTS - 1;
+	int16 lastBoundaryObjectIndex = __TOTAL_OBJECTS - 1;
 
 	for(int16 i = 0; i < __TOTAL_OBJECT_SEGMENTS; i++)
 	{
@@ -150,17 +150,14 @@ void VIPSpriteManager::stopRendering()
 					_worldAttributesCache[index].head = __WORLD_OFF;
 				}
 			}
-			else
-			{
-				this->vipSPTRegistersCache[i] = sptBoundaryObjectIndex;
 
-				// Make sure that the rest of spt segments only run up to the last
-				// Used object index
-				for(int32 i = spt--; i--;)
-				{
-					this->vipSPTRegistersCache[i] = sptBoundaryObjectIndex;
-				}				
-			}
+			this->vipSPTRegistersCache[i] = lastBoundaryObjectIndex;
+			lastBoundaryObjectIndex = sptBoundaryObjectIndex;
+		}
+
+		for(int32 j = i - 1; 0 <= j; j--)
+		{
+			this->vipSPTRegistersCache[j] = lastBoundaryObjectIndex;
 		}
 	}
 
