@@ -71,9 +71,6 @@ class ObjectSprite : Sprite
 	/// Texture's displacement in the map array
 	ObjectTextureSource objectTextureSource;
 
-	/// The number of OBJECTs that the sprite uses
-	int16 totalObjects;
-
 	/// Head flags for DRAM entries
 	uint16 head;
 
@@ -113,10 +110,6 @@ class ObjectSprite : Sprite
 	/// @return ClassPointer the basic class
 	override ClassPointer getBasicType();
 
-	/// Load a texture.
-	/// @param textureClass: Class of the texture to load
-	override void loadTexture(ClassPointer textureClass);
-
 	/// Render the sprite by configuring the DRAM assigned to it by means of the provided index.
 	/// @param index: Determines the region of DRAM that this sprite is allowed to configure
 	/// @return The index that determines the region of DRAM that this sprite manages
@@ -142,13 +135,6 @@ class ObjectSprite : Sprite
 	/// Set the container (SPT) within which this sprite must be drawn.
 	/// @param objectSpriteContainer: SPT container 
 	void setObjectSpriteContainer(ObjectSpriteContainer objectSpriteContainer);
-
-	/// Force the computation of the number of OBJECTs that the sprite uses.
-	void resetTotalObjects();
-
-	/// Retrieve the number of OBJECTs that the sprite uses.
-	/// @return Number of OBJECTs that the sprite uses
-	int16 getTotalObjects();
 }
 
 #endif

@@ -43,8 +43,6 @@ void TextObjectSprite::constructor(Entity owner, const TextObjectSpriteSpec* tex
 	this->palette = textObjectSpriteSpec->palette << 14;
 
 	this->printed = false;
-
-	this->totalObjects = NULL == this->text ? 0 : strlen(this->text);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

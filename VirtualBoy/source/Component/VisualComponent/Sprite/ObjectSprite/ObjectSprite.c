@@ -47,7 +47,6 @@ void ObjectSprite::constructor(Entity owner, const ObjectSpriteSpec* objectSprit
 
 	this->head = objectSpriteSpec->display & __OBJECT_SPRITE_CHAR_SHOW_MASK;
 	this->objectSpriteContainer = NULL;
-	this->totalObjects = 0;
 
 	this->displacement = objectSpriteSpec->spriteSpec.displacement;
 	this->xDisplacementIncrement = 8;
@@ -78,20 +77,6 @@ void ObjectSprite::destructor()
 ClassPointer ObjectSprite::getBasicType()
 {
 	return typeofclass(ObjectSprite);
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-void ObjectSprite::loadTexture(ClassPointer textureClass __attribute__((unused)))
-{
-	Base::loadTexture(this, typeofclass(ObjectTexture));
-
-	NM_ASSERT(NULL != this->texture, "ObjectSprite::constructor: could not load texture");
-
-	if(NULL != this->texture)
-	{
-		this->totalObjects = this->cols * this->rows;
-	}
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -250,7 +235,7 @@ int32 ObjectSprite::getTotalPixels()
 {
 	if(__NO_RENDER_INDEX != this->index)
 	{
-		return ObjectSprite::getTotalObjects(this) * 64;
+		return this->cols * this->rows * 64;
 	}
 
 	return 0;
@@ -326,26 +311,6 @@ void ObjectSprite::setObjectSpriteContainer(ObjectSpriteContainer objectSpriteCo
 	this->objectSpriteContainer = objectSpriteContainer;
 }
 
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-void ObjectSprite::resetTotalObjects()
-{
-	if(NULL == this->texture)
-	{
-		return;
-	}
-
-	this->totalObjects = Texture::getCols(this->texture) * Texture::getRows(this->texture);
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-int16 ObjectSprite::getTotalObjects()
-{
-	ASSERT(0 < this->totalObjects, "ObjectSprite::getTotalObjects: null totalObjects");
-
-	return this->totalObjects;
-}
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
