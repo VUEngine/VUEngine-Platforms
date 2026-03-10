@@ -135,7 +135,9 @@ void VIPSpriteManager::stopRendering()
 {
 	int16 lastBoundaryObjectIndex = __TOTAL_OBJECTS - 1;
 
-	for(int16 i = 0; i < __TOTAL_OBJECT_SEGMENTS; i++)
+	int16 spt = __TOTAL_OBJECT_SEGMENTS - 1;
+
+	for(int16 i = __TOTAL_OBJECT_SEGMENTS - 1; 0 <= i; i--)
 	{
 		if(!isDeleted(this->objectSpriteContainers[i]))
 		{
@@ -150,15 +152,22 @@ void VIPSpriteManager::stopRendering()
 					_worldAttributesCache[index].head = __WORLD_OFF;
 				}
 			}
+			else
+			{				
+				this->vipSPTRegistersCache[spt--] = lastBoundaryObjectIndex;
 
-			this->vipSPTRegistersCache[i] = lastBoundaryObjectIndex;
-			lastBoundaryObjectIndex = sptBoundaryObjectIndex;
-		}
 
-		for(int32 j = i - 1; 0 <= j; j--)
-		{
-			this->vipSPTRegistersCache[j] = lastBoundaryObjectIndex;
+				if(sptBoundaryObjectIndex < lastBoundaryObjectIndex)
+				{
+					lastBoundaryObjectIndex = sptBoundaryObjectIndex - 1;
+				}
+			}
 		}
+	}
+
+	for(; 0 <= spt; spt--)
+	{
+		this->vipSPTRegistersCache[spt] = lastBoundaryObjectIndex;
 	}
 
 #ifdef __ALERT_WORLD_MEMORY_DEPLETION
