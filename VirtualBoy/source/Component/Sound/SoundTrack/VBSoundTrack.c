@@ -13,7 +13,7 @@
 
 #include <SoundUnit.h>
 
-#include "VSUSoundTrack.h"
+#include "VBSoundTrack.h"
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -23,7 +23,7 @@
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-void VSUSoundTrack::reset()
+void VBSoundTrack::reset()
 {
 	Base::reset(this);
 
@@ -39,7 +39,7 @@ void VSUSoundTrack::reset()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-void VSUSoundTrack::updateCursors()
+void VBSoundTrack::updateCursors()
 {
 	SoundTrackKeyframe soundTrackKeyframe = this->soundTrackSpec->trackKeyframes[this->cursor];
 
@@ -86,13 +86,13 @@ void VSUSoundTrack::updateCursors()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-void VSUSoundTrack::sendSoundRequest
+void VBSoundTrack::sendSoundRequest
 (
 	fix7_9_ext targetTimerResolutionFactor, uint8 maximumVolume, uint8 leftVolumeReduction, 
 	uint8 rightVolumeReduction, uint8 volumeReduction, uint16 frequencyDelta
 )
 {
-	uint8 volume = ((VSUSoundTrackSpec*)this->soundTrackSpec)->SxLRV[this->cursorSxLRV];
+	uint8 volume = ((VBSoundTrackSpec*)this->soundTrackSpec)->SxLRV[this->cursorSxLRV];
 
 	int8 leftVolume = volume >> 4;
 	int8 rightVolume = volume & 0xF;
@@ -133,7 +133,7 @@ void VSUSoundTrack::sendSoundRequest
 
 	if(0 < leftVolume || 0 < rightVolume)
 	{
-		uint16 note = ((VSUSoundTrackSpec*)this->soundTrackSpec)->SxFQ[this->cursorSxFQ] + frequencyDelta;
+		uint16 note = ((VBSoundTrackSpec*)this->soundTrackSpec)->SxFQ[this->cursorSxFQ] + frequencyDelta;
 
 		SoundSourceConfigurationRequest vsuChannelConfigurationRequest = 
 		{
@@ -148,7 +148,7 @@ void VSUSoundTrack::sendSoundRequest
 					kSoundSourceNoise:
 					kSoundSourceNormal,
 			// SxINT values
-			((VSUSoundTrackSpec*)this->soundTrackSpec)->SxINT[this->cursorSxINT],
+			((VBSoundTrackSpec*)this->soundTrackSpec)->SxINT[this->cursorSxINT],
 			// SxLRV values
 			(leftVolume << 4) | rightVolume,
 			// SxFQL values
@@ -156,15 +156,15 @@ void VSUSoundTrack::sendSoundRequest
 			// SxFQH values
 			note >> 8,
 			// SxEV0 values
-			((VSUSoundTrackSpec*)this->soundTrackSpec)->SxEV0[this->cursorSxEV0],
+			((VBSoundTrackSpec*)this->soundTrackSpec)->SxEV0[this->cursorSxEV0],
 			// SxEV1 values
-			((VSUSoundTrackSpec*)this->soundTrackSpec)->SxEV1[this->cursorSxEV1],
+			((VBSoundTrackSpec*)this->soundTrackSpec)->SxEV1[this->cursorSxEV1],
 			// SxRAM pointer
-			((VSUSoundTrackSpec*)this->soundTrackSpec)->SxRAM[this->cursorSxRAM],
+			((VBSoundTrackSpec*)this->soundTrackSpec)->SxRAM[this->cursorSxRAM],
 			// SxSWP values
-			((VSUSoundTrackSpec*)this->soundTrackSpec)->SxSWP[this->cursorSxSWP],
+			((VBSoundTrackSpec*)this->soundTrackSpec)->SxSWP[this->cursorSxSWP],
 			// SxMOD pointer
-			((VSUSoundTrackSpec*)this->soundTrackSpec)->SxMOD[this->cursorSxMOD],
+			((VBSoundTrackSpec*)this->soundTrackSpec)->SxMOD[this->cursorSxMOD],
 			// Priority
 			this->soundTrackSpec->priority,
 			// Skip
@@ -183,7 +183,7 @@ void VSUSoundTrack::sendSoundRequest
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-void VSUSoundTrack::constructor(const VSUSoundTrackSpec* vusSoundTrackSpec)
+void VBSoundTrack::constructor(const VBSoundTrackSpec* vusSoundTrackSpec)
 {
 	// Always explicitly call the base's constructor 
 	Base::constructor(&vusSoundTrackSpec->soundTrackSpec);
@@ -191,7 +191,7 @@ void VSUSoundTrack::constructor(const VSUSoundTrackSpec* vusSoundTrackSpec)
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-void VSUSoundTrack::destructor()
+void VBSoundTrack::destructor()
 {	
 	// Always explicitly call the base's destructor 
 	Base::destructor();
