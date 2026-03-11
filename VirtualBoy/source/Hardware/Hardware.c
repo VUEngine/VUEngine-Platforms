@@ -11,6 +11,8 @@
 // INCLUDES
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+#include <stdio.h>
+
 #include <BgmapTexture.h>
 #include <Communications.h>
 #include <FrameBuffers.h>
