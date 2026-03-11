@@ -107,8 +107,9 @@ void VIPSpriteManager::configure(int32 paramTableSegments, ObjectSpritesConfig o
 		if(!isDeleted(this->objectSpriteContainers[i]))
 		{
 			ComponentManager::destroyComponent(NULL, Component::safeCast(this->objectSpriteContainers[i]));
-			this->objectSpriteContainers[i] = NULL;
 		}
+		
+		this->objectSpriteContainers[i] = NULL;
 	}
 
 	VIPSpriteManager::configureObjectSprites(this, objectSpritesConfig);
@@ -200,8 +201,9 @@ void VIPSpriteManager::disableRendering()
 		if(!isDeleted(this->objectSpriteContainers[i]))
 		{
 			ComponentManager::destroyComponent(NULL, Component::safeCast(this->objectSpriteContainers[i]));
-			this->objectSpriteContainers[i] = NULL;
 		}
+
+		this->objectSpriteContainers[i] = NULL;
 	}
 }
 
@@ -419,8 +421,9 @@ void VIPSpriteManager::destructor()
 		if(!isDeleted(this->objectSpriteContainers[i]))
 		{
 			ComponentManager::destroyComponent(NULL, Component::safeCast(this->objectSpriteContainers[i]));
-			this->objectSpriteContainers[i] = NULL;
 		}
+		
+		this->objectSpriteContainers[i] = NULL;
 	}
 	
 	// Always explicitly call the base's destructor 
