@@ -93,7 +93,7 @@ void VSUSoundTrack::sendSoundRequest
 )
 {
 	uint8 volume = ((VSUSoundTrackSpec*)this->soundTrackSpec)->SxLRV[this->cursorSxLRV];
-	
+
 	int8 leftVolume = volume >> 4;
 	int8 rightVolume = volume & 0xF;
 
