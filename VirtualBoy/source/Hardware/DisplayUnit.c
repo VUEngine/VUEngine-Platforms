@@ -512,158 +512,74 @@ static bool DisplayUnit::modifyBrightness(uint8 amount, DisplayColorConfig targe
 	int16 darkRedDelta = 
 		targetDisplayColorConfig.colorConfig.brightness.darkRed - _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed;
 
-	// Note: need to cast brightness registers to uint8 because only their lower 8 bits are valid
-	bool brightRedDone = 0 == brightRedDelta;
-	bool mediumRedDone = 0 == mediumRedDelta;
-	bool darkRedDone = 0 == darkRedDelta;
+	int16 absBright = (brightRedDelta < 0) ? -brightRedDelta : brightRedDelta;
+	int16 absMedium = (mediumRedDelta < 0) ? -mediumRedDelta : mediumRedDelta;
+	int16 absDark   = (darkRedDelta   < 0) ? -darkRedDelta   : darkRedDelta;
 
-	if(!brightRedDone)
+	int16 maxDelta = absBright;
+
+	if(absMedium > maxDelta) 
 	{
-		if(__ABS(brightRedDelta) <=  amount * 4)
-		{
-			_displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed = targetDisplayColorConfig.colorConfig.brightness.brightRed;
-			brightRedDone = true;
-		}
-		else
-		{
-			brightRedDelta = ((brightRedDelta > 0) - (brightRedDelta < 0)) * amount * 4;
-			_displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed += brightRedDelta;
-		}
+		maxDelta = absMedium;
 	}
 
-	if(!mediumRedDone)
+	if(absDark > maxDelta)
 	{
-		if(__ABS(mediumRedDelta) <=  amount * 2)
-		{
-			_displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed = targetDisplayColorConfig.colorConfig.brightness.mediumRed;
-			mediumRedDone = true;
-		}
-		else
-		{
-			mediumRedDelta = ((mediumRedDelta > 0) - (mediumRedDelta < 0)) * amount * 2;
-			_displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed += mediumRedDelta;		
-		}
+		maxDelta = absDark;
 	}
 
-	if(!darkRedDone)
+	if (maxDelta == 0)
 	{
-		if(__ABS(darkRedDelta) <=  amount)
-		{
-			_displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed = targetDisplayColorConfig.colorConfig.brightness.darkRed;
-			darkRedDone = true;
-		}
-		else
-		{
-			darkRedDelta = ((darkRedDelta > 0) - (darkRedDelta < 0)) * amount;
-			_displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed += darkRedDelta;		
-		}
+		return true;
 	}
+
+	uint8 actualStep = (amount > maxDelta) ? (uint8)maxDelta : amount;
+
+	_displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed += (int16)((int32)brightRedDelta * actualStep / maxDelta);
+	_displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed += (int16)((int32)mediumRedDelta * actualStep / maxDelta);
+	_displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed   += (int16)((int32)darkRedDelta   * actualStep / maxDelta);
 
 	_vipRegisters[__BRTA] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed;
 	_vipRegisters[__BRTB] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed;
-	_vipRegisters[__BRTC] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed;
+	_vipRegisters[__BRTC] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed - 
+		(
+			_displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed 
+			+ 
+			_displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed
+		);
 
-	return brightRedDone && mediumRedDone && darkRedDone;
+    return 
+		(
+			_displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed 
+			== 
+			targetDisplayColorConfig.colorConfig.brightness.brightRed
+		) 
+		&&
+		(
+			_displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed 
+			== 
+			targetDisplayColorConfig.colorConfig.brightness.mediumRed
+		)
+		&&
+		(
+			_displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed
+			==
+			targetDisplayColorConfig.colorConfig.brightness.darkRed
+		);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static bool DisplayUnit::upBrightness(uint8 increment)
 {
-	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
-
-	bool darkRedIncreased = true;
-	bool mediumRedIncreased = true;
-	bool birghtRedIncreased = true;
-
-	if(0 == increment)
-	{
-		_displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed = 32;
-		_displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed = 64;
-		_displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed = 32;
-
-		darkRedIncreased = false;
-		mediumRedIncreased = false;
-		birghtRedIncreased = false;
-	}
-	else
-	{
-		_displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed += increment;
-		_displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed += increment;
-		_displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed += increment;
-
-		if(32 < _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed)
-		{
-			_displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed = 32;
-			darkRedIncreased = false;
-		}
-
-		if(64 < _displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed)
-		{
-			_displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed = 32;
-			mediumRedIncreased = false;
-		}
-
-		if(32 < _displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed)
-		{
-			_displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed = 32;
-			birghtRedIncreased = false;
-		}
-	}
-
-	_vipRegisters[__BRTA] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed;
-	_vipRegisters[__BRTB] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed;
-	_vipRegisters[__BRTC] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed;
-
-	return darkRedIncreased && mediumRedIncreased && birghtRedIncreased;
+    return DisplayUnit::adjustBrightness((int16)increment, increment == 0);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static bool DisplayUnit::lowerBrightness(uint8 decrement)
 {
-	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
-
-	bool darkRedDecreased = true;
-	bool mediumRedDecreased = true;
-	bool birghtRedDecreased = true;
-
-	if(0 == decrement)
-	{
-		_vipRegisters[__BRTA] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed = 0;
-		_vipRegisters[__BRTB] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed = 0;
-		_vipRegisters[__BRTC] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed = 0; 
-	}
-	else
-	{
-		_displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed -= decrement;
-		_displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed -= decrement;
-		_displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed -= decrement;
-
-		if(0 > (int8)_displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed)
-		{
-			_displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed = 0;
-			darkRedDecreased = false;
-		}
-
-		if(0 > (int8)_displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed)
-		{
-			_displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed = 0;
-			mediumRedDecreased = false;
-		}
-
-		if(0 > (int8)_displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed)
-		{
-			_displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed = 0;
-			birghtRedDecreased = false;
-		}
-	}
-
-	_vipRegisters[__BRTA] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed;
-	_vipRegisters[__BRTB] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed;
-	_vipRegisters[__BRTC] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed;
-
-	return darkRedDecreased && mediumRedDecreased && birghtRedDecreased;
+    return DisplayUnit::adjustBrightness(-(int16)decrement, decrement == 0);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -1224,6 +1140,82 @@ static int16 DisplayUnit::getCurrentBlockBeingDrawn()
 	while(!(_vipRegisters[__XPSTTS] & __SBOUT));
 
 	return (_vipRegisters[__XPSTTS] & __SBCOUNT) >> 8;
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// CLASS' PRIVATE STATIC METHODS
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static bool DisplayUnit::adjustBrightness(int16 delta, bool isReset)
+{
+	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
+
+	Brightness brightness = _displayUnitConfig.displayColorConfig.colorConfig.brightness;
+
+	if (isReset)
+	{
+		brightness.darkRed   = (delta >= 0) ? __BRIGHTNESS_DARK_RED : 0;
+		brightness.mediumRed = (delta >= 0) ? __BRIGHTNESS_MEDIUM_RED : 0;
+		brightness.brightRed = (delta >= 0) ? __BRIGHTNESS_BRIGHT_RED : 0;
+	}
+	else
+	{
+		brightness.darkRed   += delta;
+		brightness.mediumRed += delta;
+		brightness.brightRed += delta;
+	}
+
+	bool darkInBounds   = true;
+	bool mediumInBounds = true;
+	bool brightInBounds = true;
+
+	if((int8)brightness.darkRed > __BRIGHTNESS_DARK_RED) 
+	{
+		brightness.darkRed = __BRIGHTNESS_DARK_RED;
+		darkInBounds = false;
+	}
+	
+	if((int8)brightness.darkRed < 0)
+	{
+		brightness.darkRed = 0;
+		darkInBounds = false;
+	}
+
+	if((int8)brightness.mediumRed > __BRIGHTNESS_MEDIUM_RED)
+	{
+		brightness.mediumRed = __BRIGHTNESS_MEDIUM_RED;
+		mediumInBounds = false;
+	}
+	
+	if((int8)brightness.mediumRed < 0)
+	{
+		brightness.mediumRed = 0;
+		mediumInBounds = false;
+	}
+
+	if((int8)brightness.brightRed > __BRIGHTNESS_BRIGHT_RED)
+	{
+		brightness.brightRed = __BRIGHTNESS_BRIGHT_RED;
+		brightInBounds = false;
+	}
+	
+	if((int8)brightness.brightRed < 0)
+	{
+		brightness.brightRed = 0;
+		brightInBounds = false;
+	}
+
+	_vipRegisters[__BRTA] = brightness.darkRed;
+	_vipRegisters[__BRTB] = brightness.mediumRed;
+	_vipRegisters[__BRTC] = brightness.brightRed - (brightness.mediumRed + brightness.darkRed);
+
+	_displayUnitConfig.displayColorConfig.colorConfig.brightness = brightness;
+
+	return !isReset && darkInBounds && mediumInBounds && brightInBounds;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
