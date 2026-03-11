@@ -164,7 +164,7 @@
 
 /// Sound events that the sound player recongnizes
 /// @memberof SoundTrack
-enum VSUSoundEvents
+enum VBSoundEvents
 {
 	// Must continue from the last entry in SoundEvents enum
 	kSoundTrackEventSxINT = 1 << (2),
