@@ -101,6 +101,13 @@ extern ClassSizeData _userClassesSizeData[];
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+bool Debug::isKeyCombination(const UserInput* userInput)
+{
+	return ((userInput->holdKey & K_SEL) && (userInput->holdKey & K_RT) && (userInput->releasedKey & K_RU));
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 void Debug::update()
 {
 	if(this->currentPage->data == &Debug::texturesPage && 0 <= this->bgmapSegment)

@@ -77,6 +77,13 @@ enum StageEditorStates
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+bool StageEditor::isKeyCombination(const UserInput* userInput)
+{
+	return ((userInput->holdKey & K_SEL) && (userInput->holdKey & K_RT) && (userInput->releasedKey & K_RL));
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 void StageEditor::update()
 {}
 

@@ -69,6 +69,13 @@ enum AnimationProperties
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+bool AnimationInspector::isKeyCombination(const UserInput* userInput)
+{
+	return ((userInput->holdKey & K_SEL) && (userInput->holdKey & K_RT) && (userInput->releasedKey & K_RR));
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 void AnimationInspector::update()
 {}
 

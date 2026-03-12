@@ -37,6 +37,13 @@ extern SoundROMSpec* _userSounds[];
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+bool SoundTest::isKeyCombination(const UserInput* userInput)
+{
+	return ((userInput->holdKey & K_SEL) && (userInput->holdKey & K_RT) && (userInput->releasedKey & K_RD));
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 void SoundTest::update()
 {
 	if(!isDeleted(this->sound))
