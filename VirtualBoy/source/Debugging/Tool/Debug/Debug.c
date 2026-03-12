@@ -1191,7 +1191,7 @@ void Debug::spritesShowStatus(int32 increment, int32 x, int32 y)
 	}
 	else if(0 <= this->spriteIndex && this->spriteIndex < numberOfSprites)
 	{
-		Sprite sprite = SpriteManager::getSpriteAtIndex(spriteManager, this->spriteIndex);
+		Sprite sprite = SpriteManager::getSpriteAtIndex(spriteManager, 1, this->spriteIndex);
 		SpriteManager::hideAllSprites(spriteManager, sprite, false);
 		SpriteManager::renderAndDraw(spriteManager);
 		Printer::text("SPRITES INSPECTOR", x, y++, NULL);
