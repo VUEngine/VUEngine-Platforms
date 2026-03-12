@@ -7,8 +7,8 @@
  * that was distributed with this source code.
  */
 
-#ifndef VB_SOUND_TRACK_H_
-#define VB_SOUND_TRACK_H_
+#ifndef VSU_SOUND_TRACK_H_
+#define VSU_SOUND_TRACK_H_
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // INCLUDES
@@ -180,8 +180,8 @@ enum VBSoundEvents
 };
 
 /// A VSU Sound Track
-/// @memberof VBSoundTrack
-typedef struct VBSoundTrackSpec
+/// @memberof VSUSoundTrack
+typedef struct VSUSoundTrackSpec
 {
 	SoundTrackSpec soundTrackSpec;
 
@@ -209,22 +209,22 @@ typedef struct VBSoundTrackSpec
 	/// SxMOD pointers
 	int8** SxMOD;
 
-} VBSoundTrackSpec;
+} VSUSoundTrackSpec;
 
-/// A VBSoundTrack spec that is stored in ROM
-/// @memberof VBSoundTrack
-typedef const VBSoundTrackSpec VBSoundTrackROMSpec;
+/// A VSUSoundTrack spec that is stored in ROM
+/// @memberof VSUSoundTrack
+typedef const VSUSoundTrackSpec VSUSoundTrackROMSpec;
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' DECLARATION
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-/// Class VBSoundTrack
+/// Class VSUSoundTrack
 ///
 /// Inherits from SoundTrack
 ///
 /// Implements a sound track for the Virtual Boy's Virtual Sound Unit.
-class VBSoundTrack : SoundTrack
+class VSUSoundTrack : SoundTrack
 {
 	/// @protectedsection
 
@@ -256,7 +256,7 @@ class VBSoundTrack : SoundTrack
 
 	/// Class' constructor
 	/// @param soundTrackSpec: Specification that determines how to configure the sound track
-	void constructor(const VBSoundTrackSpec* vsuSoundTrackSpec);
+	void constructor(const VSUSoundTrackSpec* vsuSoundTrackSpec);
 
 	/// Reset the sound track.
 	override void reset();
