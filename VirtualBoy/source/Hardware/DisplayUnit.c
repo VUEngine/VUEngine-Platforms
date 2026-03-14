@@ -628,7 +628,7 @@ static void DisplayUnit::showException()
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].w = __SCREEN_WIDTH;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].h = __SCREEN_HEIGHT;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].head = 
-		__WORLD_ON | __WORLD_BGMAP | __WORLD_OVR | *PrintingSprite::getPrintingAddress(Printer::getActiveSprite());
+		__WORLD_ON | __WORLD_BGMAP | __WORLD_OVR | *PrintingSprite::getPrintingAddress(Printer::getActiveSprite(), true);
 
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD - 1].head = __WORLD_END;
 }

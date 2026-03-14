@@ -411,12 +411,17 @@ void PrintingSprite::setSize(uint16 width, uint16 height)
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-uint16* PrintingSprite::getPrintingAddress()
+uint16* PrintingSprite::getPrintingAddress(bool displaced)
 {
 	return 
 		(uint16*)__BGMAP_SEGMENT(PrintingSprite::getBgmapSegment(this)) +
-		PrintingSprite::getTextureXCoordinate(this) + 
-		(PrintingSprite::getTextureYCoordinate(this) << 6);
+		(
+			displaced ?
+				PrintingSprite::getTextureXCoordinate(this) + 
+				(PrintingSprite::getTextureYCoordinate(this) << 6)
+			:
+			0
+		);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

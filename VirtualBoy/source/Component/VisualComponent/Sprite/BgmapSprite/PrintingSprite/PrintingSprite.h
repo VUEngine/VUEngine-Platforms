@@ -76,8 +76,10 @@ class PrintingSprite : BgmapSprite
 	void setSize(uint16 width, uint16 height);
 
 	/// Get the starting addres in BGMAP space of the printing area.
+	/// @param displaced: If true, the returned address include the displacement
+	/// withing the graphic memory segment
 	/// @return The starting addres in BGMAP space of the printing area
-	uint16* getPrintingAddress();
+	uint16* getPrintingAddress(bool displaced);
 
 	/// Get X coordinate of the texture in memory.
 	/// @return The BGMAP segment index of where the printing is performed
