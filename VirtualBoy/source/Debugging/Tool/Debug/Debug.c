@@ -860,7 +860,7 @@ void Debug::charMemoryShowMemory(int32 increment __attribute__ ((unused)), int32
 	{
 		Mem::addOffsetToHWORD
 		(
-			PrintinSprite::getBgmapAddress(PrintPrinter::getActiveSprite()) + ((yOffset + i) << 6) + 2,
+			PrintinSprite::getPrintingAddress(PrintPrinter::getActiveSprite()) + ((yOffset + i) << 6) + 2,
 			(uint16*)charMemoryMap,
 			__CHARS_PER_ROW_TO_SHOW,
 			this->charSegment * __CHARS_PER_SEGMENT_TO_SHOW + i * __CHARS_PER_ROW_TO_SHOW
@@ -1069,7 +1069,7 @@ void Debug::showBgmapSegment()
 	{
 		Mem::copyHWORD
 		(
-			PrintinSprite::getBgmapAddress(Printer::getActiveSprite()) + ((row + topBorder) << 6) + offsetDisplacement,
+			PrintinSprite::getPrintingAddress(Printer::getActiveSprite()) + ((row + topBorder) << 6) + offsetDisplacement,
 			(const uint16*)(&bgmapSpaceBaseAddress[(0x1000 * (this->bgmapSegment)) + ((row + myDisplacement) << 6) + mxDisplacement]), 
 			numberOfHWORDS
 		);

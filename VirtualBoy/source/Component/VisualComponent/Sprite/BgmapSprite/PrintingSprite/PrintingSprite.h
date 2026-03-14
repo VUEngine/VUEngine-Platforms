@@ -77,19 +77,15 @@ class PrintingSprite : BgmapSprite
 
 	/// Get the starting addres in BGMAP space of the printing area.
 	/// @return The starting addres in BGMAP space of the printing area
-	uint16* getBgmapAddress();
+	uint16* getPrintingAddress();
 
-	/// Get the printing BGMAP segment.
+	/// Get X coordinate of the texture in memory.
 	/// @return The BGMAP segment index of where the printing is performed
-	int16 getPrintingBgmapSegment();
+	int16 getTextureXCoordinate();
 
-	/// Get the printing BGMAP x offset.
+	/// Get Y coordinate of the texture in memory.
 	/// @return The BGMAP segment index of where the printing is performed
-	int16 getBgmapXOffset();
-
-	/// Get the printing BGMAP y offset.
-	/// @return The BGMAP segment index of where the printing is performed
-	int16 getBgmapYOffset();
+	int16 getTextureYCoordinate();
 }
 
 #endif

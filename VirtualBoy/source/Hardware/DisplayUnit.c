@@ -619,16 +619,16 @@ static void DisplayUnit::showException()
 	// Error display message
 	WorldAttributes* worldAttributesBaseAddress = (WorldAttributes*)__WORLD_SPACE_BASE_ADDRESS;
 
-	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].mx = PrintingSprite::getBgmapXOffset(Printer::getActiveSprite());
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].mx = PrintingSprite::getTextureXCoordinate(Printer::getActiveSprite());
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].mp = __PRINTING_BGMAP_PARALLAX_OFFSET;
-	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].my = PrintingSprite::getBgmapYOffset(Printer::getActiveSprite());
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].my = PrintingSprite::getTextureYCoordinate(Printer::getActiveSprite());
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].gx = 0;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].gp = 0;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].gy = 0;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].w = __SCREEN_WIDTH;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].h = __SCREEN_HEIGHT;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].head = 
-		__WORLD_ON | __WORLD_BGMAP | __WORLD_OVR | *PrintingSprite::getBgmapAddress(Printer::getActiveSprite());
+		__WORLD_ON | __WORLD_BGMAP | __WORLD_OVR | *PrintingSprite::getPrintingAddress(Printer::getActiveSprite());
 
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD - 1].head = __WORLD_END;
 }
