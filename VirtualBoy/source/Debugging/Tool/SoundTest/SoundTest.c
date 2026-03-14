@@ -72,7 +72,7 @@ void SoundTest::show()
 
 	SpriteManager::hideAllSprites(spriteManager, NULL, false);
 #endif
-	Printer::resetCoordinates();
+	Printer::resetScreenPosition();
 	Printer::show(Printer::getInstance());
 
 	Timer::setResolution(__TIMER_100US);

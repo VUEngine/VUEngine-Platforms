@@ -81,7 +81,7 @@ static void Profiler::initialize()
 	Profiler profiler = Profiler::getInstance();
 
 	Profiler::reset();
-	Printer::resetCoordinates();
+	Printer::resetScreenPosition();
 
 	profiler->initialized = true;
 
@@ -335,7 +335,7 @@ static void Profiler::print()
 {
 	Profiler profiler = Profiler::getInstance();
 
-	Printer::resetCoordinates();
+	Printer::resetScreenPosition();
 	Printer::setWorldCoordinates(0, 0, -64, +3);
 	Printer::clear();
 	Printer::text("================================================", 0, 27, "Profiler");
