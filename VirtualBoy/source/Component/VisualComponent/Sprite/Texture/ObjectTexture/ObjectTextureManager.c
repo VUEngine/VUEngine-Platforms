@@ -22,7 +22,7 @@
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 #ifdef __RELEASE		
-friend class CharSet;
+friend class TileSet;
 #endif
 friend class ObjectTexture;
 friend class Texture;

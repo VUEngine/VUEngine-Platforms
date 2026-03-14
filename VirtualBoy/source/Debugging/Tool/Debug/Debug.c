@@ -26,8 +26,8 @@
 #include <Camera.h>
 #include <CameraEffectManager.h>
 #include <CameraMovementManager.h>
-#include <CharSet.h>
-#include <CharSetManager.h>
+#include <TileSet.h>
+#include <TileSetManager.h>
 #include <Clock.h>
 #include <ClockManager.h>
 #include <Collider.h>
@@ -550,7 +550,7 @@ void Debug::memoryStatusShowFirstPage(int32 increment __attribute__ ((unused)), 
 	ClassSizeData classesSizeData[] =
 	{
 		{&BgmapTextureManager_getObjectSize, 			"BgmapTextureManager"},
-		{&CharSetManager_getObjectSize, 				"CharSetManager"},
+		{&TileSetManager_getObjectSize, 				"TileSetManager"},
 		{&ClockManager_getObjectSize, 					"ClockManager"},
 		{&ColliderManager_getObjectSize, 				"ColliderManager"},
 		{&Keypad_getObjectSize, 					"Keypad"},
@@ -602,7 +602,7 @@ void Debug::memoryStatusShowThirdPage(int32 increment __attribute__ ((unused)), 
 		{&BgmapSprite_getObjectSize,			"BgmapAnim. Sprite"},
 		{&BgmapSprite_getObjectSize, 					"BgmapSprite"},
 		{&BgmapTexture_getObjectSize, 					"BgmapTexture"},
-		{&CharSet_getObjectSize, 						"CharSet"},
+		{&TileSet_getObjectSize, 						"TileSet"},
 		{&MBgmapSprite_getObjectSize, 					"MBgmapSprite"},
 		{&ObjectSprite_getObjectSize,			"ObjectAnim. Sprite"},
 		{&ObjectSprite_getObjectSize,					"ObjectSprite"},
@@ -795,7 +795,7 @@ void Debug::charMemoryShowStatus(int32 increment __attribute__ ((unused)), int32
 	if(-1 == this->charSegment)
 	{
 		Debug::setBlackBackground(this);
-		CharSetManager::print(x, y);
+		TileSetManager::print(x, y);
 	}
 	else if(charSegments > this->charSegment)
 	{
@@ -816,7 +816,7 @@ void Debug::charMemoryShowStatus(int32 increment __attribute__ ((unused)), int32
 	{
 		this->charSegment = -1;
 		Debug::setBlackBackground(this);
-		CharSetManager::print(x, y);
+		TileSetManager::print(x, y);
 	}
 }
 

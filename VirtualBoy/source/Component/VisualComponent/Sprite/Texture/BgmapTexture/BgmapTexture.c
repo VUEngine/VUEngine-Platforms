@@ -12,7 +12,7 @@
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 #include <BgmapTextureManager.h>
-#include <CharSet.h>
+#include <TileSet.h>
 #include <DebugConfig.h>
 #include <Mem.h>
 #include <DisplayUnit.h>
@@ -76,7 +76,7 @@ bool BgmapTexture::write(int16 maximumTextureRowsToWrite)
 		this->remainingRowsToBeWritten = this->textureSpec->rows;
 	}
 
-	uint16 charSetOffset = (uint16)CharSet::getOffset(this->charSet);
+	uint16 charSetOffset = (uint16)TileSet::getOffset(this->charSet);
 	
 	if(BgmapTexture::isMultiframe(this))
 	{
@@ -208,11 +208,11 @@ void BgmapTexture::writeAllFrames(int16 maximumTextureRowsToWrite, int16 xOffset
 		return;
 	}
 
-	bool isCharSetOptimized = CharSet::isOptimized(this->charSet);
+	bool isTileSetOptimized = TileSet::isOptimized(this->charSet);
 
 	int16 currentXOffset = xOffset;
 	int16 currentYOffset = yOffset;
-	int16 charSetOffsetDelta = isCharSetOptimized ? 0 : this->textureSpec->cols * this->textureSpec->rows;
+	int16 charSetOffsetDelta = isTileSetOptimized ? 0 : this->textureSpec->cols * this->textureSpec->rows;
 
 	this->mapDisplacement = 0;
 
@@ -222,7 +222,7 @@ void BgmapTexture::writeAllFrames(int16 maximumTextureRowsToWrite, int16 xOffset
 
 		BgmapTexture::writeFrame
 		(
-			this, maximumTextureRowsToWrite, true, currentXOffset, currentYOffset, charSetOffset, isCharSetOptimized ? frame : 0
+			this, maximumTextureRowsToWrite, true, currentXOffset, currentYOffset, charSetOffset, isTileSetOptimized ? frame : 0
 		);
 
 		charSetOffset += charSetOffsetDelta;

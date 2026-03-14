@@ -27,7 +27,7 @@
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 #ifdef __RELEASE		
-friend class CharSet;
+friend class TileSet;
 #endif
 friend class Texture;
 friend class BgmapTexture;
@@ -527,7 +527,7 @@ BgmapTexture BgmapTextureManager::allocateTexture
 		Printer::setDebugMode();
 		Printer::clear();
 
-		NM_ASSERT(false, "BgmapTextureManager::allocateCharSet: BGMAP memory depleted");
+		NM_ASSERT(false, "BgmapTextureManager::allocateTileSet: BGMAP memory depleted");
 #endif
 
 		return NULL;

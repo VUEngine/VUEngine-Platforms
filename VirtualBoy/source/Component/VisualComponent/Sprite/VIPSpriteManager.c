@@ -13,7 +13,7 @@
 
 #include <BgmapSprite.h>
 #include <BgmapTextureManager.h>
-#include <CharSet.h>
+#include <TileSet.h>
 #include <ComponentManager.h>
 #ifdef __DEBUG_TOOL
 #include <Debug.h>

@@ -160,7 +160,7 @@ void TextObjectSprite::out(uint16 index)
 		return;
 	}
 
-	uint32 offset = CharSet::getOffset(fontData->charSet);
+	uint32 offset = TileSet::getOffset(fontData->charSet);
 
 	// Print text
 	while(this->text[i])
@@ -174,13 +174,13 @@ void TextObjectSprite::out(uint16 index)
 				int32 objectIndex = index + i;
 
 				uint16 charNumber =
-					// Offset of charset in char memory
+					// Offset of tileSet in char memory
 					offset +
 
-					// Offset of character in charset
+					// Offset of character in tileSet
 					((uint8)(this->text[i] - fontData->fontSpec->offset) * fontData->fontSpec->fontSize.x) +
 
-					// Additional y offset in charset
+					// Additional y offset in tileSet
 					(((uint8)(this->text[i] - fontData->fontSpec->offset)
 						/ fontData->fontSpec->charactersPerLineInCharset
 						* fontData->fontSpec->charactersPerLineInCharset * fontData->fontSpec->fontSize.x)

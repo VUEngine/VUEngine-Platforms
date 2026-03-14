@@ -12,7 +12,7 @@
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 #include <BgmapSprite.h>
-#include <CharSet.h>
+#include <TileSet.h>
 #ifdef __DEBUG_TOOL
 #include <Debug.h>
 #endif
