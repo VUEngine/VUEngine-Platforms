@@ -184,7 +184,7 @@ const uint16 DefaultPrintingMap[] __attribute__((aligned(4))) =
 	0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,
 };
 
-TileSetROMSpec DefaultPrintingCharsetSpec =
+TileSetROMSpec DefaultPrintingTileSetSpec =
 {
 	// Number of TILEs in function of the number of frames to load at the same time
 	1,
@@ -205,7 +205,7 @@ TileSetROMSpec DefaultPrintingCharsetSpec =
 const TextureROMSpec DefaultPrintingTextureSpec =
 {
 	// Pointer to the char spec that the texture uses
-	(TileSetSpec*)&DefaultPrintingCharsetSpec,
+	(TileSetSpec*)&DefaultPrintingTileSetSpec,
 
 	// Pointer to the map array that defines how to use the tiles from the char set
 	(uint16*)DefaultPrintingMap,

@@ -151,7 +151,7 @@ int16 TextObjectSprite::doRender(int16 index)
 void TextObjectSprite::out(uint16 index)
 {
 	uint32 i = 0;
-	uint32 charOffset = 0, charOffsetX = 0, charOffsetY = 0;
+	uint32 tileOffset = 0, tileOffsetX = 0, tileOffsetY = 0;
 
 	FontData* fontData = Printer::getFontByName(this->font);
 
@@ -165,11 +165,11 @@ void TextObjectSprite::out(uint16 index)
 	// Print text
 	while(this->text[i])
 	{
-		for(charOffsetX = 0; charOffsetX < fontData->fontSpec->fontSize.x; charOffsetX++)
+		for(tileOffsetX = 0; tileOffsetX < fontData->fontSpec->fontSize.x; tileOffsetX++)
 		{
-			for(charOffsetY = 0; charOffsetY < fontData->fontSpec->fontSize.y; charOffsetY++)
+			for(tileOffsetY = 0; tileOffsetY < fontData->fontSpec->fontSize.y; tileOffsetY++)
 			{
-				charOffset = charOffsetX + (charOffsetY * fontData->fontSpec->charactersPerLineInCharset * fontData->fontSpec->fontSize.x);
+				tileOffset = tileOffsetX + (tileOffsetY * fontData->fontSpec->charactersPerLineInTileSet * fontData->fontSpec->fontSize.x);
 
 				int32 objectIndex = index + i;
 
@@ -182,12 +182,12 @@ void TextObjectSprite::out(uint16 index)
 
 					// Additional y offset in tileSet
 					(((uint8)(this->text[i] - fontData->fontSpec->offset)
-						/ fontData->fontSpec->charactersPerLineInCharset
-						* fontData->fontSpec->charactersPerLineInCharset * fontData->fontSpec->fontSize.x)
+						/ fontData->fontSpec->charactersPerLineInTileSet
+						* fontData->fontSpec->charactersPerLineInTileSet * fontData->fontSpec->fontSize.x)
 							* (fontData->fontSpec->fontSize.y - 1)) +
 
 					// Respective char of character
-					charOffset;
+					tileOffset;
 
 				ObjectAttributes* objectPointer = &_objectAttributesCache[objectIndex];
 
