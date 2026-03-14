@@ -45,7 +45,7 @@ void ObjectSprite::constructor(Entity owner, const ObjectSpriteSpec* objectSprit
 	// Always explicitly call the base's constructor 
 	Base::constructor(owner, (SpriteSpec*)objectSpriteSpec);
 
-	this->head = objectSpriteSpec->display & __OBJECT_SPRITE_CHAR_SHOW_MASK;
+	this->head = objectSpriteSpec->display & __OBJECT_SPRITE_TILE_SHOW_MASK;
 	this->objectSpriteContainer = NULL;
 
 	this->displacement = objectSpriteSpec->spriteSpec.displacement;
@@ -124,7 +124,7 @@ int16 ObjectSprite::doRender(int16 index)
 			
 			for (int16 j = 0; j < cols; j++, object--)
 			{				
-				object->head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
+				object->head = __OBJECT_SPRITE_TILE_HIDE_MASK;
 			}
 
 			jDisplacement -= cols;
@@ -144,7 +144,7 @@ int16 ObjectSprite::doRender(int16 index)
 
 			if((unsigned)(outputX - xLimit) > (unsigned)(cameraFrustumX1 - xLimit))
 			{
-				object->head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
+				object->head = __OBJECT_SPRITE_TILE_HIDE_MASK;
 				continue;
 			}
 
@@ -259,10 +259,10 @@ void ObjectSprite::print(int32 x, int32 y)
 	Printer::text("Index: ", x, ++y, NULL);
 	Printer::int32(this->index, x + 18, y, NULL);
 	Printer::text("Transparent:                         ", x, ++y, NULL);
-	Printer::text(transparency > 0 ? __CHAR_CHECKBOX_CHECKED : __CHAR_CHECKBOX_UNCHECKED, x + 18, y, NULL);
+	Printer::text(transparency > 0 ? __TILE_CHECKBOX_CHECKED : __TILE_CHECKBOX_UNCHECKED, x + 18, y, NULL);
 	Printer::text(transparency == 1 ? "(Even)" : (transparency == 2) ? "(Odd)" : "", x + 20, y, NULL);
 	Printer::text("Shown:                         ", x, ++y, NULL);
-	Printer::text(__HIDE != this->show ? __CHAR_CHECKBOX_CHECKED : __CHAR_CHECKBOX_UNCHECKED, x + 18, y, NULL);
+	Printer::text(__HIDE != this->show ? __TILE_CHECKBOX_CHECKED : __TILE_CHECKBOX_UNCHECKED, x + 18, y, NULL);
 
 	Printer::text("Pos. (x,y,z,p):                      ", x, ++y, NULL);
 	Printer::int32(this->position.x, x + 18, y, NULL);
@@ -335,7 +335,7 @@ void ObjectSprite::removeFromCache()
 			{
 				int16 objectIndex = objectIndexStart - j;
 				objectPointer = &_objectAttributesCache[objectIndex];
-				objectPointer->head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
+				objectPointer->head = __OBJECT_SPRITE_TILE_HIDE_MASK;
 			}
 		}
 	}

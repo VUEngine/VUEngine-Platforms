@@ -485,10 +485,10 @@ void BgmapSprite::print(int32 x, int32 y)
 	Printer::text("Head:                         ", x, ++y, NULL);
 	Printer::hex(BgmapSprite::getEffectiveHead(this), x + 18, y, 8, NULL);
 	Printer::text("Transparent:                         ", x, ++y, NULL);
-	Printer::text(transparency > 0 ? __CHAR_CHECKBOX_CHECKED : __CHAR_CHECKBOX_UNCHECKED, x + 18, y, NULL);
+	Printer::text(transparency > 0 ? __TILE_CHECKBOX_CHECKED : __TILE_CHECKBOX_UNCHECKED, x + 18, y, NULL);
 	Printer::text(transparency == 1 ? "(Even)" : (transparency == 2) ? "(Odd)" : "", x + 20, y, NULL);
 	Printer::text("Shown:                         ", x, ++y, NULL);
-	Printer::text(__HIDE != this->show ? __CHAR_CHECKBOX_CHECKED : __CHAR_CHECKBOX_UNCHECKED, x + 18, y, NULL);
+	Printer::text(__HIDE != this->show ? __TILE_CHECKBOX_CHECKED : __TILE_CHECKBOX_UNCHECKED, x + 18, y, NULL);
 
 	Printer::text("Pos. (x,y,z,p):                      ", x, ++y, NULL);
 	Printer::int32(this->position.x, x + 18, y, NULL);
@@ -540,7 +540,7 @@ void BgmapSprite::print(int32 x, int32 y)
 			Printer::text
 			(
 				
-				Texture::isWritten(bgmapTexture) ? __CHAR_CHECKBOX_CHECKED : __CHAR_CHECKBOX_UNCHECKED, x + 18, y, NULL
+				Texture::isWritten(bgmapTexture) ? __TILE_CHECKBOX_CHECKED : __TILE_CHECKBOX_UNCHECKED, x + 18, y, NULL
 			);
 
 			Printer::text("Rows remaining:                  ", x, ++y, NULL);

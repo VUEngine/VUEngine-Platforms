@@ -474,7 +474,7 @@ void SoundTest::printGUI(bool clearScreen)
 		return;
 	}
 
-	Printer::text(__CHAR_SELECTOR_LEFT, 1, 2, NULL);
+	Printer::text(__TILE_SELECTOR_LEFT, 1, 2, NULL);
 
 	uint16 totalSounds = SoundTest::getTotalSounds(this);
 
@@ -483,7 +483,7 @@ void SoundTest::printGUI(bool clearScreen)
 	Printer::int32(this->soundIndex + 1, 1 + 1, 2, NULL);
 	Printer::text("/" , 1 + 1 + selectedSoundDigits, 2, NULL);
 	Printer::int32(SoundTest::getTotalSounds(this), 1 + 1 + selectedSoundDigits + 1, 2, NULL);
-	Printer::text(__CHAR_SELECTOR, 1 + 1 + selectedSoundDigits + 1 + totalSoundsDigits, 2, NULL);
+	Printer::text(__TILE_SELECTOR, 1 + 1 + selectedSoundDigits + 1 + totalSoundsDigits, 2, NULL);
 
 	if(isDeleted(this->sound))
 	{

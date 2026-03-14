@@ -723,7 +723,7 @@ static void DisplayUnit::clearGraphicMemory()
 
 	for(int32 i = __TOTAL_OBJECTS - 1; 0 <= i; i--)
 	{
-		_objectAttributesCache[i].head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
+		_objectAttributesCache[i].head = __OBJECT_SPRITE_TILE_HIDE_MASK;
 	}
 
 	for(int32 i = 0; i < __TOTAL_OBJECTS; i++)

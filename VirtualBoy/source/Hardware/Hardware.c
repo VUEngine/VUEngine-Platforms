@@ -203,9 +203,9 @@ static void Hardware::printStackStatus(int32 x, int32 y, bool resumed)
 
 	if(resumed)
 	{
-		if((__SCREEN_WIDTH_IN_CHARS) < x + Math::getDigitsCount(room) + 13)
+		if((__SCREEN_WIDTH_IN_TILES) < x + Math::getDigitsCount(room) + 13)
 		{
-			x = (__SCREEN_WIDTH_IN_CHARS) - Math::getDigitsCount(room) - 13;
+			x = (__SCREEN_WIDTH_IN_TILES) - Math::getDigitsCount(room) - 13;
 		}
 
 		Printer::text("   STACK'S ROOM		" , x - 3, y, NULL);
@@ -213,9 +213,9 @@ static void Hardware::printStackStatus(int32 x, int32 y, bool resumed)
 	}
 	else
 	{
-		if((__SCREEN_WIDTH_IN_CHARS) - 1 < Math::getDigitsCount(room) + 15)
+		if((__SCREEN_WIDTH_IN_TILES) - 1 < Math::getDigitsCount(room) + 15)
 		{
-			x = (__SCREEN_WIDTH_IN_CHARS) - 1 - Math::getDigitsCount(room) - 11;
+			x = (__SCREEN_WIDTH_IN_TILES) - 1 - Math::getDigitsCount(room) - 11;
 		}
 
 		Printer::text("   STACK'S STATUS" , x - 3, y, NULL);

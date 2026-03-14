@@ -93,8 +93,8 @@ extern ClassSizeData _userClassesSizeData[];
 // CLASS' MACROS
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-#define __CHARS_PER_SEGMENT_TO_SHOW			512
-#define __CHARS_PER_ROW_TO_SHOW				32
+#define __TILES_PER_SEGMENT_TO_SHOW			512
+#define __TILES_PER_ROW_TO_SHOW				32
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC METHODS
@@ -785,7 +785,7 @@ void Debug::charMemoryShowStatus(int32 increment __attribute__ ((unused)), int32
 {
 	this->charSegment += increment;
 
-	int32 charSegments = __CHAR_MEMORY_TOTAL_CHARS / __CHARS_PER_SEGMENT_TO_SHOW;
+	int32 charSegments = __TILE_MEMORY_TOTAL_TILES / __TILES_PER_SEGMENT_TO_SHOW;
 
 	if(-1 > this->charSegment)
 	{
@@ -799,15 +799,15 @@ void Debug::charMemoryShowStatus(int32 increment __attribute__ ((unused)), int32
 	}
 	else if(charSegments > this->charSegment)
 	{
-		Printer::text("CHAR MEMORY INSPECTOR", x, y++, NULL);
+		Printer::text("TILE MEMORY INSPECTOR", x, y++, NULL);
 		Printer::text("Segment:  / ", x, ++y, NULL);
 		Printer::int32(this->charSegment + 1, x + 9, y, NULL);
 		Printer::int32(charSegments, x + 11, y, NULL);
 		Printer::text("Chars:       -    ", x, ++y, NULL);
-		Printer::int32(this->charSegment * __CHARS_PER_SEGMENT_TO_SHOW, x + 9, y, NULL);
+		Printer::int32(this->charSegment * __TILES_PER_SEGMENT_TO_SHOW, x + 9, y, NULL);
 		Printer::int32
 		(
-			this->charSegment * __CHARS_PER_SEGMENT_TO_SHOW + __CHARS_PER_SEGMENT_TO_SHOW - 1, x + 14, y, NULL
+			this->charSegment * __TILES_PER_SEGMENT_TO_SHOW + __TILES_PER_SEGMENT_TO_SHOW - 1, x + 14, y, NULL
 		);
 
 		Debug::charMemoryShowMemory(this, increment, x, y);
@@ -842,7 +842,7 @@ void Debug::charMemoryShowMemory(int32 increment __attribute__ ((unused)), int32
 		"\x08\x08\x08\x08\x08\x08\x08\x08\x06", 1, yOffset+16, NULL
 	);
 
-	for(i = 0; i < __CHARS_PER_SEGMENT_TO_SHOW / __CHARS_PER_ROW_TO_SHOW && i < __SCREEN_HEIGHT / 8; i++)
+	for(i = 0; i < __TILES_PER_SEGMENT_TO_SHOW / __TILES_PER_ROW_TO_SHOW && i < __SCREEN_HEIGHT / 8; i++)
 	{
 		Printer::text("\x07                                \x07", 1, yOffset+i, NULL);
 	}
@@ -856,14 +856,14 @@ void Debug::charMemoryShowMemory(int32 increment __attribute__ ((unused)), int32
 	};
 
 	// Put the map into memory calculating the number of char for each reference
-	for(i = 0; i <  __CHARS_PER_SEGMENT_TO_SHOW / __CHARS_PER_ROW_TO_SHOW; i++)
+	for(i = 0; i <  __TILES_PER_SEGMENT_TO_SHOW / __TILES_PER_ROW_TO_SHOW; i++)
 	{
 		Mem::addOffsetToHWORD
 		(
 			PrintinSprite::getPrintingAddress(PrintPrinter::getActiveSprite()) + ((yOffset + i) << 6) + 2,
 			(uint16*)charMemoryMap,
-			__CHARS_PER_ROW_TO_SHOW,
-			this->charSegment * __CHARS_PER_SEGMENT_TO_SHOW + i * __CHARS_PER_ROW_TO_SHOW
+			__TILES_PER_ROW_TO_SHOW,
+			this->charSegment * __TILES_PER_SEGMENT_TO_SHOW + i * __TILES_PER_ROW_TO_SHOW
 		);
 	}
 }
@@ -962,7 +962,7 @@ void Debug::showBgmapSegment()
 			bottomBorder = 0;
 			leftBorder = 0;
 			rightBorder = 2;
-			mxDisplacement = 64 - (__SCREEN_WIDTH_IN_CHARS - (leftBorder + rightBorder));
+			mxDisplacement = 64 - (__SCREEN_WIDTH_IN_TILES - (leftBorder + rightBorder));
 			myDisplacement = 0;
 			break;
 		}
@@ -983,7 +983,7 @@ void Debug::showBgmapSegment()
 			leftBorder = 2;
 			rightBorder = 0;
 			mxDisplacement = 0;
-			myDisplacement = __SCREEN_HEIGHT_IN_CHARS - (topBorder + bottomBorder) - 2;
+			myDisplacement = __SCREEN_HEIGHT_IN_TILES - (topBorder + bottomBorder) - 2;
 			break;
 		}
 
@@ -1002,8 +1002,8 @@ void Debug::showBgmapSegment()
 			bottomBorder = 0;
 			leftBorder = 0;
 			rightBorder = 2;
-			mxDisplacement = 64 - (__SCREEN_WIDTH_IN_CHARS - (leftBorder + rightBorder));
-			myDisplacement = __SCREEN_HEIGHT_IN_CHARS - (topBorder + bottomBorder) - 2;
+			mxDisplacement = 64 - (__SCREEN_WIDTH_IN_TILES - (leftBorder + rightBorder));
+			myDisplacement = __SCREEN_HEIGHT_IN_TILES - (topBorder + bottomBorder) - 2;
 			break;
 		}
 
@@ -1029,7 +1029,7 @@ void Debug::showBgmapSegment()
 			leftBorder = 2;
 			rightBorder = 0;
 			mxDisplacement = 0;
-			myDisplacement = 64 - (__SCREEN_HEIGHT_IN_CHARS - (topBorder + bottomBorder));
+			myDisplacement = 64 - (__SCREEN_HEIGHT_IN_TILES - (topBorder + bottomBorder));
 			break;
 		}
 		
@@ -1054,18 +1054,18 @@ void Debug::showBgmapSegment()
 			bottomBorder = 2;
 			leftBorder = 0;
 			rightBorder = 2;
-			mxDisplacement = 64 - (__SCREEN_WIDTH_IN_CHARS - (leftBorder + rightBorder));
-			myDisplacement = 64 - (__SCREEN_HEIGHT_IN_CHARS - (topBorder + bottomBorder));
+			mxDisplacement = 64 - (__SCREEN_WIDTH_IN_TILES - (leftBorder + rightBorder));
+			myDisplacement = 64 - (__SCREEN_HEIGHT_IN_TILES - (topBorder + bottomBorder));
 			break;
 		}
 	}
 
-	uint32 numberOfHWORDS = __SCREEN_WIDTH_IN_CHARS - leftBorder - rightBorder;
+	uint32 numberOfHWORDS = __SCREEN_WIDTH_IN_TILES - leftBorder - rightBorder;
 	uint32 offsetDisplacement = leftBorder;
 
 	uint16* const bgmapSpaceBaseAddress = (uint16*)__BGMAP_SPACE_BASE_ADDRESS;
 
-	for(int32 row = 0; row < __SCREEN_HEIGHT_IN_CHARS - topBorder - bottomBorder; row++)
+	for(int32 row = 0; row < __SCREEN_HEIGHT_IN_TILES - topBorder - bottomBorder; row++)
 	{
 		Mem::copyHWORD
 		(
@@ -1341,11 +1341,11 @@ void Debug::showSramPage(int32 increment __attribute__ ((unused)), int32 x __att
 		Printer::text(word, 37, y, NULL);
 
 		// Print scroll bar
-		Printer::text(__CHAR_MEDIUM_RED_BOX, 46, y, NULL);
+		Printer::text(__TILE_MEDIUM_RED_BOX, 46, y, NULL);
 	}
 
 	// Mark scroll bar position
-	Printer::text(__CHAR_BRIGHT_RED_BOX, 46, y - 15 + (this->sramPage / (totalPages / 16)), NULL);
+	Printer::text(__TILE_BRIGHT_RED_BOX, 46, y - 15 + (this->sramPage / (totalPages / 16)), NULL);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

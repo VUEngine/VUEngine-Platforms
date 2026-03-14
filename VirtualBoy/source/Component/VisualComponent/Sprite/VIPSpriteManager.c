@@ -184,7 +184,7 @@ void VIPSpriteManager::stopRendering()
 	// Clear OBJ memory
 	for(int32 i = *this->objectIndex; this->previousObjectIndex <= i; i--)
 	{
-		_objectAttributesCache[i].head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
+		_objectAttributesCache[i].head = __OBJECT_SPRITE_TILE_HIDE_MASK;
 	}
 
 	this->previousObjectIndex = *this->objectIndex;

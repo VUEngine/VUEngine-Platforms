@@ -20,8 +20,8 @@
 // CLASS' MACROS
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-#define __OBJECT_SPRITE_CHAR_SHOW_MASK				0xC000
-#define __OBJECT_SPRITE_CHAR_HIDE_MASK				0x0000
+#define __OBJECT_SPRITE_TILE_SHOW_MASK				0xC000
+#define __OBJECT_SPRITE_TILE_HIDE_MASK				0x0000
 
 #define __OBJECT_SPRITE_FLIP_X_DISPLACEMENT			8
 #define __OBJECT_SPRITE_FLIP_Y_DISPLACEMENT			8

@@ -82,7 +82,7 @@ int16 TextObjectSprite::doRender(int16 index)
 	//FontData* fontData = Printer::getFontByName(this->font);
 
 	int32 i = 0;
-	uint16 secondWordValue = (this->head & __OBJECT_SPRITE_CHAR_SHOW_MASK) | ((this->position.parallax + this->displacement.parallax) & ~__OBJECT_SPRITE_CHAR_SHOW_MASK);
+	uint16 secondWordValue = (this->head & __OBJECT_SPRITE_TILE_SHOW_MASK) | ((this->position.parallax + this->displacement.parallax) & ~__OBJECT_SPRITE_TILE_SHOW_MASK);
 	uint16 fourthWordValue = (this->head & 0x3000);
 	ObjectAttributes* objectPointer = NULL;
 
@@ -102,7 +102,7 @@ int16 TextObjectSprite::doRender(int16 index)
 				int32 objectIndex = index + j;
 
 				objectPointer = &_objectAttributesCache[objectIndex];
-				objectPointer->head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
+				objectPointer->head = __OBJECT_SPRITE_TILE_HIDE_MASK;
 			}
 
 			continue;
@@ -122,7 +122,7 @@ int16 TextObjectSprite::doRender(int16 index)
 			// Screen's bounds
 			if((unsigned)(outputX - _cameraFrustum->x0 + 4) > (unsigned)(_cameraFrustum->x1 - _cameraFrustum->x0))
 			{
-				objectPointer->head = __OBJECT_SPRITE_CHAR_HIDE_MASK;
+				objectPointer->head = __OBJECT_SPRITE_TILE_HIDE_MASK;
 				continue;
 			}
 

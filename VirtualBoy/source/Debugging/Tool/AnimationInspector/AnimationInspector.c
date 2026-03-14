@@ -779,7 +779,7 @@ void AnimationInspector::createSpriteSelector()
 	}
 
 	this->spriteSelector = 
-		new OptionsSelector((__SCREEN_WIDTH_IN_CHARS) / 3, __MAX_FRAMES_PER_ANIMATION_FUNCTION >> 1, NULL, NULL, NULL);
+		new OptionsSelector((__SCREEN_WIDTH_IN_TILES) / 3, __MAX_FRAMES_PER_ANIMATION_FUNCTION >> 1, NULL, NULL, NULL);
 
 	VirtualList spriteIndexes = new VirtualList();
 
