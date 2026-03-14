@@ -84,7 +84,7 @@ ClassPointer ObjectSprite::getBasicType()
 int16 ObjectSprite::doRender(int16 index)
 {
 	NM_ASSERT(!isDeleted(this->texture), "ObjectSprite::doRender: null texture");
-	NM_ASSERT(!isDeleted(this->texture->charSet), "ObjectSprite::doRender: null char set");
+	NM_ASSERT(!isDeleted(this->texture->tileSet), "ObjectSprite::doRender: null char set");
 
 	// Cache reused references
 	int16 cameraFrustumX0 = _cameraFrustum->x0, cameraFrustumX1 = _cameraFrustum->x1;
@@ -101,7 +101,7 @@ int16 ObjectSprite::doRender(int16 index)
 
 	uint16 secondWordValue = this->head | (this->position.parallax + this->displacement.parallax);
 	uint16 fourthWordValue = 
-		this->fourthWordValue | (texture->charSet->offset + this->objectTextureSource.displacement);
+		this->fourthWordValue | (texture->tileSet->offset + this->objectTextureSource.displacement);
 
 	uint16* framePointer = (uint16*)(texture->textureSpec->map + texture->mapDisplacement);
 	ObjectAttributes* objectAttributesCache = &_objectAttributesCache[index];

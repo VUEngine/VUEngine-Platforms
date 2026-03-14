@@ -58,7 +58,7 @@ void BgmapTexture::destructor()
 
 bool BgmapTexture::write(int16 maximumTextureRowsToWrite)
 {
-	if(isDeleted(this->charSet))
+	if(isDeleted(this->tileSet))
 	{
 		// Make sure to force full writing if no char set
 		this->remainingRowsToBeWritten = this->textureSpec->rows;
@@ -76,18 +76,18 @@ bool BgmapTexture::write(int16 maximumTextureRowsToWrite)
 		this->remainingRowsToBeWritten = this->textureSpec->rows;
 	}
 
-	uint16 charSetOffset = (uint16)TileSet::getOffset(this->charSet);
+	uint16 tileSetOffset = (uint16)TileSet::getOffset(this->tileSet);
 	
 	if(BgmapTexture::isMultiframe(this))
 	{
-		BgmapTexture::writeAllFrames(this, maximumTextureRowsToWrite, this->xOffset, this->yOffset, charSetOffset);
+		BgmapTexture::writeAllFrames(this, maximumTextureRowsToWrite, this->xOffset, this->yOffset, tileSetOffset);
 	}
 	else
 	{
 		BgmapTexture::writeFrame
 		(
 			this, maximumTextureRowsToWrite, kTexturePendingWriting < status && kTextureFrameChanged >= status, 
-			this->xOffset, this->yOffset, charSetOffset, 0
+			this->xOffset, this->yOffset, tileSetOffset, 0
 		);
 	}
 
@@ -201,18 +201,18 @@ int8 BgmapTexture::getRemainingRowsToBeWritten()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-void BgmapTexture::writeAllFrames(int16 maximumTextureRowsToWrite, int16 xOffset, int16 yOffset, uint16 charSetOffset)
+void BgmapTexture::writeAllFrames(int16 maximumTextureRowsToWrite, int16 xOffset, int16 yOffset, uint16 tileSetOffset)
 {
 	if((0 > xOffset) | (0 > yOffset))
 	{
 		return;
 	}
 
-	bool isTileSetOptimized = TileSet::isOptimized(this->charSet);
+	bool isTileSetOptimized = TileSet::isOptimized(this->tileSet);
 
 	int16 currentXOffset = xOffset;
 	int16 currentYOffset = yOffset;
-	int16 charSetOffsetDelta = isTileSetOptimized ? 0 : this->textureSpec->cols * this->textureSpec->rows;
+	int16 tileSetOffsetDelta = isTileSetOptimized ? 0 : this->textureSpec->cols * this->textureSpec->rows;
 
 	this->mapDisplacement = 0;
 
@@ -222,10 +222,10 @@ void BgmapTexture::writeAllFrames(int16 maximumTextureRowsToWrite, int16 xOffset
 
 		BgmapTexture::writeFrame
 		(
-			this, maximumTextureRowsToWrite, true, currentXOffset, currentYOffset, charSetOffset, isTileSetOptimized ? frame : 0
+			this, maximumTextureRowsToWrite, true, currentXOffset, currentYOffset, tileSetOffset, isTileSetOptimized ? frame : 0
 		);
 
-		charSetOffset += charSetOffsetDelta;
+		tileSetOffset += tileSetOffsetDelta;
 
 		currentXOffset += this->textureSpec->cols;
 
@@ -308,7 +308,7 @@ static inline void BgmapTexture::addHWORDCompressed
 
 void BgmapTexture::writeFrame
 (
-	int16 maximumTextureRowsToWrite, bool forceFullRewrite, int16 xOffset, int16 yOffset, uint16 charSetOffset, uint16 frame
+	int16 maximumTextureRowsToWrite, bool forceFullRewrite, int16 xOffset, int16 yOffset, uint16 tileSetOffset, uint16 frame
 )
 {
 	if((0 > xOffset) || (0 > yOffset))
@@ -323,7 +323,7 @@ void BgmapTexture::writeFrame
 	int32 counter = forceFullRewrite ? -1 : maximumTextureRowsToWrite;
 	uint16 flip = ((this->horizontalFlip << 1) | this->verticalFlip) << 12;
 	int8 remainingRowsToBeWritten = this->remainingRowsToBeWritten;
-	uint16 offset = charSetOffset | (this->palette << 14);
+	uint16 offset = tileSetOffset | (this->palette << 14);
 
 	if(forceFullRewrite)
 	{

@@ -56,7 +56,7 @@ secure void ObjectTextureManager::updateTextures(int16 maximumTextureRowsToWrite
 #ifdef __RELEASE		
 		if(kTextureWritten == texture->status)
 		{
-			texture->status = texture->generation != texture->charSet->generation? kTexturePendingRewriting : texture->status;
+			texture->status = texture->generation != texture->tileSet->generation? kTexturePendingRewriting : texture->status;
 
 			if(kTextureWritten == texture->status)
 			{

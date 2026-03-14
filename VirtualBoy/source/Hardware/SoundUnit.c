@@ -28,7 +28,6 @@ friend class VirtualList;
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 #define __TOTAL_WAVEFORMS						5
-#define __TOTAL_SOUND_SOURCES					6
 #define __TOTAL_MODULATION_CHANNELS 			1
 #define __TOTAL_NOISE_CHANNELS					1
 #define __TOTAL_NORMAL_CHANNELS					(__TOTAL_SOUND_SOURCES - __TOTAL_MODULATION_CHANNELS - __TOTAL_NOISE_CHANNELS)
@@ -137,6 +136,13 @@ static void SoundUnit::stopSoundSourcesUsedBy(uint32 requesterId)
 			delete queuedSoundSourceConfigurationRequest;
 		}
 	}
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static const SoundSourceConfiguration* SoundUnit::getSoundSourceConfigurations()
+{
+	return _soundSourceConfigurations;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

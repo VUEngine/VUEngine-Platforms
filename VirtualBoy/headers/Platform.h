@@ -123,6 +123,7 @@ typedef struct TimerConfig
 // SOUND UNIT
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+#define __TOTAL_SOUND_SOURCES					6
 #define __MAXIMUM_VOLUME						0xF
 
 /// Sound source types

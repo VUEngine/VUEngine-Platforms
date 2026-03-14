@@ -160,7 +160,7 @@ void TextObjectSprite::out(uint16 index)
 		return;
 	}
 
-	uint32 offset = TileSet::getOffset(fontData->charSet);
+	uint32 offset = TileSet::getOffset(fontData->tileSet);
 
 	// Print text
 	while(this->text[i])

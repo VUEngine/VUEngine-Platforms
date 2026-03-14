@@ -169,7 +169,7 @@ secure void BgmapTextureManager::updateTextures(int16 maximumTextureRowsToWrite,
 #ifdef __RELEASE		
 		if(kTextureWritten == texture->status)
 		{
-			texture->status = texture->generation != texture->charSet->generation? kTexturePendingRewriting : texture->status;
+			texture->status = texture->generation != texture->tileSet->generation? kTexturePendingRewriting : texture->status;
 
 			if(kTextureWritten == texture->status)
 			{
@@ -223,7 +223,7 @@ secure void BgmapTextureManager::loadTextures(const TextureSpec** textureSpecs)
 
 		for(int16 i = 0; NULL != textureSpecs[i]; i++)
 		{
-			if(NULL == textureSpecs[i]->charSetSpec)
+			if(NULL == textureSpecs[i]->tileSetSpec)
 			{
 				continue;
 			}
@@ -233,7 +233,7 @@ secure void BgmapTextureManager::loadTextures(const TextureSpec** textureSpecs)
 				textureSpecs[i]->recyclable 
 				|| 
 				(
-					textureSpecs[i]->charSetSpec->shared
+					textureSpecs[i]->tileSetSpec->shared
 				)
 			)
 			{
@@ -302,13 +302,13 @@ secure BgmapTexture BgmapTextureManager::getTexture
 
 	BgmapTexture bgmapTexture = NULL;
 
-	if(NULL == bgmapTextureSpec->charSetSpec)
+	if(NULL == bgmapTextureSpec->tileSetSpec)
 	{
 		bgmapTexture = BgmapTextureManager::allocateTexture(this, bgmapTextureSpec, minimumSegment, mustLiveAtEvenSegment, scValue);
 	}
 	else
 	{
-		if(!bgmapTextureSpec->charSetSpec->shared)
+		if(!bgmapTextureSpec->tileSetSpec->shared)
 		{
 			if(bgmapTextureSpec->recyclable)
 			{
@@ -363,7 +363,7 @@ secure void BgmapTextureManager::releaseTexture(BgmapTexture bgmapTexture)
 		{
 			const TextureSpec* textureSpec = Texture::getSpec(bgmapTexture);
 
-			if(NULL == textureSpec || (!textureSpec->recyclable && !textureSpec->charSetSpec->shared))
+			if(NULL == textureSpec || (!textureSpec->recyclable && !textureSpec->tileSetSpec->shared))
 			{
 				VirtualList::removeData(this->bgmapTextures, bgmapTexture);	
 				delete bgmapTexture;
@@ -441,9 +441,9 @@ BgmapTexture BgmapTextureManager::findTexture(const BgmapTextureSpec* bgmapTextu
 			if
 			(
 				(
-					NULL == allocatedBgmapTexture->charSet 
+					NULL == allocatedBgmapTexture->tileSet 
 					|| 
-					allocatedTextureSpec->charSetSpec->shared == bgmapTextureSpec->charSetSpec->shared
+					allocatedTextureSpec->tileSetSpec->shared == bgmapTextureSpec->tileSetSpec->shared
 				) 
 				&&
 				(
