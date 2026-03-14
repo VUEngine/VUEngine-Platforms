@@ -85,7 +85,10 @@ static void Profiler::initialize()
 
 	profiler->initialized = true;
 
-	PaletteConfig paletteConfig =
+	DisplayColorConfig displayColorConfig = DisplayUnit::getColorConfig();
+
+
+	displayColorConfig.paletteConfig = (PaletteConfig)
 	{
 		{0x50, 0x50, 0x50, 0x50},
 		{0x50, 0x50, 0x50, 0x50}
@@ -93,10 +96,10 @@ static void Profiler::initialize()
 
 	if(4 > (unsigned)__PRINTING_PALETTE)
 	{
-		((uint8*)&paletteConfig.bgmap)[__PRINTING_PALETTE] = 0xE0;
+		((uint8*)&displayColorConfig.paletteConfig .bgmap)[__PRINTING_PALETTE] = 0xE0;
 	}
 
-	DisplayUnit::configurePalettes(paletteConfig);
+	DisplayUnit::applyColorConfig(displayColorConfig);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -185,8 +188,8 @@ static void Profiler::end()
 			profileBrightnessRepeatSpec.brightnessRepeat[i] = 16;
 		}
 
-		DisplayColorConfig displayColorConfig = Stage::getDisplayUnitConfig(this->stage).displayColorConfig;
-		displayColorConfig.brightnessRepeat = &profileBrightnessRepeatSpec;
+		DisplayColorConfig displayColorConfig = DisplayUnit::getColorConfig();
+		displayColorConfig.colorConfig.brightnessRepeat = &profileBrightnessRepeatSpec;
 		DisplayUnit::applyColorConfig(displayColorConfig);
 
 		Profiler::print();
@@ -336,7 +339,7 @@ static void Profiler::print()
 	Profiler profiler = Profiler::getInstance();
 
 	Printer::resetScreenPosition();
-	Printer::setWorldCoordinates(0, 0, -64, +3);
+	Printer::setScreenPosition(0, 0, -64, +3);
 	Printer::clear();
 	Printer::text("================================================", 0, 27, "Profiler");
 

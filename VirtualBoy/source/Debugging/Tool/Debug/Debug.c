@@ -207,7 +207,7 @@ void Debug::constructor()
 	this->spriteIndex = -1;
 	this->bgmapSegment = 0;
 	this->objectSegment = 0;
-	this->charSegment = 0;
+	this->tileSegment = 0;
 	this->sramPage = 0;
 	this->bgmapSegmentDiplayedSection = 0;
 
@@ -241,7 +241,7 @@ void Debug::setupPages()
 	VirtualList::pushBack(this->pages, &Debug::spritesPage);
 	VirtualList::pushBack(this->pages, &Debug::objectsPage);
 	VirtualList::pushBack(this->pages, &Debug::texturesPage);
-	VirtualList::pushBack(this->pages, &Debug::charMemoryPage);
+	VirtualList::pushBack(this->pages, &Debug::tileMemoryPage);
 	VirtualList::pushBack(this->pages, &Debug::physicsPage);
 	VirtualList::pushBack(this->pages, &Debug::hardwareRegistersPage);
 	VirtualList::pushBack(this->pages, &Debug::sramPage);
@@ -766,55 +766,55 @@ void Debug::streamingShowStatus
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-void Debug::charMemoryPage(int32 increment __attribute__ ((unused)), int32 x __attribute__ ((unused)), int32 y __attribute__ ((unused)))
+void Debug::tileMemoryPage(int32 increment __attribute__ ((unused)), int32 x __attribute__ ((unused)), int32 y __attribute__ ((unused)))
 {
 	Debug::removeSubPages(this);
 
-	VirtualList::pushBack(this->subPages, &Debug::charMemoryShowStatus);
-	VirtualList::pushBack(this->subPages, &Debug::charMemoryShowStatus);
+	VirtualList::pushBack(this->subPages, &Debug::tileMemoryShowStatus);
+	VirtualList::pushBack(this->subPages, &Debug::tileMemoryShowStatus);
 	this->currentSubPage = this->subPages->head;
 
-	this->charSegment = -1;
+	this->tileSegment = -1;
 
 	Debug::showSubPage(this, 0);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-void Debug::charMemoryShowStatus(int32 increment __attribute__ ((unused)), int32 x, int32 y)
+void Debug::tileMemoryShowStatus(int32 increment __attribute__ ((unused)), int32 x, int32 y)
 {
-	this->charSegment += increment;
+	this->tileSegment += increment;
 
-	int32 charSegments = __TILE_MEMORY_TOTAL_TILES / __TILES_PER_SEGMENT_TO_SHOW;
+	int32 tileSegments = __TOTAL_TILES / __TILES_PER_SEGMENT_TO_SHOW;
 
-	if(-1 > this->charSegment)
+	if(-1 > this->tileSegment)
 	{
-		this->charSegment = charSegments - 1;
+		this->tileSegment = tileSegments - 1;
 	}
 
-	if(-1 == this->charSegment)
+	if(-1 == this->tileSegment)
 	{
 		Debug::setBlackBackground(this);
 		TileSetManager::print(x, y);
 	}
-	else if(charSegments > this->charSegment)
+	else if(tileSegments > this->tileSegment)
 	{
 		Printer::text("TILE MEMORY INSPECTOR", x, y++, NULL);
 		Printer::text("Segment:  / ", x, ++y, NULL);
-		Printer::int32(this->charSegment + 1, x + 9, y, NULL);
-		Printer::int32(charSegments, x + 11, y, NULL);
-		Printer::text("Chars:       -    ", x, ++y, NULL);
-		Printer::int32(this->charSegment * __TILES_PER_SEGMENT_TO_SHOW, x + 9, y, NULL);
+		Printer::int32(this->tileSegment + 1, x + 9, y, NULL);
+		Printer::int32(tileSegments, x + 11, y, NULL);
+		Printer::text("Tiles:       -    ", x, ++y, NULL);
+		Printer::int32(this->tileSegment * __TILES_PER_SEGMENT_TO_SHOW, x + 9, y, NULL);
 		Printer::int32
 		(
-			this->charSegment * __TILES_PER_SEGMENT_TO_SHOW + __TILES_PER_SEGMENT_TO_SHOW - 1, x + 14, y, NULL
+			this->tileSegment * __TILES_PER_SEGMENT_TO_SHOW + __TILES_PER_SEGMENT_TO_SHOW - 1, x + 14, y, NULL
 		);
 
-		Debug::charMemoryShowMemory(this, increment, x, y);
+		Debug::tileMemoryShowMemory(this, increment, x, y);
 	}
 	else
 	{
-		this->charSegment = -1;
+		this->tileSegment = -1;
 		Debug::setBlackBackground(this);
 		TileSetManager::print(x, y);
 	}
@@ -822,7 +822,7 @@ void Debug::charMemoryShowStatus(int32 increment __attribute__ ((unused)), int32
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-void Debug::charMemoryShowMemory(int32 increment __attribute__ ((unused)), int32 x __attribute__ ((unused)), int32 y)
+void Debug::tileMemoryShowMemory(int32 increment __attribute__ ((unused)), int32 x __attribute__ ((unused)), int32 y)
 {
 	Debug::setBlackBackground(this);
 
@@ -847,7 +847,7 @@ void Debug::charMemoryShowMemory(int32 increment __attribute__ ((unused)), int32
 		Printer::text("\x07                                \x07", 1, yOffset+i, NULL);
 	}
 
-	const uint16 charMemoryMap[] =
+	const uint16 tileMemoryMap[] =
 	{
 		0,	1,	2,	3,	4,	5,	6,	7,
 		8,	9,	10,	11,	12,	13,	14,	15,
@@ -855,15 +855,15 @@ void Debug::charMemoryShowMemory(int32 increment __attribute__ ((unused)), int32
 		24,	25,	26,	27,	28,	29,	30,	31
 	};
 
-	// Put the map into memory calculating the number of char for each reference
+	// Put the map into memory calculating the number of tiles for each reference
 	for(i = 0; i <  __TILES_PER_SEGMENT_TO_SHOW / __TILES_PER_ROW_TO_SHOW; i++)
 	{
 		Mem::addOffsetToHWORD
 		(
 			PrintinSprite::getPrintingAddress(PrintPrinter::getActiveSprite()) + ((yOffset + i) << 6) + 2,
-			(uint16*)charMemoryMap,
+			(uint16*)tileMemoryMap,
 			__TILES_PER_ROW_TO_SHOW,
-			this->charSegment * __TILES_PER_SEGMENT_TO_SHOW + i * __TILES_PER_ROW_TO_SHOW
+			this->tileSegment * __TILES_PER_SEGMENT_TO_SHOW + i * __TILES_PER_ROW_TO_SHOW
 		);
 	}
 }
