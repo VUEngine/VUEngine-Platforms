@@ -21,6 +21,7 @@
 #include <Mem.h>
 #include <ObjectSprite.h>
 #include <Printer.h>
+#include <PrintingSprite.h>
 #include <Profiler.h>
 #include <Singleton.h>
 #include <VirtualList.h>
@@ -618,16 +619,16 @@ static void DisplayUnit::showException()
 	// Error display message
 	WorldAttributes* worldAttributesBaseAddress = (WorldAttributes*)__WORLD_SPACE_BASE_ADDRESS;
 
-	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].mx = Printer::getPrintingBgmapXOffset();
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].mx = PrintingSprite::getBgmapXOffset(Printer::getActiveSprite());
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].mp = __PRINTING_BGMAP_PARALLAX_OFFSET;
-	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].my = Printer::getPrintingBgmapYOffset();
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].my = PrintingSprite::getBgmapYOffset(Printer::getActiveSprite());
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].gx = 0;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].gp = 0;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].gy = 0;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].w = __SCREEN_WIDTH;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].h = __SCREEN_HEIGHT;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].head = 
-		__WORLD_ON | __WORLD_BGMAP | __WORLD_OVR | Printer::getPrintingBgmapSegment();
+		__WORLD_ON | __WORLD_BGMAP | __WORLD_OVR | *PrintingSprite::getBgmapAddress(Printer::getActiveSprite());
 
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD - 1].head = __WORLD_END;
 }

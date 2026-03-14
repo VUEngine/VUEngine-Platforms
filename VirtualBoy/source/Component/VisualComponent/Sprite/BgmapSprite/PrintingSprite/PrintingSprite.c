@@ -410,3 +410,49 @@ void PrintingSprite::setSize(uint16 width, uint16 height)
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+uint16* PrintingSprite::getBgmapAddress()
+{
+	return 
+		(uint16*)__BGMAP_SEGMENT(PrintingSprite::getBgmapSegment(this)) + 
+		PrintingSprite::getBgmapXOffset(this) + 
+		(PrintingSprite::getBgmapYOffset(this) << 6);
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+int16 PrintingSprite::getBgmapSegment()
+{
+	if(isDeleted(this->texture))
+	{
+		return 0;
+	}
+
+	return BgmapTexture::getSegment(this->texture);
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+int16 PrintingSprite::getBgmapXOffset()
+{
+	if(isDeleted(this->texture))
+	{
+		return 0;
+	}
+
+	return BgmapTexture::getXOffset(this->texture);
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+int16 PrintingSprite::getBgmapYOffset()
+{
+	if(isDeleted(this->texture))
+	{
+		return 0;
+	}
+
+	return BgmapTexture::getYOffset(this->texture);
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

@@ -74,6 +74,22 @@ class PrintingSprite : BgmapSprite
 	/// @param width: Width of the WORLD to by used to display the text
 	/// @param height: Height of the WORLD to by used to display the text
 	void setSize(uint16 width, uint16 height);
+
+	/// Get the starting addres in BGMAP space of the printing area.
+	/// @return The starting addres in BGMAP space of the printing area
+	uint16* getBgmapAddress();
+
+	/// Get the printing BGMAP segment.
+	/// @return The BGMAP segment index of where the printing is performed
+	int16 getPrintingBgmapSegment();
+
+	/// Get the printing BGMAP x offset.
+	/// @return The BGMAP segment index of where the printing is performed
+	int16 getBgmapXOffset();
+
+	/// Get the printing BGMAP y offset.
+	/// @return The BGMAP segment index of where the printing is performed
+	int16 getBgmapYOffset();
 }
 
 #endif
