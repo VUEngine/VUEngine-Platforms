@@ -256,7 +256,7 @@ static bool Communications::cancelCommunications()
 	_broadcast = kCommunicationsBroadcastNone;
 	_numberOfBytesPendingTransmission = 0;
 	_numberOfBytesPreviouslySent = 0;
-
+	
 	Communications::removeEventListeners(Communications::getInstance(), NULL, kEventEngineFirst);
 	Communications::discardAllMessages(Communications::getInstance());
 
@@ -541,7 +541,7 @@ static bool Communications::isRemoteReady()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-bool Communications::isCommunicationControlInterrupt()
+static bool Communications::isCommunicationControlInterrupt()
 {
 	return 0 == (_communicationRegisters[__CCSR] & __COM_DISABLE_INTERRUPT);
 }
@@ -672,7 +672,7 @@ static void Communications::correctDataDrift()
 
 				break;
 			}
-			
+
 			shifts -= 4;
 		}
 	}
@@ -1097,8 +1097,7 @@ static void Communications::processInterrupt()
 			}
 
 			_connected = true;
-
-
+			
 			Communications::fireEvent(Communications::getInstance(), kEventCommunicationsConnected);
 			NM_ASSERT(!isDeleted(Communications::getInstance()), "Communications::processInterrupt: deleted this during kEventCommunicationsConnected");
 			Communications::removeEventListeners(Communications::getInstance(), NULL, kEventCommunicationsConnected);
