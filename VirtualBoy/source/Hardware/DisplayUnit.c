@@ -126,7 +126,7 @@ typedef struct PostProcessingEffectRegistry
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 /// VIP registers, accessed externally
-volatile uint16* _vipRegisters 						 = (uint16*)0x0005F800;
+volatile uint16* const _vipRegisters 				 = (uint16*)0x0005F800;
 
 /// Base address of Column Table (Left Eye)
 static uint16* const _columnTableBaseAddressLeft 	__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = (uint16*)0x0003DC00;
@@ -657,7 +657,7 @@ static void DisplayUnit::reset()
 	{
 		_postProcessingEffects = new VirtualList();
 	}
-	
+
 	_currentDrawingFrameBufferSet = 0;
 	_FRAMESTARTDuringXPEND = false;
 	_customInterrupts = 0;

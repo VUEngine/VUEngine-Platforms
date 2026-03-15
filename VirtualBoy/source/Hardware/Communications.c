@@ -82,7 +82,7 @@ enum CommunicationsStatus
 // CLASS' ATTRIBUTES
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static volatile uint8* _communicationRegisters 				__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = (uint8*)0x02000000;
+static volatile uint8* _communicationRegisters 				= (uint8*)0x02000000;
 
 /// Status of the communications
 static volatile int32 _status  								__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = kCommunicationsStatusReset;
@@ -183,6 +183,7 @@ static void Communications::reset()
 	Communications::getInstance();
 	Communications::cancelCommunications();
 
+	_communicationMode = __COM_AS_REMOTE;
 	_status = kCommunicationsStatusReset;
 	_broadcast = kCommunicationsBroadcastNone;
 }
