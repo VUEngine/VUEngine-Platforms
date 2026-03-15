@@ -27,10 +27,10 @@ extern uint8* const _hardwareRegisters;
 // CLASS' ATTRIBUTES
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static uint32 volatile* _readingStatus 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = NULL;
+static uint32 volatile* _readingStatus 		= NULL;
 
 /// Holds the mathematical sum of all user's presses
-static uint32 _accumulatedUserInput			__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 0;
+static uint32 _accumulatedUserInput			= 0;
 
 /// Struct that holds the user's input during the last game frame
 static UserInput _userInput					__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE;
@@ -39,11 +39,11 @@ static UserInput _userInput					__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE;
 static UserInput _userInputToRegister		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE;
 
 /// Flag to enable/disable the capture of user input
-static bool _enabled						__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
+static bool _enabled						= false;
 
 /// Flag to prevent pressed and released keys from being raised when
 /// holding buttons while changing game states
-static bool _reseted						__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
+static bool _reseted						= false;
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC STATIC METHODS

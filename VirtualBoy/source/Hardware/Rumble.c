@@ -29,17 +29,17 @@ static uint8 _rumbleCommands[__RUMBLE_TOTAL_COMMANDS]	__STATIC_SINGLETONS_DATA_S
 
 /// Determines if the commands are broadcasted asynchronously,
 /// defaults to true
-static bool _async										__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
+static bool _async										= false;
 
 /// Determines if the broadcast of new effects should wait or not for a previous queue effect being
 /// completedly broadcasted
-static bool _overridePreviousEffect						__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
+static bool _overridePreviousEffect						= false;
 
 /// Index of the command in the queue to broadcast next
-static uint8 _rumbleCommandIndex						__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = true;
+static uint8 _rumbleCommandIndex						= true;
 
 /// Rumble effect spec being broadcasted
-static const RumbleEffectSpec* _rumbleEffectSpec		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = NULL;
+static const RumbleEffectSpec* _rumbleEffectSpec		= NULL;
 
 /// Cached rumble effect to prevent broadcasting again previous send commands
 static RumbleEffectSpec _cachedRumbleEffect				__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE;

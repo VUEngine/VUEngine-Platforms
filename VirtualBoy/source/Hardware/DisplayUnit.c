@@ -129,48 +129,48 @@ typedef struct PostProcessingEffectRegistry
 volatile uint16* const _vipRegisters 				 = (uint16*)0x0005F800;
 
 /// Base address of Column Table (Left Eye)
-static uint16* const _columnTableBaseAddressLeft 	__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = (uint16*)0x0003DC00;
+static uint16* const _columnTableBaseAddressLeft 	= (uint16*)0x0003DC00;
 
 /// base address of Column Table (Right Eye)
-static uint16* const _columnTableBaseAddressRight 	__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = (uint16*)0x0003DE00; 
+static uint16* const _columnTableBaseAddressRight 	= (uint16*)0x0003DE00; 
 
 /// Linked list of post processing effects to be applied after the VIP's
 /// drawing operations are completed
-static VirtualList _postProcessingEffects 			__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = NULL;
+static VirtualList _postProcessingEffects 			= NULL;
 
 /// Frame buffers set using during the current game frame
-static uint32 _currentDrawingFrameBufferSet 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 0;
+static uint32 _currentDrawingFrameBufferSet 		= 0;
 
 /// Enum that determines which multiplexed interrupts are allowed
-static uint32 _enabledMultiplexedInterrupts 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = kVIPNoMultiplexedInterrupts;
+static uint32 _enabledMultiplexedInterrupts 		= kVIPNoMultiplexedInterrupts;
 
 /// Allows VIP interrupts that the engine doesn't use
-static uint16 _customInterrupts 					__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 0;
+static uint16 _customInterrupts 					= 0;
 
 /// Register of the interrupts being processed
-static uint16 _currentInterrupt 					__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 0;
+static uint16 _currentInterrupt 					= 0;
 
 /// Time in milliseconds that the game frame last according to the
 /// FRMCYC configuration
-static uint16 _gameFrameDuration 					__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = __MILLISECONDS_PER_SECOND / __MAXIMUM_FPS;
+static uint16 _gameFrameDuration 					= __MILLISECONDS_PER_SECOND / __MAXIMUM_FPS;
 
 /// If true, XPEN is raised
-static bool _isDrawingAllowed 						__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
+static bool _isDrawingAllowed 						= false;
 
 /// If false, no interrupts are enable
-static bool _allowInterrupts 						__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
+static bool _allowInterrupts 						= false;
 
 /// If true, a VIP interrupt happened while in the midst of GAMESTART
-static volatile bool _processingGAMESTART 			__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
+static volatile bool _processingGAMESTART 			= false;
 
 /// If true, a VIP interrupt happened while in the midst of XPEND
-static volatile bool _processingXPEND 				__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
+static volatile bool _processingXPEND 				= false;
 
 /// If true, FRAMESTART happened during XPEND
-static volatile bool _FRAMESTARTDuringXPEND 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
+static volatile bool _FRAMESTARTDuringXPEND 		= false;
 
 /// Color related configuration
-static DisplayUnitConfig _displayUnitConfig 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 
+static DisplayUnitConfig _displayUnitConfig 		= 
 // Display unit configuration
 {
 	// Display color configuration

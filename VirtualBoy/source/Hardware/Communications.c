@@ -85,40 +85,40 @@ enum CommunicationsStatus
 static volatile uint8* _communicationRegisters 				= (uint8*)0x02000000;
 
 /// Status of the communications
-static volatile int32 _status  								__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = kCommunicationsStatusReset;
+static volatile int32 _status  								= kCommunicationsStatusReset;
 
 /// Data sent over the EXT port
-static volatile uint8* _sentData 							__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = NULL;
+static volatile uint8* _sentData 							= NULL;
 
 /// Data received over the EXT port
-static volatile uint8* _receivedData 						__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = NULL;
+static volatile uint8* _receivedData 						= NULL;
 
 /// Last byte sent synchronously over the EXT port
-static volatile uint8* _syncSentByte 						__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = NULL;
+static volatile uint8* _syncSentByte 						= NULL;
 
 /// Last byte received synchronously over the EXT port
-static volatile uint8* _syncReceivedByte 					__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = NULL;
+static volatile uint8* _syncReceivedByte 					= NULL;
 
 /// Last byte sent asynchronously over the EXT port
-static volatile uint8* _asyncSentByte 						__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = NULL;
+static volatile uint8* _asyncSentByte 						= NULL;
 
 /// Last byte received asynchronously over the EXT port
-static volatile uint8* _asyncReceivedByte 					__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = NULL;
+static volatile uint8* _asyncReceivedByte 					= NULL;
 
 /// Number of bytes pending transmission over the EXT port
-static volatile int32 _numberOfBytesPendingTransmission 	__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 0;
+static volatile int32 _numberOfBytesPendingTransmission 	= 0;
 
 /// Number of bytes already transmitted over the EXT port
-static int32 _numberOfBytesPreviouslySent 					__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 0;
+static int32 _numberOfBytesPreviouslySent 					= 0;
 
 /// Status of broadcast communications
-static volatile uint32 _broadcast 							__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = kCommunicationsBroadcastNone;
+static volatile uint32 _broadcast 							= kCommunicationsBroadcastNone;
 
 /// Flag that indicates if there is something connected to the EXT port
-static volatile bool _connected 							__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
+static volatile bool _connected 							= false;
 
 /// Keeps track of the role as master or slave that the system holds in data transmissions
-static volatile uint8 _communicationMode 					__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = __COM_AS_REMOTE;
+static volatile uint8 _communicationMode 					= __COM_AS_REMOTE;
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC STATIC METHODS
@@ -182,8 +182,7 @@ static void Communications::reset()
 {
 	Communications::getInstance();
 	Communications::cancelCommunications();
-
-	_communicationMode = __COM_AS_REMOTE;
+	
 	_status = kCommunicationsStatusReset;
 	_broadcast = kCommunicationsBroadcastNone;
 }

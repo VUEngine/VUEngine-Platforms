@@ -52,22 +52,22 @@ typedef struct CustomCameraFrustum
 
 static CameraFrustum _frustum 					__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE;
 static CustomCameraFrustum _frustumFixedPoint 	__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE;
-static uint16 _frustumWidth 					__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = __SCREEN_WIDTH;
-static uint16 _frustumHeight 					__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = __SCREEN_HEIGHT;
-static uint16 _frustumDepth 					__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = __SCREEN_DEPTH;
-static uint16 _frustumWidthExtended 			__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 
+static uint16 _frustumWidth 					= __SCREEN_WIDTH;
+static uint16 _frustumHeight 					= __SCREEN_HEIGHT;
+static uint16 _frustumDepth 					= __SCREEN_DEPTH;
+static uint16 _frustumWidthExtended 			= 
 													__SCREEN_WIDTH << __DIRECT_DRAW_FRUSTUM_EXTENSION_POWER;
-static uint16 _frustumHeightExtended 			__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 
+static uint16 _frustumHeightExtended 			= 
 													__SCREEN_HEIGHT << __DIRECT_DRAW_FRUSTUM_EXTENSION_POWER;
 
 /// Number of pixels drawn during the current cycle
-static uint16 _drawnPixelsCounter				__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 0;
+static uint16 _drawnPixelsCounter				= 0;
 
 /// Maximum number of pixels to draw during each cycle
-static uint16 _maximumPixelsToDraw				__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = __DIRECT_DRAW_MAXIMUM_NUMBER_OF_PIXELS;
+static uint16 _maximumPixelsToDraw				= __DIRECT_DRAW_MAXIMUM_NUMBER_OF_PIXELS;
 
 /// Frame buffers set using during the current game frame
-static uint32 _currentDrawingFrameBufferSet		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 0;
+static uint32 _currentDrawingFrameBufferSet		= 0;
 
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

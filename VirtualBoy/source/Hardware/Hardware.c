@@ -83,11 +83,11 @@ ROMInfo romInfo __attribute__((section(".rominfo"))) =
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 uint8* const _hardwareRegisters 	 = (uint8*)0x02000000;
-int32 _exceptionLinkPointer 			__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 0;
-int32 _exceptionStackPointer 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = 0;
-bool _stackHeadroomViolation 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
-bool _enabledInterrupts 			__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE = false;
-int16 _suspendInterruptRequest 		__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE  = 0;
+int32 _exceptionLinkPointer 			= 0;
+int32 _exceptionStackPointer 		= 0;
+bool _stackHeadroomViolation 		= false;
+bool _enabledInterrupts 			= false;
+int16 _suspendInterruptRequest 		 = 0;
 uint32 _wramSample 					__attribute__((section(".dram_dirty"))) __attribute__((unused));
 uint32 _sramSample 					__attribute__((section(".dram_dirty"))) __attribute__((unused));
 
