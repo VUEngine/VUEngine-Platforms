@@ -41,34 +41,34 @@ extern uint8* const _hardwareRegisters;
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 /// Elapsed milliseconds since the last call to reset
-static uint32 _elapsedMilliseconds;
+static uint32 _elapsedMilliseconds = 0;
 
 /// Elapsed microseconds
-static uint32 _elapsedMicroseconds;
+static uint32 _elapsedMicroseconds = 0;
 
 /// Elapsed milliseconds since the start of the program
-static uint32 _totalElapsedMilliseconds;
+static uint32 _totalElapsedMilliseconds = 0;
 
 /// Timer's resolution
-static uint16 _resolution;
+static uint16 _resolution = 0;
 
 /// Interrupts during the last secoond
-static uint16 _interruptsPerSecond;
+static uint16 _interruptsPerSecond = 0;
 
 /// Interrupts during the last game frame
-static uint16 _interruptsPerGameFrame;
+static uint16 _interruptsPerGameFrame = 0;
 
 /// Elapsed microseconds per interrupt
-static uint32 _elapsedMicrosecondsPerInterrupt;
+static uint32 _elapsedMicrosecondsPerInterrupt = 0;
 
 /// Target elapsed time per interrupt
-static uint16 _targetTimePerInterrupt;
+static uint16 _targetTimePerInterrupt = 0;
 
 /// Units of the target time per interrupt
-static uint16 _targetTimePerInterrupttUnits;
+static uint16 _targetTimePerInterrupttUnits = 0;
 
 /// Last written value to the TCR registry
-static uint8 _tcrValue;
+static uint8 _tcrValue = 0;
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC STATIC METHODS
