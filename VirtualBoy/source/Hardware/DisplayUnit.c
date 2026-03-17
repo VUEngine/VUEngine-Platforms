@@ -619,16 +619,18 @@ static void DisplayUnit::showException()
 	// Error display message
 	WorldAttributes* worldAttributesBaseAddress = (WorldAttributes*)__WORLD_SPACE_BASE_ADDRESS;
 
-	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].mx = PrintingSprite::getTextureXCoordinate(Printer::getActiveSprite());
+	PrintingSprite printingSprite = Printer::getActiveSprite();
+
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].mx = !isDeleted(printingSprite) ? PrintingSprite::getTextureXCoordinate(printingSprite) : 0;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].mp = __PRINTING_BGMAP_PARALLAX_OFFSET;
-	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].my = PrintingSprite::getTextureYCoordinate(Printer::getActiveSprite());
+	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].my = !isDeleted(printingSprite) ? PrintingSprite::getTextureYCoordinate(Printer::getActiveSprite()) : 0;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].gx = 0;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].gp = 0;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].gy = 0;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].w = __SCREEN_WIDTH;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].h = __SCREEN_HEIGHT;
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD].head = 
-		__WORLD_ON | __WORLD_BGMAP | __WORLD_OVR | *PrintingSprite::getPrintingAddress(Printer::getActiveSprite(), true);
+		__WORLD_ON | __WORLD_BGMAP | __WORLD_OVR | (!isDeleted(printingSprite) ? PrintingSprite::getBgmapSegment(printingSprite) : 0);
 
 	worldAttributesBaseAddress[__EXCEPTIONS_WORLD - 1].head = __WORLD_END;
 }

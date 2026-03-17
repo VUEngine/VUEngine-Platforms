@@ -81,6 +81,10 @@ class PrintingSprite : BgmapSprite
 	/// @return The starting addres in BGMAP space of the printing area
 	uint16* getPrintingAddress(bool displaced);
 
+	/// Get the BGMAP segment where the sprite's texture is allocated.
+	/// @return The index of the texture's BGMAP segment
+	int16 getBgmapSegment();
+
 	/// Get X coordinate of the texture in memory.
 	/// @return The BGMAP segment index of where the printing is performed
 	int16 getTextureXCoordinate();
