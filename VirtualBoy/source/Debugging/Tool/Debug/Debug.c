@@ -860,7 +860,7 @@ void Debug::tileMemoryShowMemory(int32 increment __attribute__ ((unused)), int32
 	{
 		Mem::addOffsetToHWORD
 		(
-			PrintinSprite::getPrintingAddress(PrintPrinter::getActiveSprite()) + ((yOffset + i) << 6) + 2,
+			PrintingSprite::getPrintingAddress(Printer::getActiveSprite(), false) + ((yOffset + i) << 6) + 2,
 			(uint16*)tileMemoryMap,
 			__TILES_PER_ROW_TO_SHOW,
 			this->tileSegment * __TILES_PER_SEGMENT_TO_SHOW + i * __TILES_PER_ROW_TO_SHOW
@@ -1069,7 +1069,7 @@ void Debug::showBgmapSegment()
 	{
 		Mem::copyHWORD
 		(
-			PrintinSprite::getPrintingAddress(Printer::getActiveSprite()) + ((row + topBorder) << 6) + offsetDisplacement,
+			PrintingSprite::getPrintingAddress(Printer::getActiveSprite(), false) + ((row + topBorder) << 6) + offsetDisplacement,
 			(const uint16*)(&bgmapSpaceBaseAddress[(0x1000 * (this->bgmapSegment)) + ((row + myDisplacement) << 6) + mxDisplacement]), 
 			numberOfHWORDS
 		);
@@ -1145,9 +1145,6 @@ void Debug::objectsShowStatus(int32 increment, int32 x, int32 y)
 		this->objectSegment = 0;
 	}
 */
-	SpriteManager spriteManager = 
-		SpriteManager::safeCast(ToolState::getComponentManager(this->toolState, kSpriteComponent));
-
 	Printer::text("OBJECTS INSPECTOR", x, y++, NULL);
 	Debug::setBlackBackground(this);
 }
