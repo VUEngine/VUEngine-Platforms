@@ -1,6 +1,6 @@
 # VUEngine Platforms
 
-Hardware layer implementations for supported platforms in VUEngine. 
+Platform specific implementations for the hardware layer of VUEngine. 
 
 Included platforms:
 - Virtual Boy
