@@ -465,16 +465,15 @@ static uint32 Timer::getTotalElapsedMilliseconds()
 
 static void Timer::wait(uint32 milliseconds)
 {
+	Hardware::enableInterrupts();
+	
 	// Declare as volatile to prevent the compiler to optimize currentMilliseconds away
 	// Making the last assignment invalid
 	volatile uint32 currentMilliseconds = _totalElapsedMilliseconds;
 	uint32 waitStartTime = _totalElapsedMilliseconds;
 	volatile uint32 *totalElapsedMilliseconds = (uint32*)&_totalElapsedMilliseconds;
 
-	while ((*totalElapsedMilliseconds - waitStartTime) < milliseconds)
-	{
-		Hardware::halt();
-	}
+	while ((*totalElapsedMilliseconds - waitStartTime) < milliseconds);
 
 	_elapsedMilliseconds = currentMilliseconds;
 }

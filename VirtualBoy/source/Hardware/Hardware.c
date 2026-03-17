@@ -114,6 +114,9 @@ static void Hardware::initialize()
 
 	// Reset the hardware managers
 	Hardware::reset();
+
+	// Wait for the display to stablize
+	Hardware::stablizeDisplay();
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -237,6 +240,29 @@ static void Hardware::printStackStatus(int32 x, int32 y, bool resumed)
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PRIVATE STATIC METHODS
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static void Hardware::stablizeDisplay()
+{
+	TimerConfig timerConfig =
+	{
+		/// Timer's resolution (__TIMER_100US or __TIMER_20US)
+		__TIMER_100US,
+
+		/// Target elapsed time between timer interrupts
+		10,
+
+		/// Timer interrupt's target time units
+		kMS
+	};
+
+	Hardware::enableInterrupts();
+	Timer::configure(timerConfig);
+	Timer::wait(2000);
+	Timer::disable();
+	Hardware::disableInterrupts();
+}
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
