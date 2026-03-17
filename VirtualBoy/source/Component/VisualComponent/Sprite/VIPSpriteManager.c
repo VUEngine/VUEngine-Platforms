@@ -134,6 +134,23 @@ void VIPSpriteManager::startRendering()
 
 void VIPSpriteManager::stopRendering()
 {
+#ifdef __ALERT_WORLD_MEMORY_DEPLETION
+	NM_ASSERT(-1 <= (int16)(*this->objectIndex), "SpriteManager::stopRendering: no more WORLDS");
+	NM_ASSERT(-1 <= (int16)(*this->bgmapIndex), "SpriteManager::stopRendering: no more OBJECTS");
+#endif
+
+	for(int32 i = *this->objectIndex; this->previousObjectIndex <= i; i--)
+	{
+		_objectAttributesCache[i].head = __OBJECT_SPRITE_TILE_HIDE_MASK;
+	}
+
+	this->previousObjectIndex = *this->objectIndex;
+
+	if(0 <= *this->bgmapIndex)
+	{
+		_worldAttributesCache[*this->bgmapIndex].head = __WORLD_END;
+	}
+
 	int16 lastBoundaryObjectIndex = __TOTAL_OBJECTS - 1;
 
 	int16 spt = __TOTAL_OBJECT_SEGMENTS - 1;
@@ -157,7 +174,6 @@ void VIPSpriteManager::stopRendering()
 			{				
 				this->vipSPTRegistersCache[spt--] = lastBoundaryObjectIndex;
 
-
 				if(sptBoundaryObjectIndex < lastBoundaryObjectIndex)
 				{
 					lastBoundaryObjectIndex = sptBoundaryObjectIndex - 1;
@@ -170,24 +186,6 @@ void VIPSpriteManager::stopRendering()
 	{
 		this->vipSPTRegistersCache[spt] = lastBoundaryObjectIndex;
 	}
-
-#ifdef __ALERT_WORLD_MEMORY_DEPLETION
-	NM_ASSERT(-1 <= (int16)(*this->objectIndex), "SpriteManager::stopRendering: no more WORLDS");
-	NM_ASSERT(-1 <= (int16)(*this->bgmapIndex), "SpriteManager::stopRendering: no more OBJECTS");
-#endif
-
-	if(0 <= *this->bgmapIndex)
-	{
-		_worldAttributesCache[*this->bgmapIndex].head = __WORLD_END;
-	}
-
-	// Clear OBJ memory
-	for(int32 i = *this->objectIndex; this->previousObjectIndex <= i; i--)
-	{
-		_objectAttributesCache[i].head = __OBJECT_SPRITE_TILE_HIDE_MASK;
-	}
-
-	this->previousObjectIndex = *this->objectIndex;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
