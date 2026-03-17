@@ -1,1 +1,0 @@
-Virtual Boy's hardware layer implementation

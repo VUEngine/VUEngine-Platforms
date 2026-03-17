@@ -9,7 +9,11 @@
 	"displayName": {
 		"en": "VirtualBoy"
 	},
-	"license": "None",
-	"repository": "",
-	"tags": []
+	"license": "MIT",
+	"repository": "https://github.com/VUEngine/VUEngine-Platforms/tree/main/VirtualBoy",
+	"tags": [
+		{
+			"en": "Platform"
+		}
+	]
 }
