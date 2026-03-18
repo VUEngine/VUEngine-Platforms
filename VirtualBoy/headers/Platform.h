@@ -309,6 +309,10 @@ typedef struct SoundSourceConfigurationRequest
 #define __TOTAL_OBJECT_SEGMENTS 				4
 #define __TOTAL_WORLD_LAYERS 					32
 
+// Start address for TILE memory
+#define __TILE_SPACE_BASE_ADDRESS				0x00078000
+#define __TEXTURE_SPACE_BASE_ADDRESS			0x00020000
+
 /// Brightness settings
 /// @memberof DisplayUnit
 typedef struct Brightness

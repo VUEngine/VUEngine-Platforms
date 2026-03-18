@@ -21,7 +21,7 @@
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 // Start address of BGMAP space
-#define __BGMAP_SPACE_BASE_ADDRESS			0x00020000	
+#define __BGMAP_SPACE_BASE_ADDRESS			__TEXTURE_SPACE_BASE_ADDRESS	
 
 // Address of BGMap b (0 <= b <= 13)
 #define __BGMAP_SEGMENT(b)					(__BGMAP_SPACE_BASE_ADDRESS + ((b) * 0x2000))  
