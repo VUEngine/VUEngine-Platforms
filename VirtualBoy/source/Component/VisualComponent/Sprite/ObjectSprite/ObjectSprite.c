@@ -157,7 +157,7 @@ int16 ObjectSprite::doRender(int16 index)
 
 	if(0 < usedSlots && !isDeleted(this->objectSpriteContainer))
 	{
-		ObjectSpriteContainer::setSPTBoundaryObjectIndex(this->objectSpriteContainer, index - usedSlots);
+		ObjectSpriteContainer::registerUsedSlots(this->objectSpriteContainer, usedSlots);
 	}
 
 	return usedSlots;

@@ -24,7 +24,7 @@ void ObjectSpriteContainer::constructor(Entity owner, const SpriteSpec* spriteSp
 	// Always explicitly call the base's constructor 
 	Base::constructor(owner, spriteSpec);
 
-	this->sptBoundaryObjectIndex = __TOTAL_OBJECTS;
+	this->internalUsedSlots = 0;
 	this->hasTextures = false;
 	this->transparency = __TRANSPARENCY_NONE;
 }
@@ -53,7 +53,7 @@ void ObjectSpriteContainer::loadTexture(ClassPointer textureClass __attribute__(
 
 int16 ObjectSpriteContainer::doRender(int16 index)
 {
-	if(__TOTAL_OBJECTS - 1 <= this->sptBoundaryObjectIndex)
+	if(0 == this->internalUsedSlots)
 	{
 		return 0;
 	};
@@ -75,26 +75,23 @@ int32 ObjectSpriteContainer::getTotalPixels()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-void ObjectSpriteContainer::resetSPTBoundaryObjectIndex()
+void ObjectSpriteContainer::resetUsedSlots()
 {
-	this->sptBoundaryObjectIndex = __TOTAL_OBJECTS - 1;
+	this->internalUsedSlots = 0;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-void ObjectSpriteContainer::setSPTBoundaryObjectIndex(int16 sptBoundaryObjectIndex)
+void ObjectSpriteContainer::registerUsedSlots(int16 usedSlots)
 {
-	if(this->sptBoundaryObjectIndex > sptBoundaryObjectIndex)
-	{	
-		this->sptBoundaryObjectIndex = sptBoundaryObjectIndex;
-	}
+	this->internalUsedSlots += usedSlots;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-int16 ObjectSpriteContainer::getSPTBoundaryObjectIndex()
+int16 ObjectSpriteContainer::getUsedSlots()
 {
-	return this->sptBoundaryObjectIndex;
+	return this->internalUsedSlots;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

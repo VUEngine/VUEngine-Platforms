@@ -28,7 +28,9 @@
 class ObjectSpriteContainer : Sprite
 {
 	/// @protectedsection
-	int16 sptBoundaryObjectIndex;
+
+	/// Used slots by the child ObjectSprites
+	int16 internalUsedSlots;
 
 	/// @publicsection
 
@@ -52,16 +54,16 @@ class ObjectSpriteContainer : Sprite
 	/// @return Total number of pixels displayed by all the managed sprites
 	override int32 getTotalPixels();
 
-	/// Reset the last object index boundary.
-	void resetSPTBoundaryObjectIndex();
+	/// Reset the used slots.
+	void resetUsedSlots();
 
-	/// Set the last object index used during rendering.
-	/// @param sptBoundaryObjectIndex: Index of the last rendered object sprite
-	void setSPTBoundaryObjectIndex(int16 sptBoundaryObjectIndex);
+	/// Register used slots during rendering.
+	/// @param usedSlots: Used slots to add
+	void registerUsedSlots(int16 usedSlots);
 
-	/// Get the last object index used during rendering.
-	/// @return Index of the last rendered object sprite
-	int16 getSPTBoundaryObjectIndex();
+	/// Retrieve the used slots during rendering.
+	/// @return Total used slots during rendering
+	int16 getUsedSlots();
 }
 
 #endif

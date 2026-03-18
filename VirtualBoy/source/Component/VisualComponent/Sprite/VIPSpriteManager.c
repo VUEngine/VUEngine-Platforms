@@ -125,7 +125,7 @@ void VIPSpriteManager::startRendering()
 	{
 		if(!isDeleted(this->objectSpriteContainers[i]))
 		{
-			ObjectSpriteContainer::resetSPTBoundaryObjectIndex(this->objectSpriteContainers[i]);
+			ObjectSpriteContainer::resetUsedSlots(this->objectSpriteContainers[i]);
 		}
 	}
 }
@@ -151,31 +151,29 @@ void VIPSpriteManager::stopRendering()
 		_worldAttributesCache[*this->bgmapIndex].head = __WORLD_END;
 	}
 
-	int16 lastBoundaryObjectIndex = __TOTAL_OBJECTS - 1;
-
 	int16 spt = __TOTAL_OBJECT_SEGMENTS - 1;
-
+	int16 totalUsedSlots = 0;
+	
 	for(int16 i = __TOTAL_OBJECT_SEGMENTS - 1; 0 <= i; i--)
 	{
 		if(!isDeleted(this->objectSpriteContainers[i]))
 		{
-			int16 sptBoundaryObjectIndex = ObjectSpriteContainer::getSPTBoundaryObjectIndex(this->objectSpriteContainers[i]);
+			int16 usedSlots = ObjectSpriteContainer::getUsedSlots(this->objectSpriteContainers[i]);
 
-			if(__TOTAL_OBJECTS - 1 > sptBoundaryObjectIndex)
+			if(0 == usedSlots)
 			{
-				this->vipSPTRegistersCache[spt--] = lastBoundaryObjectIndex;
-
-				if(sptBoundaryObjectIndex < lastBoundaryObjectIndex)
-				{
-					lastBoundaryObjectIndex = sptBoundaryObjectIndex - 1;
-				}
+				continue;
 			}
+
+
+			this->vipSPTRegistersCache[spt--] = __TOTAL_OBJECTS - 1 - totalUsedSlots;
+			totalUsedSlots += usedSlots;
 		}
 	}
 
 	for(; 0 <= spt; spt--)
 	{
-		this->vipSPTRegistersCache[spt] = lastBoundaryObjectIndex;
+		this->vipSPTRegistersCache[spt] = *this->objectIndex;
 	}
 }
 
