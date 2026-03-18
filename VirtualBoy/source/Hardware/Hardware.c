@@ -261,7 +261,7 @@ static void Hardware::stablizeDisplay()
 
 	Hardware::enableInterrupts();
 	Timer::configure(timerConfig);
-	Timer::wait(2000);
+	Timer::wait(4000);
 	Timer::disable();
 	Hardware::disableInterrupts();
 }

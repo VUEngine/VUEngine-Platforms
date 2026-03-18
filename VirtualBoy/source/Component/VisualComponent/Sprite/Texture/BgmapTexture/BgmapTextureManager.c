@@ -26,9 +26,7 @@
 // CLASS' DECLARATIONS
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-#ifdef __RELEASE		
 friend class TileSet;
-#endif
 friend class Texture;
 friend class BgmapTexture;
 friend class VirtualList;
@@ -166,7 +164,6 @@ secure void BgmapTextureManager::updateTextures(int16 maximumTextureRowsToWrite,
 			continue;
 		}
 
-#ifdef __RELEASE		
 		if(kTextureWritten == texture->status)
 		{
 			texture->status = texture->generation != texture->tileSet->generation? kTexturePendingRewriting : texture->status;
@@ -176,7 +173,6 @@ secure void BgmapTextureManager::updateTextures(int16 maximumTextureRowsToWrite,
 				continue;
 			}
 		}
-#endif
 
 		if(kTextureWritten != Texture::update(texture, maximumTextureRowsToWrite) && defer)
 		{
