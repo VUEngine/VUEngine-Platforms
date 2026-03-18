@@ -53,12 +53,10 @@ void ObjectSpriteContainer::loadTexture(ClassPointer textureClass __attribute__(
 
 int16 ObjectSpriteContainer::doRender(int16 index)
 {
-	if(__TOTAL_OBJECTS <= this->sptBoundaryObjectIndex)
+	if(__TOTAL_OBJECTS - 1 <= this->sptBoundaryObjectIndex)
 	{
 		return 0;
 	};
-
-	this->index = index;
 
 	// Force rendering
 	this->rendered = false;

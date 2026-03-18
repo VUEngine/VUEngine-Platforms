@@ -161,17 +161,8 @@ void VIPSpriteManager::stopRendering()
 		{
 			int16 sptBoundaryObjectIndex = ObjectSpriteContainer::getSPTBoundaryObjectIndex(this->objectSpriteContainers[i]);
 
-			if(__TOTAL_OBJECTS - 1 == sptBoundaryObjectIndex)
+			if(__TOTAL_OBJECTS - 1 > sptBoundaryObjectIndex)
 			{
-				int16 index = ObjectSpriteContainer::getIndex(this->objectSpriteContainers[i]);
-
-				if(__NO_RENDER_INDEX != index)
-				{
-					_worldAttributesCache[index].head = __WORLD_OFF;
-				}
-			}
-			else
-			{				
 				this->vipSPTRegistersCache[spt--] = lastBoundaryObjectIndex;
 
 				if(sptBoundaryObjectIndex < lastBoundaryObjectIndex)
