@@ -115,8 +115,10 @@ static void Hardware::initialize()
 	// Reset the hardware managers
 	Hardware::reset();
 
+#ifndef __DISABLE_DISPLAY_STABILIZATION
 	// Wait for the display to stablize
 	Hardware::stablizeDisplay();
+#endif
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
