@@ -164,15 +164,20 @@ secure void BgmapTextureManager::updateTextures(int16 maximumTextureRowsToWrite,
 			continue;
 		}
 
+#ifdef __RELEASE
 		if(kTextureWritten == texture->status)
 		{
-			texture->status = texture->generation != texture->tileSet->generation? kTexturePendingRewriting : texture->status;
+			if(NULL != texture->tileSet)
+			{
+				texture->status = texture->generation != texture->tileSet->generation? kTexturePendingRewriting : texture->status;
+			}
 
 			if(kTextureWritten == texture->status)
 			{
 				continue;
 			}
 		}
+#endif
 
 		if(kTextureWritten != Texture::update(texture, maximumTextureRowsToWrite) && defer)
 		{

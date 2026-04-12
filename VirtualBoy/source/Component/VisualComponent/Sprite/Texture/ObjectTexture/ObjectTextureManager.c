@@ -44,19 +44,22 @@ secure void ObjectTextureManager::reset()
 
 secure void ObjectTextureManager::updateTextures(int16 maximumTextureRowsToWrite, bool defer)
 {
-	for(VirtualNode node = this->objectTextures->head; NULL != node; node = node->next)
+	for(VirtualNode node = this->bgmapTextures->head; NULL != node; node = node->next)
 	{
 		Texture texture = Texture::safeCast(node->data);
-
+		
 		if(kTextureInvalid == texture->status)
 		{
 			continue;
 		}
 
-#ifdef __RELEASE		
+#ifdef __RELEASE
 		if(kTextureWritten == texture->status)
 		{
-			texture->status = texture->generation != texture->tileSet->generation? kTexturePendingRewriting : texture->status;
+			if(NULL != texture->tileSet)
+			{
+				texture->status = texture->generation != texture->tileSet->generation? kTexturePendingRewriting : texture->status;
+			}
 
 			if(kTextureWritten == texture->status)
 			{

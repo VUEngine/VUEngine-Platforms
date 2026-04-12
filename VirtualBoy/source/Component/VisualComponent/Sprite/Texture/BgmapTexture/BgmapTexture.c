@@ -91,14 +91,7 @@ bool BgmapTexture::write(int16 maximumTextureRowsToWrite)
 		);
 	}
 
-	if(kTexturePendingRewriting == status)
-	{
-		this->status = 0 >= this->remainingRowsToBeWritten ? kTextureWritten : kTexturePendingRewriting;
-	}
-	else
-	{
-		this->status = 0 >= this->remainingRowsToBeWritten ? kTextureWritten : kTexturePendingWriting;
-	}
+	this->status = 0 >= this->remainingRowsToBeWritten ? kTextureWritten : status;
 	
 	return true;
 }
