@@ -158,7 +158,7 @@ secure void BgmapTextureManager::updateTextures(int16 maximumTextureRowsToWrite,
 	for(VirtualNode node = this->bgmapTextures->head; NULL != node; node = node->next)
 	{
 		Texture texture = Texture::safeCast(node->data);
-		
+
 		if(kTextureInvalid == texture->status)
 		{
 			continue;
