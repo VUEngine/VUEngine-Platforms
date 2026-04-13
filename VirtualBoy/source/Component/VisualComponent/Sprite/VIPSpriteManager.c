@@ -165,7 +165,6 @@ void VIPSpriteManager::stopRendering()
 				continue;
 			}
 
-
 			this->vipSPTRegistersCache[spt--] = __TOTAL_OBJECTS - 1 - totalUsedSlots;
 			totalUsedSlots += usedSlots;
 		}
