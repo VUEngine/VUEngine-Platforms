@@ -114,7 +114,7 @@ typedef struct TimerConfig
 	/// Target elapsed time between timer interrupts
 	uint16 targetTimePerInterrupt;
 
-	/// Timer interrupt's target time units
+	/// Timer interrupt's target time units kMS or kUS
 	uint16 targetTimePerInterrupttUnits;
 
 } TimerConfig;
@@ -125,6 +125,26 @@ typedef struct TimerConfig
 
 #define __TOTAL_SOUND_SOURCES					6
 #define __MAXIMUM_VOLUME						0xF
+#define __SOUND_SOURCES_ADRESS					0x01000400
+
+#define __TOTAL_WAVEFORMS						5
+#define __TOTAL_MODULATION_CHANNELS 			1
+#define __TOTAL_NOISE_CHANNELS					1
+#define __TOTAL_NORMAL_CHANNELS					(__TOTAL_SOUND_SOURCES - __TOTAL_MODULATION_CHANNELS - __TOTAL_NOISE_CHANNELS)
+#define __TOTAL_POTENTIAL_NORMAL_CHANNELS 		(__TOTAL_NORMAL_CHANNELS + __TOTAL_MODULATION_CHANNELS)
+
+#define __WAVE_ADDRESS(n)						(uint8*)(0x01000000 + (n * 128))
+#define __MODULATION_DATA						(uint8*)0x01000280
+#define __MODULATION_DATA_ENTRIES				32
+#define __SSTOP									*(uint8*)0x01000580
+#define __SOUND_WRAPPER_STOP_SOUND 				0x20
+
+// The following flags must use unused bits in their corresponding
+// VSU registers to not clash with the hardware meanings
+#define __SET_SxINT_FLAG						0x40
+#define __SET_SxEV0_FLAG						0x80
+#define __SET_SxEV1_FLAG						0x80
+#define __SET_SxSWP_FLAG						0x08
 
 /// Sound source types
 /// @memberof VSUManager
