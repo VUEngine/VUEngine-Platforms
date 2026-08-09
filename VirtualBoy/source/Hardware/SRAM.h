@@ -45,7 +45,9 @@ singleton class SRAM : Object
 	/// @param destination		WRAM address were data will be loaded
 	/// @param memberOffset		WRAM address offset
 	/// @param dataSize			Number of BYTES to read
-	static void read(uint8* destination, int32 memberOffset, int32 dataSize);
+	/// @param verify			If true, the data is read twice to warrant its integrity
+	/// @return False if data integrity cannot be verified.	
+	static bool read(uint8* destination, int32 memberOffset, int32 dataSize, bool verify);
 
 	/// Reset the manager's state.
 	static void reset();

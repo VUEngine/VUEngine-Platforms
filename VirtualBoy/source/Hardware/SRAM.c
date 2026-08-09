@@ -55,15 +55,39 @@ static void SRAM::save(const uint8* const source, int32 memberOffset, int32 data
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void SRAM::read(uint8* destination, int32 memberOffset, int32 dataSize)
+static bool SRAM::read(uint8* destination, int32 memberOffset, int32 dataSize, bool verify)
 {
 	uint16* source = _spaceAddress + memberOffset;
 	ASSERT(0 == ((int32)source % 2), "SRAM::constructor: odd source");
 
-	for(int32 i = 0; i < dataSize; i++)
+	if(verify)
 	{
-		destination[i] = source[i] & 0x00FF;
+		for(int32 i = 0; i < dataSize; i++)
+		{
+			uint8 witness = source[i] & 0x00FF;
+
+			for(int32 i = 0; i < 100; i++)
+			{
+				asm(" nop  ");
+			}
+				
+			destination[i] = source[i] & 0x00FF;
+
+			if(witness != destination[i])
+			{
+				return false;
+			}
+		}		
 	}
+	else
+	{		
+		for(int32 i = 0; i < dataSize; i++)
+		{
+			destination[i] = source[i] & 0x00FF;
+		}
+	}
+
+	return true;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -87,7 +111,7 @@ static void SRAM::initialize()
 	{
 		uint16 dummyChar[__SRAM_DUMMY_READ_LENGTH];
 
-		SRAM::read((uint8*)&dummyChar, i, sizeof(dummyChar));
+		SRAM::read((uint8*)&dummyChar, i, sizeof(dummyChar), false);
 	}
 }
 
