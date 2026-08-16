@@ -302,7 +302,7 @@ static bool FrameBuffers::drawPoint(PixelVector point, int32 color, uint8 buffer
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static bool FrameBuffers::drawLine(PixelVector fromPoint, PixelVector toPoint, int32 color, uint8 bufferIndex, bool interlaced)
-{	
+{
 	uint16 xFromDeltaLeft = (unsigned)(fromPoint.x - fromPoint.parallax - _frustum.x0);
 	uint16 xFromDeltaRight = (unsigned)(fromPoint.x +  fromPoint.parallax - _frustum.x0);
 	uint16 yFromDelta = (unsigned)(fromPoint.y - _frustum.y0);
