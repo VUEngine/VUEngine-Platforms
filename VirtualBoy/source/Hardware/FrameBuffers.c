@@ -55,10 +55,8 @@ static CustomCameraFrustum _frustumFixedPoint 	__STATIC_SINGLETONS_DATA_SECTION_
 static uint16 _frustumWidth 					= __SCREEN_WIDTH;
 static uint16 _frustumHeight 					= __SCREEN_HEIGHT;
 static uint16 _frustumDepth 					= __SCREEN_DEPTH;
-static uint16 _frustumWidthExtended 			= 
-													__SCREEN_WIDTH << __DIRECT_DRAW_FRUSTUM_EXTENSION_POWER;
-static uint16 _frustumHeightExtended 			= 
-													__SCREEN_HEIGHT << __DIRECT_DRAW_FRUSTUM_EXTENSION_POWER;
+static uint16 _frustumWidthExtended 			= __SCREEN_WIDTH << __DIRECT_DRAW_FRUSTUM_EXTENSION_POWER;
+static uint16 _frustumHeightExtended 			= __SCREEN_HEIGHT << __DIRECT_DRAW_FRUSTUM_EXTENSION_POWER;
 
 /// Number of pixels drawn during the current cycle
 static uint16 _drawnPixelsCounter				= 0;
