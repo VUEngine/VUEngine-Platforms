@@ -429,8 +429,6 @@ BgmapTexture BgmapTextureManager::findTexture(const BgmapTextureSpec* bgmapTextu
 	TextureSpec* textureSpec = (TextureSpec*)bgmapTextureSpec;
 	BgmapTexture selectedBgmapTexture = NULL;
 
-	CACHE_RESET;
-
 	// Try to find a texture with the same bgmap spec
 	for(VirtualNode node = this->bgmapTextures->head; NULL != node; node = node->next)
 	{
@@ -601,8 +599,6 @@ int32 BgmapTextureManager::doAllocate
 
 		NM_ASSERT(0 == minimumSegment % 2, "BgmapTextureManager::doAllocate: cannot honor request for even bgmap");
 	}
-
-	CACHE_RESET;
 
 	for(i = minimumSegment; i < __MAX_NUMBER_OF_BGMAPS_SEGMENTS && i < this->availableBgmapSegmentsForTextures; i += segmentStep)
 	{

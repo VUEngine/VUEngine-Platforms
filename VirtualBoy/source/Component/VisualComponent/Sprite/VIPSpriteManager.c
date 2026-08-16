@@ -209,8 +209,6 @@ void VIPSpriteManager::commitGraphics()
 	WorldAttributes* worldAttributesBaseAddress = (WorldAttributes*)__WORLD_SPACE_BASE_ADDRESS;
 	ObjectAttributes* objectAttributesBaseAddress = (ObjectAttributes*)__OBJECT_SPACE_BASE_ADDRESS;
 
-	CACHE_RESET;
-
 	Mem::copyWORD
 	(
 		(uint32*)(objectAttributesBaseAddress), (uint32*)(_objectAttributesCache + *this->objectIndex), 

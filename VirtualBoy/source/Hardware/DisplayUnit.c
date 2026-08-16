@@ -456,8 +456,6 @@ static void DisplayUnit::applyColorConfig(DisplayColorConfig displayColorConfig)
 	int16 leftCta = _vipRegisters[__CTA] & 0xFF;
 	int16 rightCta = _vipRegisters[__CTA] >> 8;
 
-	CACHE_RESET;
-
 	// Write repeat values to column table
 	for(int16 i = 0; i < 96; i++)
 	{

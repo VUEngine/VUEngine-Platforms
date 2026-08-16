@@ -318,11 +318,6 @@ void BgmapTexture::writeFrame
 	int8 remainingRowsToBeWritten = this->remainingRowsToBeWritten;
 	uint16 offset = tileSetOffset | (this->palette << 14);
 
-	if(forceFullRewrite)
-	{
-		CACHE_RESET;
-	}
-
 	if(this->horizontalFlip)
 	{
 		if(this->verticalFlip)
