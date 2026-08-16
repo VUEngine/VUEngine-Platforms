@@ -26,7 +26,6 @@ void ObjectSpriteContainer::constructor(Entity owner, const SpriteSpec* spriteSp
 
 	this->internalUsedSlots = 0;
 	this->hasTextures = false;
-	this->transparency = __TRANSPARENCY_NONE;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
