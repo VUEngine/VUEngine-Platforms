@@ -453,6 +453,8 @@ static bool FrameBuffers::drawLine(PixelVector fromPoint, PixelVector toPoint, i
 	// Configure the drawing frame buffers
 	//DisplayUnit::registerCurrentDrawingFrameBufferSet();
 
+	CACHE_RESET;
+
 	if(interlaced)
 	{
 		uint32 leftBuffer = _currentDrawingFrameBufferSet | (bufferIndex << __FRAME_BUFFER_SIDE_BIT_INDEX);
