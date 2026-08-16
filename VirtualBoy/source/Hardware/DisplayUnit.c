@@ -780,10 +780,6 @@ static void DisplayUnit::resumeDrawing()
 
 static void DisplayUnit::suspendDrawing()
 {
-	_isDrawingAllowed = DisplayUnit::isDrawingAllowed();
-	
-	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
-
 	_vipRegisters[__XPCTRL] &= ~__XPEN;
 }
 
