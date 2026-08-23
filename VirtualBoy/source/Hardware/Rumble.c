@@ -280,13 +280,18 @@ static void Rumble::setFrequency(uint8 value)
 	}
 
 	_cachedRumbleEffect.frequency = value;
-	
-	if(value <= __RUMBLE_FREQ_400HZ)
+
+	if(__RUMBLE_FREQ_400HZ >= value)
 	{
-		value += __RUMBLE_CMD_FREQ_50HZ;
+		value += __RUMBLE_CMD_FREQ_160HZ - __RUMBLE_FREQ_160HZ;
+	}
+	else if(__RUMBLE_FREQ_130HZ >= value)
+	{
+		value += __RUMBLE_CMD_FREQ_50HZ - __RUMBLE_FREQ_50HZ;
 	}
 
-	if(value >= __RUMBLE_CMD_FREQ_50HZ && value <= __RUMBLE_CMD_FREQ_400HZ)
+	if((__RUMBLE_CMD_FREQ_50HZ <= value && __RUMBLE_CMD_FREQ_130HZ >= value) ||
+		(__RUMBLE_CMD_FREQ_160HZ <= value && __RUMBLE_CMD_FREQ_400HZ >= value))
 	{
 		Rumble::sendCode(value);
 	}
