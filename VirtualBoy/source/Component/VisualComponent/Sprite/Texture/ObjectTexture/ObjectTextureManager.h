@@ -16,6 +16,7 @@
 
 #include <Object.h>
 #include <ObjectTexture.h>
+#include <TextureManager.h>
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' DECLARATION
@@ -40,7 +41,7 @@ singleton class ObjectTextureManager : Object
 	/// @param maximumTextureRowsToWrite: Number of texture rows to write during this call
 	/// @param defer: If true, the texture data is written overtime; otherwise
 	/// all is written in a single pass
-	void updateTextures(int16 maximumTextureRowsToWrite, bool defer);
+	void updateTextures(UpdateTextures updateTextures, int16 maximumTextureRowsToWrite, bool defer);
 
 	/// Retrieve a texture initialized with the provided spec.
 	/// @param objectTextureSpec: Spec to use to initilize the desired texture

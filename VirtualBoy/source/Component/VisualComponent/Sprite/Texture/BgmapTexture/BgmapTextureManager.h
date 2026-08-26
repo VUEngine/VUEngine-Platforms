@@ -16,6 +16,7 @@
 
 #include <Object.h>
 #include <BgmapTexture.h>
+#include <TextureManager.h>
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' MACROS
@@ -86,7 +87,7 @@ singleton class BgmapTextureManager : Object
 	/// @param maximumTextureRowsToWrite: Number of texture rows to write during this call
 	/// @param defer: If true, the texture data is written overtime; otherwise
 	/// all is written in a single pass
-	void updateTextures(int16 maximumTextureRowsToWrite, bool defer);
+	void updateTextures(UpdateTextures updateTextures, int16 maximumTextureRowsToWrite, bool defer);
 
 	/// Clear the data in the BGMAP spaced defined by the provided segment.
 	/// @param segment: Index of the BGMAP segment to clear

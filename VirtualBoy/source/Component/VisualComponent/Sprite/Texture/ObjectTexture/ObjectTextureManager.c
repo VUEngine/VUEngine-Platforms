@@ -42,36 +42,11 @@ secure void ObjectTextureManager::reset()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-secure void ObjectTextureManager::updateTextures(int16 maximumTextureRowsToWrite, bool defer)
+secure void ObjectTextureManager::updateTextures(UpdateTextures updateTextures, int16 maximumTextureRowsToWrite, bool defer)
 {
-	for(VirtualNode node = this->objectTextures->head; NULL != node; node = node->next)
+	if(NULL != updateTextures)
 	{
-		Texture texture = Texture::safeCast(node->data);
-		
-		if(kTextureInvalid == texture->status)
-		{
-			continue;
-		}
-
-#ifdef __RELEASE
-		if(kTextureWritten == texture->status)
-		{
-			if(NULL != texture->tileSet)
-			{
-				texture->status = texture->generation != texture->tileSet->generation? kTexturePendingRewriting : texture->status;
-			}
-
-			if(kTextureWritten == texture->status)
-			{
-				continue;
-			}
-		}
-#endif
-
-		if(kTextureWritten != Texture::update(texture, maximumTextureRowsToWrite) && defer)
-		{
-			break;
-		}
+		updateTextures(this->objectTextures, maximumTextureRowsToWrite, defer);
 	}
 }
 

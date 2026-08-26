@@ -14,9 +14,21 @@
 #include <BgmapTextureManager.h>
 #include <ObjectTextureManager.h>
 #include <Singleton.h>
+#include <Texture.h>
+#include <TileSet.h>
+#include <VirtualList.h>
+#include <VirtualNode.h>
 
 #include <TextureManager.h>
 
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// CLASS' DECLARATIONS
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+friend class Texture;
+friend class TileSet;
+friend class VirtualNode;
+friend class VirtualList;
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC STATIC METHODS
@@ -79,8 +91,41 @@ static void TextureManager::release(Texture texture)
 
 static void TextureManager::updateTextures(int16 maximumTextureRowsToWrite, bool defer)
 {
-	BgmapTextureManager::updateTextures(BgmapTextureManager::getInstance(), maximumTextureRowsToWrite, defer);
-	ObjectTextureManager::updateTextures(ObjectTextureManager::getInstance(), maximumTextureRowsToWrite, defer);
+	void updateTextures(VirtualList textures, int16 maximumTextureRowsToWrite, bool defer)
+	{
+		if(NULL == textures)
+		{
+			return;
+		}
+
+		for(VirtualNode node = textures->head; NULL != node; node = node->next)
+		{
+			Texture texture = Texture::safeCast(node->data);
+			
+			if(kTextureInvalid == texture->status)
+			{
+				continue;
+			}
+
+			if(NULL != texture->tileSet)
+			{
+				texture->status = texture->generation != texture->tileSet->generation? kTexturePendingRewriting : texture->status;
+			}
+
+			if(kTextureWritten == texture->status)
+			{
+				continue;
+			}
+
+			if(kTextureWritten != Texture::update(texture, maximumTextureRowsToWrite) && defer)
+			{
+				break;
+			}
+		}
+	}
+
+	BgmapTextureManager::updateTextures(BgmapTextureManager::getInstance(), updateTextures, maximumTextureRowsToWrite, defer);
+	ObjectTextureManager::updateTextures(ObjectTextureManager::getInstance(), updateTextures, maximumTextureRowsToWrite, defer);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
