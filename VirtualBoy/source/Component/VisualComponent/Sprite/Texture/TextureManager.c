@@ -107,7 +107,7 @@ static void TextureManager::updateTextures(int16 maximumTextureRowsToWrite, bool
 				continue;
 			}
 
-			if(NULL != texture->tileSet)
+			if(NULL != texture->tileSet && kTexturePendingWriting < texture->status)
 			{
 				texture->status = texture->generation != texture->tileSet->generation? kTexturePendingRewriting : texture->status;
 			}
