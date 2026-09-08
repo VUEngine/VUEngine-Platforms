@@ -36,6 +36,7 @@ friend class VirtualList;
 // CLASS' ATTRIBUTES
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+/// Pointer to the hardware's sound registers
 static SoundSource* const _soundSources = (SoundSource*)__SOUND_SOURCES_ADRESS;
 
 /// List of queued sound source configurations

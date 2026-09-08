@@ -239,6 +239,13 @@ static void Timer::setResolution(uint16 resolution)
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+static uint16 Timer::getMicrosecondsPerInterrupt()
+{
+	return _elapsedMicrosecondsPerInterrupt;
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 static uint16 Timer::getResolution()
 {
 	return _resolution;
