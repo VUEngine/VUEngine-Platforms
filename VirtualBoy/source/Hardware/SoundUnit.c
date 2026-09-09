@@ -80,8 +80,6 @@ static void SoundUnit::applySoundSourceConfiguration(const SoundSourceConfigurat
 	{
 		if(_allowQueueingSoundRequests && !soundSourceConfigurationRequest->skip)
 		{
-							PRINT_TIME(1, 11);
-
 			SoundUnit::registerQueuedSoundSourceConfigurationRequest(soundSourceConfigurationRequest);
 		}
 	}
