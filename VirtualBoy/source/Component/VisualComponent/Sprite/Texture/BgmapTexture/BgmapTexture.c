@@ -309,6 +309,8 @@ void BgmapTexture::writeFrame
 		return;
 	}
 
+	CACHE_RESET;
+
 	int16 cols = this->textureSpec->cols;
 	int16 rows = this->textureSpec->rows;
 	uint16* offsetDisplacement = (uint16*)__BGMAP_SEGMENT(this->segment) + xOffset + (yOffset << 6);
