@@ -267,7 +267,7 @@ static void DisplayUnit::interruptHandler()
 
 	// Handle the interrupt
 	DisplayUnit::processInterrupt(_currentInterrupt);
-	
+
 	if(kVIPNoMultiplexedInterrupts != _enabledMultiplexedInterrupts)
 	{
 		Hardware::disableMultiplexedInterrupts();
@@ -917,7 +917,6 @@ static void DisplayUnit::print(int16 x, int16 y)
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
 
 static void DisplayUnit::processInterrupt(uint16 interrupt)
 {
