@@ -70,16 +70,18 @@ static bool _haveQueuedRequests = false;
 static void SoundUnit::applySoundSourceConfiguration(const SoundSourceConfigurationRequest* soundSourceConfigurationRequest)
 {
 	int16 soundSourceIndex = 
-		SoundUnit::freeableSoundSource
+		SoundUnit::findSoundSource
 		(
 			soundSourceConfigurationRequest->requesterId, soundSourceConfigurationRequest->type, 
-			soundSourceConfigurationRequest->priority, soundSourceConfigurationRequest->skip
+			soundSourceConfigurationRequest->priority
 		);
 
 	if(0 > soundSourceIndex)
 	{
 		if(_allowQueueingSoundRequests && !soundSourceConfigurationRequest->skip)
 		{
+							PRINT_TIME(1, 11);
+
 			SoundUnit::registerQueuedSoundSourceConfigurationRequest(soundSourceConfigurationRequest);
 		}
 	}
@@ -516,7 +518,7 @@ static void SoundUnit::configureSoundSource
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static int16 SoundUnit::freeableSoundSource(uint32 requesterId, uint32 soundSourceType, uint8 priority, bool skip)
+static int16 SoundUnit::findSoundSource(uint32 requesterId, uint32 soundSourceType, uint8 priority)
 {
 	// First try to find a sound source that has previously assigned to the same requesterId
 	for(int16 i = 0; i < __TOTAL_SOUND_SOURCES; i++)
@@ -548,32 +550,29 @@ static int16 SoundUnit::freeableSoundSource(uint32 requesterId, uint32 soundSour
 
 	int16 stolenSoundSourceIndex = -1;
 
-	if(!skip)
+	// Now try to find a sound source we can steal from
+	for(int16 i = 0; i < __TOTAL_SOUND_SOURCES; i++)
 	{
-		// Now try to find a sound source whose timeout has just expired
-		for(int16 i = 0; i < __TOTAL_SOUND_SOURCES; i++)
+		if(0 == (soundSourceType & _soundSourceConfigurations[i].type))
 		{
-			if(0 == (soundSourceType & _soundSourceConfigurations[i].type))
-			{
-				continue;
-			}
+			continue;
+		}
 
-			if(_soundSourceConfigurations[i].priority > priority)
-			{
-				continue;
-			}
+		if(_soundSourceConfigurations[i].priority >= priority)
+		{
+			continue;
+		}
 
-			if
-			(
-				0 > stolenSoundSourceIndex 
-				|| 
-				_soundSourceConfigurations[i].timeout < _soundSourceConfigurations[stolenSoundSourceIndex].timeout
-			)
-			{
-				stolenSoundSourceIndex = i;
-			}
-		}		
-	}
+		if
+		(
+			0 > stolenSoundSourceIndex 
+			|| 
+			_soundSourceConfigurations[i].timeout < _soundSourceConfigurations[stolenSoundSourceIndex].timeout
+		)
+		{
+			stolenSoundSourceIndex = i;
+		}
+	}		
 
 	return stolenSoundSourceIndex;
 }
@@ -631,10 +630,10 @@ static void SoundUnit::dispatchQueuedSoundSourceConfigurations()
 		SoundSourceConfigurationRequest* queuedSoundSourceConfigurationRequest = (SoundSourceConfigurationRequest*)node->data;
 
 		int16 soundSourceIndex = 
-			SoundUnit::freeableSoundSource
+			SoundUnit::findSoundSource
 			(
 				queuedSoundSourceConfigurationRequest->requesterId, queuedSoundSourceConfigurationRequest->type, 
-				queuedSoundSourceConfigurationRequest->priority, queuedSoundSourceConfigurationRequest->skip
+				queuedSoundSourceConfigurationRequest->priority
 			);
 
 		if(0 <= soundSourceIndex)
