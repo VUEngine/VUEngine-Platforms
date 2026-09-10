@@ -49,7 +49,7 @@ static SoundSourceConfiguration _soundSourceConfigurations[__TOTAL_SOUND_SOURCES
 static Waveform _waveforms[__TOTAL_WAVEFORMS];
 
 /// Elapsed ticks
-static fix7_9_ext _ticks = 0;
+static uint32 _ticks = 0;
 
 /// If false and if there are no sound sources availables at the time of request,
 /// the petition is ignored
@@ -99,7 +99,7 @@ static void SoundUnit::stopSoundSourcesUsedBy(uint32 requesterId)
 	{
 		if(requesterId == _soundSourceConfigurations[i].requesterId)
 		{
-			_soundSourceConfigurations[i].timeout = -1;
+			_soundSourceConfigurations[i].timeout = 0;
 			_soundSourceConfigurations[i].waveform = NULL;
 			_soundSourceConfigurations[i].SxINT = 0;
 			_soundSourceConfigurations[i].soundSource->SxINT = 0;
@@ -334,7 +334,7 @@ static void SoundUnit::reset()
 		_soundSourceConfigurations[i].requesterId = -1;
 		_soundSourceConfigurations[i].soundSource = &_soundSources[i];
 		_soundSourceConfigurations[i].waveform = NULL;
-		_soundSourceConfigurations[i].timeout = -1;
+		_soundSourceConfigurations[i].timeout = 0;
 		_soundSourceConfigurations[i].SxLRV = 0;
 		_soundSourceConfigurations[i].SxFQL = 0;
 		_soundSourceConfigurations[i].SxFQH = 0;
@@ -343,6 +343,7 @@ static void SoundUnit::reset()
 		_soundSourceConfigurations[i].SxRAM = 0;
 		_soundSourceConfigurations[i].SxSWP = 0;
 		_soundSourceConfigurations[i].SxINT = 0;
+		_soundSourceConfigurations[i].priority = -1;
 
 		Waveform* waveform = SoundUnit::findWaveform(NULL);
 
@@ -372,7 +373,7 @@ static void SoundUnit::update()
 		SoundUnit::dispatchQueuedSoundSourceConfigurations();
 	}
 
-	_ticks += __I_TO_FIX7_9_EXT(1);
+	_ticks++;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -383,7 +384,7 @@ static void SoundUnit::stopAllSounds()
 	{
 		_soundSourceConfigurations[i].requesterId = -1;
 		_soundSourceConfigurations[i].waveform = NULL;
-		_soundSourceConfigurations[i].timeout = -1;
+		_soundSourceConfigurations[i].timeout = 0;
 		_soundSourceConfigurations[i].SxLRV = 0;
 		_soundSourceConfigurations[i].SxFQL = 0;
 		_soundSourceConfigurations[i].SxFQH = 0;
@@ -392,6 +393,7 @@ static void SoundUnit::stopAllSounds()
 		_soundSourceConfigurations[i].SxRAM = 0;
 		_soundSourceConfigurations[i].SxSWP = 0;
 		_soundSourceConfigurations[i].SxINT = 0;
+		_soundSourceConfigurations[i].priority = -1;
 	}
 
 	__SSTOP = 0x01;
@@ -457,7 +459,7 @@ static void SoundUnit::configureSoundSource
 		|| 
 		(_soundSourceConfigurations[i].requesterId != soundSourceConfigurationRequest->requesterId);
 
-	bool setSxSWP = 
+	bool setSxSWP =
 		0 != (__SET_SxSWP_FLAG & soundSourceConfigurationRequest->SxEV1)
 		|| 
 		_soundSourceConfigurations[i].SxSWP != soundSourceConfigurationRequest->SxSWP
@@ -556,7 +558,7 @@ static int16 SoundUnit::findSoundSource(uint32 requesterId, uint32 soundSourceTy
 			continue;
 		}
 
-		if(_soundSourceConfigurations[i].priority >= priority)
+		if(_soundSourceConfigurations[i].priority > priority)
 		{
 			continue;
 		}
@@ -588,7 +590,7 @@ static void SoundUnit::releaseSoundSources()
 
 	for(int16 i = 0; i < __TOTAL_SOUND_SOURCES; i++)
 	{
-		if(0 > _soundSourceConfigurations[i].timeout)
+		if(0 == _soundSourceConfigurations[i].timeout)
 		{
 			continue;
 		}
@@ -598,15 +600,16 @@ static void SoundUnit::releaseSoundSources()
 		if(_ticks > _soundSourceConfigurations[i].timeout)
 		{
 			_soundSourceConfigurations[i].requesterId = -1;
-			_soundSourceConfigurations[i].timeout = -1;
+			_soundSourceConfigurations[i].timeout = 0;
 			_soundSourceConfigurations[i].waveform = NULL;
 			_soundSourceConfigurations[i].SxINT |= __SOUND_WRAPPER_STOP_SOUND;
 			_soundSourceConfigurations[i].soundSource->SxINT |= __SOUND_WRAPPER_STOP_SOUND;
+			_soundSourceConfigurations[i].priority = -1;
 		}
 		else if(NULL != _soundSourceConfigurations[i].waveform)
 		{
 			_waveforms[_soundSourceConfigurations[i].waveform->index].usageCount++;
-
+		
 			_haveUsedSoundSources = true;
 		}
 	}
@@ -680,6 +683,8 @@ static Waveform* SoundUnit::findWaveform(const WaveformData* waveFormData)
 	{
 		if(NULL != _waveforms[i].data && waveFormData->crc == _waveforms[i].crc)
 		{
+			_waveforms[i].usageCount = 1;
+
 			return &_waveforms[i];
 		}
 	}

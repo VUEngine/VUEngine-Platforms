@@ -232,7 +232,7 @@ typedef struct SoundSourceConfiguration
 	const Waveform* waveform;
 
 	/// Time when the configuration elapses
-	fix7_9_ext timeout;
+	uint32 timeout;
 
 	/// Sound source type
 	uint32 type;
@@ -265,7 +265,7 @@ typedef struct SoundSourceConfiguration
 	const int8* SxMOD;
 
 	/// Priority for sound channel usage
-	uint8 priority;
+	int8 priority;
 
 	/// Skip if no sound source available?
 	bool skip;
@@ -280,7 +280,7 @@ typedef struct SoundSourceConfigurationRequest
 	uint32 requesterId;
 
 	/// Time when the configuration elapses
-	fix7_9_ext timeout;
+	uint32 timeout;
 
 	/// Sound source type
 	uint32 type;
@@ -313,7 +313,7 @@ typedef struct SoundSourceConfigurationRequest
 	const int8* SxMOD;
 
 	/// Priority for sound channel usage
-	uint8 priority;
+	int8 priority;
 
 	/// Skip if no sound source available?
 	bool skip;
