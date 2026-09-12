@@ -540,7 +540,7 @@ static SoundSourceEntry SoundUnit::findSoundSource(uint32 requesterId, uint32 so
 		if(requesterId == _soundSourceConfigurations[i].requesterId)
 		{
 			soundSourceEntry.soundSourceIndex = i;
-			soundSourceEntry.waveform = SoundUnit::findWaveform(waveFormData);
+			soundSourceEntry.waveform = SoundUnit::findWaveform(waveFormData, priority);
 		 	return soundSourceEntry;
 		}
 	}
@@ -556,7 +556,7 @@ static SoundSourceEntry SoundUnit::findSoundSource(uint32 requesterId, uint32 so
 		if(_ticks >= _soundSourceConfigurations[i].timeout)
 		{
 			soundSourceEntry.soundSourceIndex = i;
-			soundSourceEntry.waveform = SoundUnit::findWaveform(waveFormData);
+			soundSourceEntry.waveform = SoundUnit::findWaveform(waveFormData, priority);
 			return soundSourceEntry;
 		}
 	}
@@ -590,7 +590,7 @@ static SoundSourceEntry SoundUnit::findSoundSource(uint32 requesterId, uint32 so
 	if(-1 < stolenSoundSourceIndex)
 	{
 		soundSourceEntry.soundSourceIndex = stolenSoundSourceIndex;
-		soundSourceEntry.waveform = SoundUnit::findWaveform(waveFormData);
+		soundSourceEntry.waveform = SoundUnit::findWaveform(waveFormData, priority);
 	}
 
 	return soundSourceEntry;
@@ -689,7 +689,7 @@ static void SoundUnit::registerQueuedSoundSourceConfigurationRequest(const Sound
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static Waveform* SoundUnit::findWaveform(const WaveformData* waveFormData)
+static Waveform* SoundUnit::findWaveform(const WaveformData* waveFormData, uint8 priority)
 {
 	if(NULL == waveFormData)
 	{
@@ -714,6 +714,34 @@ static Waveform* SoundUnit::findWaveform(const WaveformData* waveFormData)
 
 			return &_waveforms[i];
 		}
+	}
+
+	Waveform* stolenWaveform = NULL;
+
+	// Try to steal a waveform
+	for(int16 i = 0; i < __TOTAL_SOUND_SOURCES; i++)
+	{
+		if(priority < _soundSourceConfigurations[i].priority)
+		{
+			continue;
+		}
+
+		Waveform* waveform = _soundSourceConfigurations[i].waveform;
+
+		if(NULL != waveform)
+		{
+			if(NULL == stolenWaveform || 0 == waveform->usageCount)
+			{
+				stolenWaveform = waveform;
+			}
+		}
+	}
+
+	if(NULL != stolenWaveform)
+	{
+		SoundUnit::setWaveform(stolenWaveform, waveFormData);
+
+		return stolenWaveform;
 	}
 
 	/// Fallback
