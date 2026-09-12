@@ -525,7 +525,36 @@ static void SoundUnit::configureSoundSource
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static SoundSourceEntry SoundUnit::findSoundSource(uint32 requesterId, uint32 soundSourceType, uint8 priority, const WaveformData* waveFormData)
+static SoundSourceEntry SoundUnit::configureSoundSourceEntry
+(
+	int16 soundSourceIndex, uint8 priority, const WaveformData* waveFormData, Waveform* stolenWaveform
+)
+{
+	SoundSourceEntry soundSourceEntry = {-1, NULL};
+
+	if(NULL != waveFormData)
+	{	
+		soundSourceEntry.waveform = SoundUnit::findWaveform(waveFormData, priority, stolenWaveform);
+
+		if(NULL != soundSourceEntry.waveform)
+		{
+			soundSourceEntry.soundSourceIndex = soundSourceIndex;
+		}
+	}
+	else
+	{
+		soundSourceEntry.soundSourceIndex = soundSourceIndex;
+	}
+
+	return soundSourceEntry;
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static SoundSourceEntry SoundUnit::findSoundSource
+(
+	uint32 requesterId, uint32 soundSourceType, uint8 priority, const WaveformData* waveFormData
+)
 {
 	SoundSourceEntry soundSourceEntry = {-1, NULL};
 
@@ -539,9 +568,7 @@ static SoundSourceEntry SoundUnit::findSoundSource(uint32 requesterId, uint32 so
 
 		if(requesterId == _soundSourceConfigurations[i].requesterId)
 		{
-			soundSourceEntry.soundSourceIndex = i;
-			soundSourceEntry.waveform = SoundUnit::findWaveform(waveFormData, priority);
-		 	return soundSourceEntry;
+			return SoundUnit::configureSoundSourceEntry(i, priority, waveFormData, NULL);
 		}
 	}
 
@@ -555,9 +582,7 @@ static SoundSourceEntry SoundUnit::findSoundSource(uint32 requesterId, uint32 so
 
 		if(_ticks >= _soundSourceConfigurations[i].timeout)
 		{
-			soundSourceEntry.soundSourceIndex = i;
-			soundSourceEntry.waveform = SoundUnit::findWaveform(waveFormData, priority);
-			return soundSourceEntry;
+			return SoundUnit::configureSoundSourceEntry(i, priority, waveFormData, NULL);
 		}
 	}
 
@@ -589,8 +614,12 @@ static SoundSourceEntry SoundUnit::findSoundSource(uint32 requesterId, uint32 so
 
 	if(-1 < stolenSoundSourceIndex)
 	{
-		soundSourceEntry.soundSourceIndex = stolenSoundSourceIndex;
-		soundSourceEntry.waveform = SoundUnit::findWaveform(waveFormData, priority);
+		return 
+			SoundUnit::configureSoundSourceEntry
+			(
+				stolenSoundSourceIndex, priority, waveFormData, 
+				(Waveform*)_soundSourceConfigurations[stolenSoundSourceIndex].waveform
+			);
 	}
 
 	return soundSourceEntry;
@@ -689,7 +718,7 @@ static void SoundUnit::registerQueuedSoundSourceConfigurationRequest(const Sound
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static Waveform* SoundUnit::findWaveform(const WaveformData* waveFormData, uint8 priority)
+static Waveform* SoundUnit::findWaveform(const WaveformData* waveFormData, uint8 priority, Waveform* stolenWaveform)
 {
 	if(NULL == waveFormData)
 	{
@@ -701,7 +730,6 @@ static Waveform* SoundUnit::findWaveform(const WaveformData* waveFormData, uint8
 		if(NULL != _waveforms[i].data && waveFormData->crc == _waveforms[i].crc)
 		{
 			_waveforms[i].usageCount = 1;
-
 			return &_waveforms[i];
 		}
 	}
@@ -711,28 +739,22 @@ static Waveform* SoundUnit::findWaveform(const WaveformData* waveFormData, uint8
 		if(NULL == _waveforms[i].data || 0 == _waveforms[i].usageCount)
 		{
 			SoundUnit::setWaveform(&_waveforms[i], waveFormData);
-
 			return &_waveforms[i];
 		}
 	}
 
-	Waveform* stolenWaveform = NULL;
-
 	// Try to steal a waveform
-	for(int16 i = 0; i < __TOTAL_SOUND_SOURCES; i++)
-	{
-		if(priority < _soundSourceConfigurations[i].priority)
+	if(NULL != stolenWaveform)
+	{		
+		for(int16 i = 0; i < __TOTAL_POTENTIAL_NORMAL_CHANNELS; i++)
 		{
-			continue;
-		}
-
-		Waveform* waveform = _soundSourceConfigurations[i].waveform;
-
-		if(NULL != waveform)
-		{
-			if(NULL == stolenWaveform || 0 == waveform->usageCount)
+			if(stolenWaveform == _soundSourceConfigurations[i].waveform)
 			{
-				stolenWaveform = waveform;
+				if(priority < _soundSourceConfigurations[i].priority)
+				{
+					stolenWaveform = NULL;
+					break;
+				}
 			}
 		}
 	}
@@ -740,12 +762,10 @@ static Waveform* SoundUnit::findWaveform(const WaveformData* waveFormData, uint8
 	if(NULL != stolenWaveform)
 	{
 		SoundUnit::setWaveform(stolenWaveform, waveFormData);
-
 		return stolenWaveform;
 	}
 
-	/// Fallback
-	return &_waveforms[0];
+	return NULL;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
