@@ -33,6 +33,18 @@ friend class VirtualList;
 #define __TILE_BRIGHT_RED_BOX					'\x10'
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// CLASS' DATA
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+typedef struct SoundSourceEntry
+{
+	int16 soundSourceIndex;
+	Waveform* waveform;
+
+} SoundSourceEntry;
+
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' ATTRIBUTES
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -69,14 +81,14 @@ static bool _haveQueuedRequests = false;
 
 static void SoundUnit::applySoundSourceConfiguration(const SoundSourceConfigurationRequest* soundSourceConfigurationRequest)
 {
-	int16 soundSourceIndex = 
+	SoundSourceEntry soundSourceEntry = 
 		SoundUnit::findSoundSource
 		(
 			soundSourceConfigurationRequest->requesterId, soundSourceConfigurationRequest->type, 
-			soundSourceConfigurationRequest->priority
+			soundSourceConfigurationRequest->priority, soundSourceConfigurationRequest->SxRAM
 		);
 
-	if(0 > soundSourceIndex)
+	if(0 > soundSourceEntry.soundSourceIndex)
 	{
 		if(_allowQueueingSoundRequests && !soundSourceConfigurationRequest->skip)
 		{
@@ -85,9 +97,7 @@ static void SoundUnit::applySoundSourceConfiguration(const SoundSourceConfigurat
 	}
 	else
 	{
-		Waveform* waveform = SoundUnit::findWaveform(soundSourceConfigurationRequest->SxRAM);
-
-		SoundUnit::configureSoundSource(soundSourceIndex, soundSourceConfigurationRequest, waveform);
+		SoundUnit::configureSoundSource(soundSourceConfigurationRequest, soundSourceEntry);
 	}
 }
 
@@ -427,10 +437,10 @@ static void SoundUnit::flushQueuedSounds()
 
 static void SoundUnit::configureSoundSource
 (
-	int16 soundSourceIndex, const SoundSourceConfigurationRequest* soundSourceConfigurationRequest, Waveform* waveform
+	const SoundSourceConfigurationRequest* soundSourceConfigurationRequest, SoundSourceEntry soundSourceEntry
 )
 {
-	int16 i = soundSourceIndex;
+	int16 i = soundSourceEntry.soundSourceIndex;
 	SoundSource* soundSource = _soundSourceConfigurations[i].soundSource;
 
 	_haveUsedSoundSources = true;
@@ -464,7 +474,7 @@ static void SoundUnit::configureSoundSource
 		(_soundSourceConfigurations[i].requesterId != soundSourceConfigurationRequest->requesterId);
 
 	_soundSourceConfigurations[i].requesterId = soundSourceConfigurationRequest->requesterId;
-	_soundSourceConfigurations[i].waveform = waveform;
+	_soundSourceConfigurations[i].waveform = soundSourceEntry.waveform;
 	_soundSourceConfigurations[i].timeout = _ticks + soundSourceConfigurationRequest->timeout;
 	_soundSourceConfigurations[i].SxINT = soundSourceConfigurationRequest->SxINT;
 	_soundSourceConfigurations[i].SxLRV = soundSourceConfigurationRequest->SxLRV;
@@ -472,7 +482,7 @@ static void SoundUnit::configureSoundSource
 	_soundSourceConfigurations[i].SxFQH = soundSourceConfigurationRequest->SxFQH;
 	_soundSourceConfigurations[i].SxEV0 = soundSourceConfigurationRequest->SxEV0;
 	_soundSourceConfigurations[i].SxEV1 = soundSourceConfigurationRequest->SxEV1;
-	_soundSourceConfigurations[i].SxRAM = waveform->index;
+	_soundSourceConfigurations[i].SxRAM = soundSourceEntry.waveform->index;
 	_soundSourceConfigurations[i].SxSWP = soundSourceConfigurationRequest->SxSWP;
 	_soundSourceConfigurations[i].priority = soundSourceConfigurationRequest->priority;
 
@@ -500,7 +510,7 @@ static void SoundUnit::configureSoundSource
 		soundSource->SxSWP = soundSourceConfigurationRequest->SxSWP;
 	}
 
-	soundSource->SxRAM = waveform->index;
+	soundSource->SxRAM = soundSourceEntry.waveform->index;
 
 	if(NULL != soundSourceConfigurationRequest->SxMOD)
 	{		
@@ -515,8 +525,10 @@ static void SoundUnit::configureSoundSource
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static int16 SoundUnit::findSoundSource(uint32 requesterId, uint32 soundSourceType, uint8 priority)
+static SoundSourceEntry SoundUnit::findSoundSource(uint32 requesterId, uint32 soundSourceType, uint8 priority, const WaveformData* waveFormData)
 {
+	SoundSourceEntry soundSourceEntry = {-1, NULL};
+
 	// First try to find a sound source that has previously assigned to the same requesterId
 	for(int16 i = 0; i < __TOTAL_SOUND_SOURCES; i++)
 	{
@@ -527,7 +539,9 @@ static int16 SoundUnit::findSoundSource(uint32 requesterId, uint32 soundSourceTy
 
 		if(requesterId == _soundSourceConfigurations[i].requesterId)
 		{
-		 	return i;
+			soundSourceEntry.soundSourceIndex = i;
+			soundSourceEntry.waveform = SoundUnit::findWaveform(waveFormData);
+		 	return soundSourceEntry;
 		}
 	}
 
@@ -541,7 +555,9 @@ static int16 SoundUnit::findSoundSource(uint32 requesterId, uint32 soundSourceTy
 
 		if(_ticks >= _soundSourceConfigurations[i].timeout)
 		{
-			return i;
+			soundSourceEntry.soundSourceIndex = i;
+			soundSourceEntry.waveform = SoundUnit::findWaveform(waveFormData);
+			return soundSourceEntry;
 		}
 	}
 
@@ -571,7 +587,13 @@ static int16 SoundUnit::findSoundSource(uint32 requesterId, uint32 soundSourceTy
 		}
 	}		
 
-	return stolenSoundSourceIndex;
+	if(-1 < stolenSoundSourceIndex)
+	{
+		soundSourceEntry.soundSourceIndex = stolenSoundSourceIndex;
+		soundSourceEntry.waveform = SoundUnit::findWaveform(waveFormData);
+	}
+
+	return soundSourceEntry;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -627,18 +649,16 @@ static void SoundUnit::dispatchQueuedSoundSourceConfigurations()
 
 		SoundSourceConfigurationRequest* queuedSoundSourceConfigurationRequest = (SoundSourceConfigurationRequest*)node->data;
 
-		int16 soundSourceIndex = 
+		SoundSourceEntry soundSourceEntry = 
 			SoundUnit::findSoundSource
 			(
 				queuedSoundSourceConfigurationRequest->requesterId, queuedSoundSourceConfigurationRequest->type, 
-				queuedSoundSourceConfigurationRequest->priority
+				queuedSoundSourceConfigurationRequest->priority, queuedSoundSourceConfigurationRequest->SxRAM
 			);
 
-		if(0 <= soundSourceIndex)
+		if(0 <= soundSourceEntry.soundSourceIndex)
 		{
-			Waveform* waveform = SoundUnit::findWaveform(queuedSoundSourceConfigurationRequest->SxRAM);
-
-			SoundUnit::configureSoundSource(soundSourceIndex, queuedSoundSourceConfigurationRequest, waveform);
+			SoundUnit::configureSoundSource(queuedSoundSourceConfigurationRequest, soundSourceEntry);
 
 			VirtualList::removeNode(_queuedSoundSourceConfigurationRequests, node);
 
