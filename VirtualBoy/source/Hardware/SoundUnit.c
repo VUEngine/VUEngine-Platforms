@@ -344,16 +344,13 @@ static void SoundUnit::reset()
 		_soundSourceConfigurations[i].SxSWP = 0;
 		_soundSourceConfigurations[i].SxINT = 0;
 		_soundSourceConfigurations[i].priority = -1;
-
-		Waveform* waveform = SoundUnit::findWaveform(NULL);
-
-		_soundSourceConfigurations[i].waveform = waveform;
+		_soundSourceConfigurations[i].waveform = NULL;
 		_soundSourceConfigurations[i].soundSource->SxLRV = _soundSourceConfigurations[i].SxLRV;
 		_soundSourceConfigurations[i].soundSource->SxFQL = _soundSourceConfigurations[i].SxFQL;
 		_soundSourceConfigurations[i].soundSource->SxFQH = _soundSourceConfigurations[i].SxFQH;
 		_soundSourceConfigurations[i].soundSource->SxEV0 = _soundSourceConfigurations[i].SxEV0;
 		_soundSourceConfigurations[i].soundSource->SxEV1 = _soundSourceConfigurations[i].SxEV1;
-		_soundSourceConfigurations[i].soundSource->SxRAM = NULL == waveform ? 0 : waveform->index;
+		_soundSourceConfigurations[i].soundSource->SxRAM = 0;
 		_soundSourceConfigurations[i].soundSource->SxSWP = _soundSourceConfigurations[i].SxSWP;
 		_soundSourceConfigurations[i].soundSource->SxINT = _soundSourceConfigurations[i].SxINT;
 	}
