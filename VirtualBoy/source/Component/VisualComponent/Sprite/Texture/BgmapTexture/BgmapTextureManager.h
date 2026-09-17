@@ -52,9 +52,6 @@ singleton class BgmapTextureManager : Object
 	// List of textures with BGMAP space allocated for them
 	VirtualList bgmapTextures;
 
-	// Next Id for textures in the following arrays
-	uint16 nextTextureId;
-
 	/// Used tiles per BGMAP segment
 	uint16 usedTiles[__MAX_NUMBER_OF_BGMAPS_SEGMENTS];
 
