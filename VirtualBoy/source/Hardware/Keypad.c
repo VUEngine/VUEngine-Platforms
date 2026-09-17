@@ -194,7 +194,7 @@ static void Keypad::readUserInput(bool waitForStableReading)
 	_hardwareRegisters[__SCR] = (__S_INTDIS | __S_HW);
 
 	// Store keys
-	if(0 == _userInput.powerFlag)
+	if(0 == _userInput.powerFlag && !isDeleted(Keypad::getInstance()->events))
 	{
 		if(K_PWR == (_userInput.allKeys & K_PWR))
 		{
@@ -226,6 +226,11 @@ static void Keypad::readUserInput(bool waitForStableReading)
 	_accumulatedUserInput += _userInput.allKeys;
 
 	_reseted = false;
+
+	if(!isDeleted(Keypad::getInstance()->events))
+	{
+		Keypad::fireEvent(Keypad::getInstance(), kEventKeypadInputRead);
+	}
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
