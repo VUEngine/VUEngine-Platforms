@@ -182,8 +182,8 @@ typedef struct Waveform
 	/// Waveform's index
 	uint8 index;
 
-	/// Count of channels using this waveform
-	int8 usageCount;
+	/// Flag for the usage status
+	int8 inUse;
 
 	/// Pointer to the VSU's waveform address
 	uint8* wave;

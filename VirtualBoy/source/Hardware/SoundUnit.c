@@ -173,7 +173,7 @@ static void SoundUnit::printWaveFormStatus(int32 x, int32 y)
 	{
 		PRINT_TEXT("           ", x, y + _waveforms[i].index);
 		PRINT_INT(_waveforms[i].index, x, y + _waveforms[i].index);
-		PRINT_INT(_waveforms[i].usageCount, x + 4, y + _waveforms[i].index);
+		PRINT_INT(_waveforms[i].inUse, x + 4, y + _waveforms[i].index);
 		PRINT_HEX((uint32)_waveforms[i].data, x + 8, y + _waveforms[i].index);
 	}
 }
@@ -301,7 +301,7 @@ static void SoundUnit::reset()
 	for(int16 i = 0; i < __TOTAL_WAVEFORMS; i++)
 	{
 		_waveforms[i].index = i;
-		_waveforms[i].usageCount = 0;
+		_waveforms[i].inUse = false;
 		_waveforms[i].wave = __WAVE_ADDRESS(i);
 		_waveforms[i].data = NULL;
 		_waveforms[i].crc = 0;
@@ -633,7 +633,7 @@ static void SoundUnit::releaseSoundSources()
 
 	for(int16 i = 0; i < __TOTAL_WAVEFORMS; i++)
 	{
-		_waveforms[i].usageCount = 0;
+		_waveforms[i].inUse = false;
 	}
 
 	for(int16 i = 0; i < __TOTAL_SOUND_SOURCES; i++)
@@ -656,7 +656,7 @@ static void SoundUnit::releaseSoundSources()
 		}
 		else if(NULL != _soundSourceConfigurations[i].waveform)
 		{
-			_waveforms[_soundSourceConfigurations[i].waveform->index].usageCount++;
+			_waveforms[_soundSourceConfigurations[i].waveform->index].inUse = true;
 		
 			_haveUsedSoundSources = true;
 		}
@@ -729,14 +729,18 @@ static Waveform* SoundUnit::findWaveform(const WaveformData* waveFormData, uint8
 	{
 		if(NULL != _waveforms[i].data && waveFormData->crc == _waveforms[i].crc)
 		{
-			_waveforms[i].usageCount = 1;
+			if(!_waveforms[i].inUse)
+			{				
+				SoundUnit::setWaveform(stolenWaveform, waveFormData);
+			}
+
 			return &_waveforms[i];
 		}
 	}
 
 	for(int16 i = 0; i < __TOTAL_WAVEFORMS; i++)
 	{
-		if(NULL == _waveforms[i].data || 0 == _waveforms[i].usageCount)
+		if(NULL == _waveforms[i].data || !_waveforms[i].inUse)
 		{
 			SoundUnit::setWaveform(&_waveforms[i], waveFormData);
 			return &_waveforms[i];
@@ -774,13 +778,7 @@ static void SoundUnit::setWaveform(Waveform* waveform, const WaveformData* waveF
 {
 	if(NULL != waveform && NULL != waveFormData)
 	{
-		waveform->usageCount = 1;
-
-		if(waveform->crc == waveFormData->crc) 
-		{
-			return;
-		}
-
+		waveform->inUse = true;
 		waveform->data = waveFormData->data;
 		waveform->crc = waveFormData->crc;
 
