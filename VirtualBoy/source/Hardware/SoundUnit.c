@@ -750,7 +750,7 @@ static Waveform* SoundUnit::findWaveform(const WaveformData* waveFormData, uint8
 		{
 			if(stolenWaveform == _soundSourceConfigurations[i].waveform)
 			{
-				if(priority < _soundSourceConfigurations[i].priority)
+				if(_soundSourceConfigurations[i].priority > priority)
 				{
 					stolenWaveform = NULL;
 					break;
