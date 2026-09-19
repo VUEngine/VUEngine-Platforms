@@ -596,7 +596,7 @@ static SoundSourceEntry SoundUnit::findSoundSource
 			continue;
 		}
 
-		if(_soundSourceConfigurations[i].priority > priority)
+		if(_soundSourceConfigurations[i].priority >= priority)
 		{
 			continue;
 		}
@@ -754,7 +754,7 @@ static Waveform* SoundUnit::findWaveform(const WaveformData* waveFormData, uint8
 		{
 			if(stolenWaveform == _soundSourceConfigurations[i].waveform)
 			{
-				if(_soundSourceConfigurations[i].priority > priority)
+				if(_soundSourceConfigurations[i].priority >= priority)
 				{
 					stolenWaveform = NULL;
 					break;
