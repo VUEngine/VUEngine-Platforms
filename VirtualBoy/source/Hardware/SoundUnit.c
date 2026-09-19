@@ -12,6 +12,7 @@
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 #include <Singleton.h>
+#include <Timer.h>
 #include <VirtualList.h>
 
 #include <SoundUnit.h>
@@ -280,19 +281,18 @@ static void SoundUnit::reset()
 {
 	SoundUnit::getInstance();
 
+	Timer::removeEventListener(Timer::getInstance(), ListenerObject::safeCast(SoundUnit::getInstance()), kEventTimerInterrupt);
+
 	if(NULL == _queuedSoundSourceConfigurationRequests)
 	{
 		_queuedSoundSourceConfigurationRequests = new VirtualList();	
 	}
 
-	_allowQueueingSoundRequests = true;
-	_haveUsedSoundSources = false;
-	_haveQueuedRequests = false;
-
 	SoundUnit::stopAllSounds();
 	SoundUnit::enableQueue();
 
 	_ticks = 0;
+	_allowQueueingSoundRequests = true;
 	_haveUsedSoundSources = false;
 	_haveQueuedRequests = false;
 
@@ -368,23 +368,6 @@ static void SoundUnit::reset()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void SoundUnit::update()
-{
-	if(_haveUsedSoundSources)
-	{
-		SoundUnit::releaseSoundSources();
-	}
-
-	if(_haveQueuedRequests)
-	{
-		SoundUnit::dispatchQueuedSoundSourceConfigurations();
-	}
-
-	_ticks++;
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
 static void SoundUnit::stopAllSounds()
 {
 	for(int16 i = 0; i < __TOTAL_SOUND_SOURCES; i++)
@@ -435,6 +418,23 @@ static void SoundUnit::flushQueuedSounds()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+static void SoundUnit::update()
+{
+	if(_haveUsedSoundSources)
+	{
+		SoundUnit::releaseSoundSources();
+	}
+
+	if(_haveQueuedRequests)
+	{
+		SoundUnit::dispatchQueuedSoundSourceConfigurations();
+	}
+
+	_ticks++;
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 static void SoundUnit::configureSoundSource
 (
 	const SoundSourceConfigurationRequest* soundSourceConfigurationRequest, SoundSourceEntry soundSourceEntry
@@ -443,32 +443,37 @@ static void SoundUnit::configureSoundSource
 	int16 i = soundSourceEntry.soundSourceIndex;
 	SoundSource* soundSource = _soundSourceConfigurations[i].soundSource;
 
+	if(!_haveUsedSoundSources)
+	{
+		Timer::addEventListener(Timer::getInstance(), ListenerObject::safeCast(SoundUnit::getInstance()), kEventTimerInterrupt);
+	}
+
 	_haveUsedSoundSources = true;
 
-	bool setSxINT = 
+	bool setSxINT =
 		0 != (__SET_SxINT_FLAG & soundSourceConfigurationRequest->SxINT)
-		|| 
+		||
 		_soundSourceConfigurations[i].SxINT != soundSourceConfigurationRequest->SxINT
-		|| 
+		||
 		(_soundSourceConfigurations[i].requesterId != soundSourceConfigurationRequest->requesterId);
 
-	bool setSxEV0 = 
+	bool setSxEV0 =
 		0 != (__SET_SxEV0_FLAG & soundSourceConfigurationRequest->SxEV1)
 		||
 		_soundSourceConfigurations[i].SxEV0 != soundSourceConfigurationRequest->SxEV0
 		||
 		(_soundSourceConfigurations[i].requesterId != soundSourceConfigurationRequest->requesterId);
 
-	bool setSxEV1 = 
+	bool setSxEV1 =
 		0 != (__SET_SxEV1_FLAG & soundSourceConfigurationRequest->SxEV1)
 		||
 		_soundSourceConfigurations[i].SxEV1 != soundSourceConfigurationRequest->SxEV1
-		|| 
+		||
 		(_soundSourceConfigurations[i].requesterId != soundSourceConfigurationRequest->requesterId);
 
 	bool setSxSWP =
 		0 != (__SET_SxSWP_FLAG & soundSourceConfigurationRequest->SxEV1)
-		|| 
+		||
 		_soundSourceConfigurations[i].SxSWP != soundSourceConfigurationRequest->SxSWP
 		||
 		(_soundSourceConfigurations[i].requesterId != soundSourceConfigurationRequest->requesterId);
@@ -653,13 +658,14 @@ static void SoundUnit::releaseSoundSources()
 			_soundSourceConfigurations[i].SxINT |= __SOUND_WRAPPER_STOP_SOUND;
 			_soundSourceConfigurations[i].soundSource->SxINT |= __SOUND_WRAPPER_STOP_SOUND;
 			_soundSourceConfigurations[i].priority = -1;
+			continue;
 		}
 		else if(NULL != _soundSourceConfigurations[i].waveform)
 		{
 			_waveforms[_soundSourceConfigurations[i].waveform->index].inUse = true;
-		
-			_haveUsedSoundSources = true;
 		}
+
+		_haveUsedSoundSources = true;
 	}
 }
 
@@ -836,6 +842,23 @@ void SoundUnit::destructor()
 
 	// Always explicitly call the base's destructor 
 	Base::destructor();
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+bool SoundUnit::onEvent(ListenerObject eventFirer, uint16 eventCode)
+{
+	switch(eventCode)
+	{
+		case kEventTimerInterrupt:
+		{
+			SoundUnit::update();
+
+			return _haveUsedSoundSources;
+		}
+	}
+
+	return Base::onEvent(this, eventFirer, eventCode);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

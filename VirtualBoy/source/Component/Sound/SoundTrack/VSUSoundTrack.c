@@ -131,7 +131,7 @@ void VSUSoundTrack::sendSoundRequest
 		}
 	}
 
-	if(0 < leftVolume || 0 < rightVolume)
+	if(kSoundTrackEventEnd == soundTrackKeyframe.events || 0 < leftVolume || 0 < rightVolume)
 	{
 		uint16 note = ((VSUSoundTrackSpec*)this->soundTrackSpec)->SxFQ[this->cursorSxFQ] + frequencyDelta;
 
@@ -147,21 +147,21 @@ void VSUSoundTrack::sendSoundRequest
 				0 != (kSoundTrackEventNoise & soundTrackKeyframe.events) ?
 					kSoundSourceNoise:
 					kSoundSourceNormal,
-			// SxINT values
-			((VSUSoundTrackSpec*)this->soundTrackSpec)->SxINT[this->cursorSxINT],
-			// SxLRV values
+			// SxINT value
+			kSoundTrackEventEnd == soundTrackKeyframe.events ? 0x00 : ((VSUSoundTrackSpec*)this->soundTrackSpec)->SxINT[this->cursorSxINT],
+			// SxLRV value
 			(leftVolume << 4) | rightVolume,
-			// SxFQL values
+			// SxFQL value
 			note & 0xFF,
-			// SxFQH values
+			// SxFQH value
 			note >> 8,
-			// SxEV0 values
+			// SxEV0 value
 			((VSUSoundTrackSpec*)this->soundTrackSpec)->SxEV0[this->cursorSxEV0],
-			// SxEV1 values
+			// SxEV1 value
 			((VSUSoundTrackSpec*)this->soundTrackSpec)->SxEV1[this->cursorSxEV1],
 			// SxRAM pointer
 			((VSUSoundTrackSpec*)this->soundTrackSpec)->SxRAM[this->cursorSxRAM],
-			// SxSWP values
+			// SxSWP value
 			((VSUSoundTrackSpec*)this->soundTrackSpec)->SxSWP[this->cursorSxSWP],
 			// SxMOD pointer
 			((VSUSoundTrackSpec*)this->soundTrackSpec)->SxMOD[this->cursorSxMOD],
