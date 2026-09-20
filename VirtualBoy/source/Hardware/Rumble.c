@@ -283,23 +283,8 @@ static void Rumble::setFrequency(uint8 value, uint8 firmwareVersion)
 
 	switch(firmwareVersion)
 	{
-		case 1:
+		case 2:
 		{			
-			if(value <= __RUMBLE_FREQ_400HZ)
-			{
-				value += __RUMBLE_CMD_FREQ_50HZ;
-			}
-
-			if(value >= __RUMBLE_CMD_FREQ_50HZ && value <= __RUMBLE_CMD_FREQ_400HZ)
-			{
-				Rumble::sendCode(value);
-			}
-
-			break;
-		}
-
-		default:
-		{
 			if(__RUMBLE_FREQ_400HZ >= value)
 			{
 				value += __RUMBLE_CMD_FREQ_160HZ - __RUMBLE_FREQ_160HZ;
@@ -315,6 +300,21 @@ static void Rumble::setFrequency(uint8 value, uint8 firmwareVersion)
 				||
 				(__RUMBLE_CMD_FREQ_160HZ <= value && __RUMBLE_CMD_FREQ_400HZ >= value)
 			)
+			{
+				Rumble::sendCode(value);
+			}
+
+			break;
+		}
+
+		default:
+		{
+			if(value <= __RUMBLE_FREQ_400HZ)
+			{
+				value += __RUMBLE_CMD_FREQ_50HZ;
+			}
+
+			if(value >= __RUMBLE_CMD_FREQ_50HZ && value <= __RUMBLE_CMD_FREQ_400HZ)
 			{
 				Rumble::sendCode(value);
 			}
@@ -342,7 +342,7 @@ static void Rumble::setOverdrive(uint8 value, uint8 firmwareVersion)
 
 	switch(firmwareVersion)
 	{
-		case 1:
+		case 2:
 		{
 			// Configuring the overdrive causes a corrupted first effect
 			break;
@@ -351,7 +351,6 @@ static void Rumble::setOverdrive(uint8 value, uint8 firmwareVersion)
 		default:
 		{
 			Rumble::sendCommandWithValue(__RUMBLE_CMD_OVERDRIVE, value);
-
 			break;
 		}			
 	}
