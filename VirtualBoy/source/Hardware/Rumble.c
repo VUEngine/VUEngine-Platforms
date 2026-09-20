@@ -21,6 +21,12 @@
 #include "Rumble.h"
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// CLASS' MACROS
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+#define __RUMBLE_PAK_VERSION	1
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' ATTRIBUTES
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -84,7 +90,7 @@ static void Rumble::startEffect(const RumbleEffectSpec* rumbleEffect)
 	}
 
 	// Configuring the overdrive causes a corrupted first effect
-//	Rumble::setOverdrive(rumbleEffect->overdrive);
+	Rumble::setOverdrive(rumbleEffect->overdrive);
 	Rumble::setFrequency(rumbleEffect->frequency);
 	Rumble::setSustainPositive(rumbleEffect->sustainPositive);
 	Rumble::setSustainNegative(rumbleEffect->sustainNegative);
@@ -282,6 +288,20 @@ static void Rumble::setFrequency(uint8 value)
 
 	_cachedRumbleEffect.frequency = value;
 
+#if __RUMBLE_PAK_VERSION == 1
+	if(value <= __RUMBLE_FREQ_400HZ)
+
+	{
+		value += __RUMBLE_CMD_FREQ_50HZ;
+	}
+
+	if(value >= __RUMBLE_CMD_FREQ_50HZ && value <= __RUMBLE_CMD_FREQ_400HZ)
+	{
+		Rumble::sendCode(value);
+	}	
+#endif
+
+#if __RUMBLE_PAK_VERSION == 0
 	if(__RUMBLE_FREQ_400HZ >= value)
 	{
 		value += __RUMBLE_CMD_FREQ_160HZ - __RUMBLE_FREQ_160HZ;
@@ -300,6 +320,7 @@ static void Rumble::setFrequency(uint8 value)
 	{
 		Rumble::sendCode(value);
 	}
+#endif
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
