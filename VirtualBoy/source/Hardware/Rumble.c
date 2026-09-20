@@ -71,7 +71,7 @@ static void Rumble::startEffect(const RumbleEffectSpec* rumbleEffect)
 			Rumble::stop();
 		}
 
-		Rumble::play();
+		Rumble::restart();
 		Rumble::execute();
 		return;
 	}
@@ -169,7 +169,7 @@ bool Rumble::onEvent(ListenerObject eventFirer, uint16 eventCode)
 // CLASS' PRIVATE STATIC METHODS
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void Rumble::sendCode(uint8 code __attribute__((unused)))
+static void Rumble::sendCode(uint8 code)
 {
 	_rumbleCommands[_rumbleCommandIndex++] = code;
 }
@@ -204,7 +204,7 @@ static void Rumble::execute()
 	else
 	{
 		Communications::broadcastData((uint8*)_rumbleCommands, _rumbleCommandIndex);
-		_rumbleCommandIndex = 0;
+		_rumbleCommandIndex = 0;	
 	}
 #endif
 }
@@ -290,8 +290,12 @@ static void Rumble::setFrequency(uint8 value)
 		value += __RUMBLE_CMD_FREQ_50HZ - __RUMBLE_FREQ_50HZ;
 	}
 
-	if((__RUMBLE_CMD_FREQ_50HZ <= value && __RUMBLE_CMD_FREQ_130HZ >= value) ||
-		(__RUMBLE_CMD_FREQ_160HZ <= value && __RUMBLE_CMD_FREQ_400HZ >= value))
+	if
+	(
+		(__RUMBLE_CMD_FREQ_50HZ <= value && __RUMBLE_CMD_FREQ_130HZ >= value)
+		||
+		(__RUMBLE_CMD_FREQ_160HZ <= value && __RUMBLE_CMD_FREQ_400HZ >= value)
+	)
 	{
 		Rumble::sendCode(value);
 	}
@@ -360,7 +364,7 @@ static void Rumble::setBreak(uint8 value)
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void Rumble::play()
+static void Rumble::restart()
 {
 	Rumble::sendCode(__RUMBLE_CMD_PLAY);
 }
