@@ -83,10 +83,11 @@ static void Rumble::startEffect(const RumbleEffectSpec* rumbleEffect)
 		Rumble::stop();
 	}
 
+	// Configuring the overdrive causes a corrupted first effect
+//	Rumble::setOverdrive(rumbleEffect->overdrive);
 	Rumble::setFrequency(rumbleEffect->frequency);
 	Rumble::setSustainPositive(rumbleEffect->sustainPositive);
 	Rumble::setSustainNegative(rumbleEffect->sustainNegative);
-	Rumble::setOverdrive(rumbleEffect->overdrive);
 	Rumble::setBreak(rumbleEffect->breaking);
 	Rumble::setEffect(rumbleEffect->effect);
 	Rumble::execute();
