@@ -265,6 +265,13 @@ static bool Communications::cancelCommunications()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+static bool Communications::cancelBroadcasts()
+{
+	Communications::cancelCommunications();
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 static void Communications::startSyncCycle()
 {
 	if(!_connected)

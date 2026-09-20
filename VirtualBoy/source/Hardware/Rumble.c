@@ -46,16 +46,32 @@ static RumbleEffectSpec _cachedRumbleEffect				__STATIC_SINGLETONS_DATA_SECTION_
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void Rumble::startEffect(const RumbleEffectSpec* rumbleEffect)
+static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool override)
 {
 	if(NULL == rumbleEffect)
 	{
-		return;
+		return false;
 	}
 
-	if(0 != _rumbleCommandIndex)
+	if(!override)
 	{
-		return;
+		if(0 != _rumbleCommandIndex)
+		{
+			return false;
+		}
+	}
+	else
+	{
+		if(0 != _rumbleCommandIndex)
+		{
+			Communications::cancelBroadcasts();
+			_rumbleCommandIndex = 0;
+
+			if(!rumbleEffect->stop)
+			{
+				Rumble::stop();
+			}
+		}
 	}
 
 	if(_rumbleEffectSpec == rumbleEffect)
@@ -67,7 +83,7 @@ static void Rumble::startEffect(const RumbleEffectSpec* rumbleEffect)
 
 		Rumble::restart();
 		Rumble::execute();
-		return;
+		return true;
 	}
 
 	_rumbleEffectSpec = rumbleEffect;
@@ -84,6 +100,8 @@ static void Rumble::startEffect(const RumbleEffectSpec* rumbleEffect)
 	Rumble::setBreak(rumbleEffect->breaking, rumbleEffect->firmwareVersion);
 	Rumble::setEffect(rumbleEffect->effect, rumbleEffect->firmwareVersion);
 	Rumble::execute();
+
+	return true;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -92,9 +110,6 @@ static void Rumble::stopEffect(const RumbleEffectSpec* rumbleEffect)
 {
 	if(NULL == rumbleEffect || _rumbleEffectSpec == rumbleEffect)
 	{
-		_rumbleEffectSpec = NULL;
-		_rumbleCommandIndex = 0;
-
 		Rumble::stop();
 		Rumble::execute();
 	}

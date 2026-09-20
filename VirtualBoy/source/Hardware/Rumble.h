@@ -71,7 +71,9 @@ singleton class Rumble : ListenerObject
 
 	/// Start a rumble effect configured with the provided spec.
 	/// @param rumbleEffectSpec: Specification of the rumble effect to play
-	static void startEffect(const RumbleEffectSpec* rumbleEffectSpec);
+	/// @param override: If true, any playing effect will be overrode
+	/// @return True if the effect was started
+	static bool startEffect(const RumbleEffectSpec* rumbleEffectSpec, bool override);
 
 	/// Stop a rumble effect configured with the provided spec.
 	/// @param rumbleEffectSpec: Specification of the rumble effect to stop; if NULL,
