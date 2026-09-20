@@ -227,7 +227,7 @@ static void Communications::enableCommunications(ListenerObject scope)
 
 static void Communications::disableCommunications()
 {
-	Communications::reset();	
+	Communications::reset();
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
