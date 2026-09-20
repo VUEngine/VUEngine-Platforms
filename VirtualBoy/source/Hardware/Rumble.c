@@ -31,10 +31,6 @@ static uint8 _rumbleCommands[__RUMBLE_TOTAL_COMMANDS]	__STATIC_SINGLETONS_DATA_S
 /// defaults to true
 static bool _async										= false;
 
-/// Determines if the broadcast of new effects should wait or not for a previous queue effect being
-/// completedly broadcasted
-static bool _overridePreviousEffect						= false;
-
 /// Index of the command in the queue to broadcast next
 static uint8 _rumbleCommandIndex						= true;
 
@@ -52,14 +48,12 @@ static RumbleEffectSpec _cachedRumbleEffect				__STATIC_SINGLETONS_DATA_SECTION_
 
 static void Rumble::startEffect(const RumbleEffectSpec* rumbleEffect)
 {
-	_rumbleCommandIndex = 0;
-
-	if(!_overridePreviousEffect && 0 != _rumbleCommandIndex)
+	if(NULL == rumbleEffect)
 	{
 		return;
 	}
 
-	if(NULL == rumbleEffect)
+	if(0 != _rumbleCommandIndex)
 	{
 		return;
 	}
@@ -83,8 +77,8 @@ static void Rumble::startEffect(const RumbleEffectSpec* rumbleEffect)
 		Rumble::stop();
 	}
 
-	Rumble::setOverdrive(rumbleEffect->overdrive, rumbleEffect->firmwareVersion);
 	Rumble::setFrequency(rumbleEffect->frequency, rumbleEffect->firmwareVersion);
+	Rumble::setOverdrive(rumbleEffect->overdrive, rumbleEffect->firmwareVersion);
 	Rumble::setSustainPositive(rumbleEffect->sustainPositive, rumbleEffect->firmwareVersion);
 	Rumble::setSustainNegative(rumbleEffect->sustainNegative, rumbleEffect->firmwareVersion);
 	Rumble::setBreak(rumbleEffect->breaking, rumbleEffect->firmwareVersion);
@@ -98,6 +92,9 @@ static void Rumble::stopEffect(const RumbleEffectSpec* rumbleEffect)
 {
 	if(NULL == rumbleEffect || _rumbleEffectSpec == rumbleEffect)
 	{
+		_rumbleEffectSpec = NULL;
+		_rumbleCommandIndex = 0;
+
 		Rumble::stop();
 		Rumble::execute();
 	}
@@ -113,19 +110,11 @@ static void Rumble::setAsync(bool async)
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void Rumble::setOverridePreviousEffect(bool overridePreviousEffect)
-{
-	_overridePreviousEffect = overridePreviousEffect;
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
 static void Rumble::reset()
 {
 	Rumble::getInstance();
 	
 	_async = true;
-	_overridePreviousEffect = true;
 	_rumbleEffectSpec = NULL;
 	_rumbleCommandIndex = 0;
 	_cachedRumbleEffect.frequency = 0;
@@ -189,17 +178,7 @@ static void Rumble::execute()
 #ifdef __RELEASE
 	if(_async)
 	{
-		if(_overridePreviousEffect)
-		{
-			Communications::broadcastDataAsync((uint8*)_rumbleCommands, _rumbleCommandIndex, NULL);
-		}
-		else
-		{
-			Communications::broadcastDataAsync
-			(
-				(uint8*)_rumbleCommands, _rumbleCommandIndex, ListenerObject::safeCast(Rumble::getInstance())
-			);
-		}
+		Communications::broadcastDataAsync((uint8*)_rumbleCommands, _rumbleCommandIndex, ListenerObject::safeCast(Rumble::getInstance()));
 	}
 	else
 	{
@@ -342,9 +321,9 @@ static void Rumble::setOverdrive(uint8 value, uint8 firmwareVersion)
 
 	switch(firmwareVersion)
 	{
-		case 2:
+		case 1:
 		{
-			// Configuring the overdrive causes a corrupted first effect
+			// This firmware doesn't support overdrive settings
 			break;
 		}
 
