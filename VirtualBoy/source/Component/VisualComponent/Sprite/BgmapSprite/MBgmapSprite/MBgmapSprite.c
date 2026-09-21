@@ -140,8 +140,6 @@ int16 MBgmapSprite::doRender(int16 index)
  		bgmapTextureSource.my = this->textureYOffset;
 	}
 
-	WorldAttributes* worldPointer = &_worldAttributesCache[index];
-
 	// Get coordinates
 	int16 gx = position.x - this->halfWidth;
 	int16 gy = position.y - this->halfHeight;
@@ -227,23 +225,22 @@ int16 MBgmapSprite::doRender(int16 index)
 		}
 	}
 
-	worldPointer->gx = gx;
-	worldPointer->gy = gy;
-	worldPointer->gp = gp;
-
-	worldPointer->mx = mx - this->displacement.x;
-	worldPointer->my = my - this->displacement.y;
-	worldPointer->mp = mp - this->displacement.parallax;
-
-	worldPointer->w = w - __WORLD_SIZE_DISPLACEMENT;
-	worldPointer->h = h - __WORLD_SIZE_DISPLACEMENT;
-
-	worldPointer->head = this->head | (BgmapTexture::safeCast(this->texture))->segment | ((MBgmapSpriteSpec*)this->componentSpec)->scValue;
-
-	if(0 < this->param)
-	{
-		worldPointer->param = (uint16)((((this->param)) - 0x20000) >> 1) & 0xFFF0;
-	}
+	_worldAttributesCache[index] = 
+		(WorldAttributes)
+		{	
+			this->head | (BgmapTexture::safeCast(this->texture))->segment | ((MBgmapSpriteSpec*)this->componentSpec)->scValue,
+			gx,
+			gp,
+			gy,
+			mx - this->displacement.x,
+			mp - this->displacement.parallax,
+			my - this->displacement.y,
+			w - __WORLD_SIZE_DISPLACEMENT,
+			h - __WORLD_SIZE_DISPLACEMENT,
+			0 < this->param ? (uint16)((((this->param)) - 0x20000) >> 1) & 0xFFF0 : 0,
+			0,
+			{0, 0, 0, 0, 0}
+		};
 
 	return 1;
 }

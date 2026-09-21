@@ -194,8 +194,6 @@ int16 BgmapSprite::doRender(int16 index)
 {
 	NM_ASSERT(!isDeleted(this->texture), "BgmapSprite::doRender: null texture");
 
-	WorldAttributes* worldPointer = &_worldAttributesCache[index];
-
 	int16 cameraFrustumX0 = _cameraFrustum->x0, cameraFrustumY0 = _cameraFrustum->y0;
 	int16 cameraFrustumX1 = _cameraFrustum->x1, cameraFrustumY1 = _cameraFrustum->y1;
 
@@ -272,21 +270,22 @@ int16 BgmapSprite::doRender(int16 index)
 	w -= __WORLD_SIZE_DISPLACEMENT;
 	h -= __WORLD_SIZE_DISPLACEMENT;
 
-	// Sequential writes for memory bus efficiencameraFrustumY
-	worldPointer->gx = gx;
-	worldPointer->gy = gy;
-	worldPointer->gp = gp;
-	worldPointer->mx = mx;
-	worldPointer->my = my;
-	worldPointer->mp = mp;
-	worldPointer->w = w;
-	worldPointer->h = h;
-	worldPointer->head = this->head | (BgmapTexture::safeCast(this->texture))->segment;
-
-	if(0 < param)
-	{
-		worldPointer->param = (uint16)((((param + (myDisplacement << 4))) - 0x20000) >> 1) & 0xFFF0;
-	}
+	_worldAttributesCache[index] = 
+		(WorldAttributes)
+		{	
+			this->head | (BgmapTexture::safeCast(this->texture))->segment,
+			gx,
+			gp,
+			gy,
+			mx,
+			mp,
+			my,
+			w,
+			h,
+			0 < param ? (uint16)((((param + (myDisplacement << 4))) - 0x20000) >> 1) & 0xFFF0 : 0,
+			0,
+			{0, 0, 0, 0, 0}
+		};
 
 	return 1;
 }
@@ -712,11 +711,10 @@ bool BgmapSprite::isHBias()
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 void BgmapSprite::removeFromCache()
-{	
+{
 	if(__NO_RENDER_INDEX != this->index)
 	{
-		WorldAttributes* worldPointer = &_worldAttributesCache[this->index];
-		worldPointer->head = __WORLD_OFF;
+		_worldAttributesCache[this->index].head = __WORLD_OFF;
 	}
 }
 
@@ -725,72 +723,63 @@ void BgmapSprite::removeFromCache()
 
 uint32 BgmapSprite::getEffectiveHead()
 {
-	WorldAttributes* worldPointer = &_worldAttributesCache[this->index];
-	return worldPointer->head;
+	return _worldAttributesCache[this->index].head;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 uint16 BgmapSprite::getEffectiveWidth()
 {
-	WorldAttributes* worldPointer = &_worldAttributesCache[this->index];
-	return 0 > (int16)worldPointer->w ? 0 : worldPointer->w;
+	return 0 > (int16)_worldAttributesCache[this->index].w ? 0 : _worldAttributesCache[this->index].w;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 uint16 BgmapSprite::getEffectiveHeight()
 {
-	WorldAttributes* worldPointer = &_worldAttributesCache[this->index];
-	return 0 > (int16)worldPointer->h ? 0 : worldPointer->h;
+	return 0 > (int16)_worldAttributesCache[this->index].h ? 0 : _worldAttributesCache[this->index].h;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 int16 BgmapSprite::getEffectiveX()
 {
-	WorldAttributes* worldPointer = &_worldAttributesCache[this->index];
-	return worldPointer->gx;
+	return _worldAttributesCache[this->index].gx;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 int16 BgmapSprite::getEffectiveY()
 {
-	WorldAttributes* worldPointer = &_worldAttributesCache[this->index];
-	return worldPointer->gy;
+	return _worldAttributesCache[this->index].gy;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 int16 BgmapSprite::getEffectiveP()
 {
-	WorldAttributes* worldPointer = &_worldAttributesCache[this->index];
-	return worldPointer->gp;
+	return _worldAttributesCache[this->index].gp;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 int16 BgmapSprite::getEffectiveMX()
 {
-	WorldAttributes* worldPointer = &_worldAttributesCache[this->index];
-	return worldPointer->mx;
+	return _worldAttributesCache[this->index].mx;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 int16 BgmapSprite::getEffectiveMY()
 {
-	WorldAttributes* worldPointer = &_worldAttributesCache[this->index];
-	return worldPointer->my;
+	return _worldAttributesCache[this->index].my;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 int16 BgmapSprite::getEffectiveMP()
 {
-	WorldAttributes* worldPointer = &_worldAttributesCache[this->index];
-	return worldPointer->mp;
+	return _worldAttributesCache[this->index].mp;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

@@ -104,7 +104,6 @@ int16 ObjectSprite::doRender(int16 index)
 		this->fourthWordValue | (texture->tileSet->offset + this->objectTextureSource.displacement);
 
 	uint16* framePointer = (uint16*)(texture->textureSpec->map + texture->mapDisplacement);
-	ObjectAttributes* objectAttributesCache = &_objectAttributesCache[index];
 	
 	int16 yLimit = cameraFrustumY0 - 8;
 	int16 xLimit = cameraFrustumX0 - 4;
@@ -120,11 +119,9 @@ int16 ObjectSprite::doRender(int16 index)
 
 		if((unsigned)(outputY - yLimit) > (unsigned)(cameraFrustumY1 - yLimit))
 		{
-			ObjectAttributes* object = objectAttributesCache - jDisplacement;
-			
-			for (int16 j = 0; j < cols; j++, object--)
+			for (int16 j = 0; j < cols; j++)
 			{				
-				object->head = __OBJECT_SPRITE_TILE_HIDE_MASK;
+				_objectAttributesCache[index - jDisplacement - j].head = __OBJECT_SPRITE_TILE_HIDE_MASK;
 			}
 
 			jDisplacement -= cols;
@@ -133,10 +130,9 @@ int16 ObjectSprite::doRender(int16 index)
 			continue;
 		}
 
-		uint16* frameRow = framePointer + jDisplacement;
-		ObjectAttributes* object = objectAttributesCache - jDisplacement;
-		
-		for (int16 j = 0, xDisplacement = 0; j < cols; j++, xDisplacement += xDeltaIncrement, object--)
+		uint16* frameRowPointer = framePointer + jDisplacement;
+
+		for (int16 j = 0, xDisplacement = 0; j < cols; j++, xDisplacement += xDeltaIncrement)
 		{
 			usedSlots++;
 
@@ -144,14 +140,18 @@ int16 ObjectSprite::doRender(int16 index)
 
 			if((unsigned)(outputX - xLimit) > (unsigned)(cameraFrustumX1 - xLimit))
 			{
-				object->head = __OBJECT_SPRITE_TILE_HIDE_MASK;
+				_objectAttributesCache[index - jDisplacement].head = __OBJECT_SPRITE_TILE_HIDE_MASK;
 				continue;
 			}
 
-			object->jx = outputX;
-			object->jy = outputY;
-			object->head = secondWordValue;
-			object->tile = fourthWordValue + frameRow[j];
+			_objectAttributesCache[index - jDisplacement] = 
+				(ObjectAttributes)
+				{
+					outputX,
+					secondWordValue,
+					outputY,
+					fourthWordValue + frameRowPointer[j]
+				};
 		}
 	}
 
