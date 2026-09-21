@@ -53,29 +53,24 @@ static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool overr
 		return false;
 	}
 
-	if(!override)
+	if(override)
 	{
 		if(0 != _rumbleCommandIndex)
 		{
-			return false;
+			Communications::cancelBroadcasts();
+			Rumble::reset();
+
+			if(!rumbleEffect->stop)
+			{
+				Rumble::stop();
+			}
 		}
 	}
 	else
 	{
 		if(0 != _rumbleCommandIndex)
 		{
-			Communications::cancelBroadcasts();
-			_rumbleCommandIndex = 0;
-			_cachedRumbleEffect.frequency = 0;
-			_cachedRumbleEffect.sustainPositive = 0;
-			_cachedRumbleEffect.sustainNegative = 0;
-			_cachedRumbleEffect.overdrive = 0;
-			_cachedRumbleEffect.breaking = 0;
-
-			if(!rumbleEffect->stop)
-			{
-				Rumble::stop();
-			}
+			return false;
 		}
 	}
 
@@ -118,12 +113,6 @@ static void Rumble::stopEffect(const RumbleEffectSpec* rumbleEffect)
 	{
 		Rumble::stop();
 		Rumble::execute();
-
-		_cachedRumbleEffect.frequency = 0;
-		_cachedRumbleEffect.sustainPositive = 0;
-		_cachedRumbleEffect.sustainNegative = 0;
-		_cachedRumbleEffect.overdrive = 0;
-		_cachedRumbleEffect.breaking = 0;
 	}
 }
 
@@ -144,6 +133,7 @@ static void Rumble::reset()
 	_async = true;
 	_rumbleEffectSpec = NULL;
 	_rumbleCommandIndex = 0;
+	
 	_cachedRumbleEffect.frequency = 0;
 	_cachedRumbleEffect.sustainPositive = 0;
 	_cachedRumbleEffect.sustainNegative = 0;
