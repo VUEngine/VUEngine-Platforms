@@ -66,6 +66,11 @@ static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool overr
 		{
 			Communications::cancelBroadcasts();
 			_rumbleCommandIndex = 0;
+			_cachedRumbleEffect.frequency = 0;
+			_cachedRumbleEffect.sustainPositive = 0;
+			_cachedRumbleEffect.sustainNegative = 0;
+			_cachedRumbleEffect.overdrive = 0;
+			_cachedRumbleEffect.breaking = 0;
 
 			if(!rumbleEffect->stop)
 			{
@@ -113,6 +118,12 @@ static void Rumble::stopEffect(const RumbleEffectSpec* rumbleEffect)
 	{
 		Rumble::stop();
 		Rumble::execute();
+
+		_cachedRumbleEffect.frequency = 0;
+		_cachedRumbleEffect.sustainPositive = 0;
+		_cachedRumbleEffect.sustainNegative = 0;
+		_cachedRumbleEffect.overdrive = 0;
+		_cachedRumbleEffect.breaking = 0;
 	}
 }
 
@@ -276,7 +287,7 @@ static void Rumble::setFrequency(uint8 value)
 
 	_cachedRumbleEffect.frequency = value;
 
-	if(__RUMBLE_FREQ_160HZ <= value && __RUMBLE_FREQ_320HZ >= value)
+	if(__RUMBLE_FREQ_160HZ <= (int8)value && __RUMBLE_FREQ_320HZ >= (int8)value)
 	{
 		value += __RUMBLE_CMD_FREQ_160HZ - __RUMBLE_FREQ_160HZ;
 	}

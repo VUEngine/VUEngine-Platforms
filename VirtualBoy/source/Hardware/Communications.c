@@ -232,7 +232,7 @@ static void Communications::disableCommunications()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static bool Communications::cancelCommunications()
+static void Communications::cancelCommunications()
 {
 	Communications::endCommunications();
 
@@ -259,13 +259,11 @@ static bool Communications::cancelCommunications()
 	
 	Communications::removeEventListeners(Communications::getInstance(), NULL, kEventEngineFirst);
 	Communications::discardAllMessages(Communications::getInstance());
-
-	return true;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static bool Communications::cancelBroadcasts()
+static void Communications::cancelBroadcasts()
 {
 	Communications::cancelCommunications();
 }
