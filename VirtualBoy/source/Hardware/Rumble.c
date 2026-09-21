@@ -93,12 +93,13 @@ static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool overr
 		Rumble::stop();
 	}
 
-	Rumble::setFrequency(rumbleEffect->frequency, rumbleEffect->firmwareVersion);
-	Rumble::setOverdrive(rumbleEffect->overdrive, rumbleEffect->firmwareVersion);
-	Rumble::setSustainPositive(rumbleEffect->sustainPositive, rumbleEffect->firmwareVersion);
-	Rumble::setSustainNegative(rumbleEffect->sustainNegative, rumbleEffect->firmwareVersion);
-	Rumble::setBreak(rumbleEffect->breaking, rumbleEffect->firmwareVersion);
-	Rumble::setEffect(rumbleEffect->effect, rumbleEffect->firmwareVersion);
+	Rumble::setFrequency(rumbleEffect->frequency);
+	// My RP doesn't support any of these
+//	Rumble::setOverdrive(rumbleEffect->overdrive);
+//	Rumble::setSustainPositive(rumbleEffect->sustainPositive);
+//	Rumble::setSustainNegative(rumbleEffect->sustainNegative);
+//	Rumble::setBreak(rumbleEffect->breaking);
+	Rumble::setEffect(rumbleEffect->effect);
 	Rumble::execute();
 
 	return true;
@@ -221,7 +222,7 @@ static void Rumble::sendCommandWithValue(uint8 command, uint8 value)
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void Rumble::setEffect(uint8 effect, uint8 firmwareVersion __attribute__((unused)))
+static void Rumble::setEffect(uint8 effect)
 {
 	if(effect >= __RUMBLE_CMD_MIN_EFFECT && effect <= __RUMBLE_CMD_MAX_EFFECT)
 	{
@@ -241,7 +242,7 @@ static void Rumble::storeEffectChain(uint8 chainNumber, uint8* effectChain)
 	
 	for(i = 0; effectChain[i] != __RUMBLE_EFFECT_CHAIN_END && i < __RUMBLE_MAX_EFFECTS_IN_CHAIN; i++)
 	{
-		Rumble::setEffect(effectChain[i], 0);
+		Rumble::setEffect(effectChain[i]);
 	}
 
 	Rumble::sendCode(__RUMBLE_EFFECT_CHAIN_END);
@@ -266,7 +267,7 @@ static void Rumble::setEffectChain(uint8 effectChain)
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void Rumble::setFrequency(uint8 value, uint8 firmwareVersion)
+static void Rumble::setFrequency(uint8 value)
 {
 	if(_cachedRumbleEffect.frequency == value)
 	{
@@ -275,52 +276,20 @@ static void Rumble::setFrequency(uint8 value, uint8 firmwareVersion)
 
 	_cachedRumbleEffect.frequency = value;
 
-	switch(firmwareVersion)
+	if(__RUMBLE_FREQ_160HZ <= value && __RUMBLE_FREQ_320HZ >= value)
 	{
-		case 2:
-		{			
-			if(__RUMBLE_FREQ_400HZ >= value)
-			{
-				value += __RUMBLE_CMD_FREQ_160HZ - __RUMBLE_FREQ_160HZ;
-			}
-			else if(__RUMBLE_FREQ_130HZ >= value)
-			{
-				value += __RUMBLE_CMD_FREQ_50HZ - __RUMBLE_FREQ_50HZ;
-			}
-
-			if
-			(
-				(__RUMBLE_CMD_FREQ_50HZ <= value && __RUMBLE_CMD_FREQ_130HZ >= value)
-				||
-				(__RUMBLE_CMD_FREQ_160HZ <= value && __RUMBLE_CMD_FREQ_400HZ >= value)
-			)
-			{
-				Rumble::sendCode(value);
-			}
-
-			break;
-		}
-
-		default:
-		{
-			if(value <= __RUMBLE_FREQ_400HZ)
-			{
-				value += __RUMBLE_CMD_FREQ_50HZ;
-			}
-
-			if(value >= __RUMBLE_CMD_FREQ_50HZ && value <= __RUMBLE_CMD_FREQ_400HZ)
-			{
-				Rumble::sendCode(value);
-			}
-
-			break;
-		}			
+		value += __RUMBLE_CMD_FREQ_160HZ - __RUMBLE_FREQ_160HZ;
+	}
+	
+	if(__RUMBLE_CMD_FREQ_160HZ <= value && __RUMBLE_CMD_FREQ_320HZ >= value)
+	{
+		Rumble::sendCode(value);
 	}
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void Rumble::setOverdrive(uint8 value, uint8 firmwareVersion)
+static void Rumble::setOverdrive(uint8 value)
 {
 	if(_cachedRumbleEffect.overdrive == value)
 	{
@@ -334,25 +303,12 @@ static void Rumble::setOverdrive(uint8 value, uint8 firmwareVersion)
 
 	_cachedRumbleEffect.overdrive = value;
 
-	switch(firmwareVersion)
-	{
-		case 1:
-		{
-			// This firmware doesn't support overdrive settings
-			break;
-		}
-
-		default:
-		{
-			Rumble::sendCommandWithValue(__RUMBLE_CMD_OVERDRIVE, value);
-			break;
-		}			
-	}
+	Rumble::sendCommandWithValue(__RUMBLE_CMD_OVERDRIVE, value);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void Rumble::setSustainPositive(uint8 value, uint8 firmwareVersion __attribute__((unused)))
+static void Rumble::setSustainPositive(uint8 value)
 {
 	if(_cachedRumbleEffect.sustainPositive == value)
 	{
@@ -366,7 +322,7 @@ static void Rumble::setSustainPositive(uint8 value, uint8 firmwareVersion __attr
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void Rumble::setSustainNegative(uint8 value, uint8 firmwareVersion __attribute__((unused)))
+static void Rumble::setSustainNegative(uint8 value)
 {
 	if(_cachedRumbleEffect.sustainNegative == value)
 	{
@@ -380,7 +336,7 @@ static void Rumble::setSustainNegative(uint8 value, uint8 firmwareVersion __attr
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void Rumble::setBreak(uint8 value, uint8 firmwareVersion __attribute__((unused)))
+static void Rumble::setBreak(uint8 value)
 {
 	if(_cachedRumbleEffect.breaking == value)
 	{
