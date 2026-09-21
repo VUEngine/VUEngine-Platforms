@@ -48,6 +48,11 @@ static RumbleEffectSpec _cachedRumbleEffect				__STATIC_SINGLETONS_DATA_SECTION_
 
 static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool override)
 {
+	// Disabled for the time being since firmware 1.1 is botched by not supporting overdrive, break and sustain
+	// This makes the effects inconsistent across boots
+	
+	return false;
+	
 	if(NULL == rumbleEffect)
 	{
 		return false;
@@ -94,11 +99,10 @@ static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool overr
 	}
 
 	Rumble::setFrequency(rumbleEffect->frequency);
-	// My RP doesn't support any of these
-//	Rumble::setOverdrive(rumbleEffect->overdrive);
-//	Rumble::setSustainPositive(rumbleEffect->sustainPositive);
-//	Rumble::setSustainNegative(rumbleEffect->sustainNegative);
-//	Rumble::setBreak(rumbleEffect->breaking);
+	Rumble::setOverdrive(rumbleEffect->overdrive);
+	Rumble::setSustainPositive(rumbleEffect->sustainPositive);
+	Rumble::setSustainNegative(rumbleEffect->sustainNegative);
+	Rumble::setBreak(rumbleEffect->breaking);
 	Rumble::setEffect(rumbleEffect->effect);
 	Rumble::execute();
 
