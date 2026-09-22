@@ -71,7 +71,6 @@
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 #define __RUMBLE_MAX_EFFECTS_IN_CHAIN			8
-#define __RUMBLE_MAX_OVERDRIVE					126
 #define __RUMBLE_CHAIN_EFFECT_0					0x00
 #define __RUMBLE_CHAIN_EFFECT_1					0x01
 #define __RUMBLE_CHAIN_EFFECT_2					0x02
@@ -93,10 +92,6 @@
 #define __RUMBLE_CMD_FREQ_160HZ					0x87
 #define __RUMBLE_CMD_FREQ_240HZ					0x88
 #define __RUMBLE_CMD_FREQ_320HZ					0x89
-#define __RUMBLE_CMD_OVERDRIVE					0xA0
-#define __RUMBLE_CMD_SUSTAIN_POS				0xA1
-#define __RUMBLE_CMD_SUSTAIN_NEG				0xA2
-#define __RUMBLE_CMD_BREAK						0xA3
 #define __RUMBLE_CMD_WRITE_EFFECT_CHAIN			0xB0
 #define __RUMBLE_CMD_WRITE_EFFECT_LOOPS_CHAIN 	0xB1
 #define __RUMBLE_EFFECT_CHAIN_END				0xFF

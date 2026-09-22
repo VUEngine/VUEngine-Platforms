@@ -32,18 +32,6 @@ typedef struct RumbleEffectSpec
 	/// Frequency
 	uint8 frequency;
 
-	/// Positive Sustain
-	uint8 sustainPositive;
-
-	/// Negative Sustain
-	uint8 sustainNegative;
-
-	/// Overdrive
-	uint8 overdrive;
-
-	/// Break
-	uint8 breaking;
-
 	/// Stop before starting
 	bool stop;
 

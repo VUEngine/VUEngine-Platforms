@@ -94,10 +94,6 @@ static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool overr
 	}
 
 	Rumble::setFrequency(rumbleEffect->frequency);
-//	Rumble::setOverdrive(rumbleEffect->overdrive);
-//	Rumble::setSustainPositive(rumbleEffect->sustainPositive);
-//	Rumble::setSustainNegative(rumbleEffect->sustainNegative);
-//	Rumble::setBreak(rumbleEffect->breaking);
 	Rumble::setEffect(rumbleEffect->effect);
 	Rumble::execute();
 
@@ -134,10 +130,6 @@ static void Rumble::reset()
 	_rumbleCommandIndex = 0;
 	
 	_cachedRumbleEffect.frequency = 0;
-	_cachedRumbleEffect.sustainPositive = 0;
-	_cachedRumbleEffect.sustainNegative = 0;
-	_cachedRumbleEffect.overdrive = 0;
-	_cachedRumbleEffect.breaking = 0;
 
 	for(int32 i = 0; i < __RUMBLE_TOTAL_COMMANDS; i++)
 	{
@@ -285,67 +277,6 @@ static void Rumble::setFrequency(uint8 value)
 	{
 		Rumble::sendCode(value);
 	}
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static void Rumble::setOverdrive(uint8 value)
-{
-	if(_cachedRumbleEffect.overdrive == value)
-	{
-		return;
-	}
-
-	if(__RUMBLE_MAX_OVERDRIVE < value)
-	{
-		value = __RUMBLE_MAX_OVERDRIVE;
-	}
-
-	_cachedRumbleEffect.overdrive = value;
-
-	Rumble::sendCommandWithValue(__RUMBLE_CMD_OVERDRIVE, value);
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static void Rumble::setSustainPositive(uint8 value)
-{
-	if(_cachedRumbleEffect.sustainPositive == value)
-	{
-		return;
-	}
-
-	_cachedRumbleEffect.sustainPositive = value;
-
-	Rumble::sendCommandWithValue(__RUMBLE_CMD_SUSTAIN_POS, value);
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static void Rumble::setSustainNegative(uint8 value)
-{
-	if(_cachedRumbleEffect.sustainNegative == value)
-	{
-		return;
-	}
-
-	_cachedRumbleEffect.sustainNegative = value;
-
-	Rumble::sendCommandWithValue(__RUMBLE_CMD_SUSTAIN_NEG, value);
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static void Rumble::setBreak(uint8 value)
-{
-	if(_cachedRumbleEffect.breaking == value)
-	{
-		return;
-	}
-
-	_cachedRumbleEffect.breaking = value;
-
-	Rumble::sendCommandWithValue(__RUMBLE_CMD_BREAK, value);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
