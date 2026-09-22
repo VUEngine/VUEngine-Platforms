@@ -26,9 +26,6 @@
 /// @memberof Rumble
 typedef struct RumbleEffectSpec
 {
-	/// Target firmware version
-	uint8 firmwareVersion;
-
 	/// Effect number
 	uint8 effect;
 
