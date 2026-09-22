@@ -573,7 +573,9 @@ static bool DisplayUnit::modifyBrightness(uint8 amount, DisplayColorConfig targe
 			_displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed += darkRedDelta;		
 		}
 	}
-	
+
+	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
+
 	_vipRegisters[__BRTA] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed;
 	_vipRegisters[__BRTB] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed;
 	_vipRegisters[__BRTC] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.brightRed - 
@@ -1171,8 +1173,6 @@ static int16 DisplayUnit::getCurrentBlockBeingDrawn()
 
 static bool DisplayUnit::adjustBrightness(int16 delta, int16 limitDarkRed, int16 limitMediumRed, int16 limitBrightRed)
 {
-	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
-
 	bool darkRedDone = false;
 	bool mediumRedDone = false;
 	bool brightRedDone = false;
@@ -1264,6 +1264,8 @@ static bool DisplayUnit::adjustBrightness(int16 delta, int16 limitDarkRed, int16
 			}
 		}
 	}
+
+	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
 
 	_vipRegisters[__BRTA] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed;
 	_vipRegisters[__BRTB] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed;
