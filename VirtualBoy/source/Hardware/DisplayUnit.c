@@ -808,7 +808,7 @@ static void DisplayUnit::startDisplaying()
 {
 	_vipRegisters[__REST] = 0;
 	_vipRegisters[__DPCTRL] = (__SYNCE | __RE | __DISP) & ~__LOCK;
-
+}
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
