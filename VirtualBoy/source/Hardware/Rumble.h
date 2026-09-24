@@ -65,16 +65,6 @@ singleton class Rumble : ListenerObject
 	/// any playing effect is stoped
 	static void stopEffect(const RumbleEffectSpec* rumbleEffectSpec);
 
-	/// Set the async flag.
-	/// @param async: If true, rumble commands are broadcasted asynchronously
-	static void setAsync(bool async);
-
-	/// Set the flag to broadcast new effects regardless of if there is a previous queue effect pending
-	/// broadcasted
-	/// @param overridePreviousEffect: If true, new effects are broadcasted regardless of if there is a
-	/// queued effect pending broadcasting
-	static void setOverridePreviousEffect(bool overridePreviousEffect);
-
 	/// Reset the manager's state.
 	static void reset();
 

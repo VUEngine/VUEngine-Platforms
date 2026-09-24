@@ -27,10 +27,6 @@
 /// Queue of commands to broadcast
 static uint8 _rumbleCommands[__RUMBLE_TOTAL_COMMANDS]	__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE;
 
-/// Determines if the commands are broadcasted asynchronously,
-/// defaults to true
-static bool _async										= false;
-
 /// Index of the command in the queue to broadcast next
 static uint8 _rumbleCommandIndex						= true;
 
@@ -82,7 +78,7 @@ static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool overr
 		}
 
 		Rumble::restart();
-		Rumble::execute();
+		Rumble::execute(true);
 		return true;
 	}
 
@@ -95,7 +91,7 @@ static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool overr
 
 	Rumble::setFrequency(rumbleEffect->frequency);
 	Rumble::setEffect(rumbleEffect->effect);
-	Rumble::execute();
+	Rumble::execute(true);
 
 	return true;
 }
@@ -107,16 +103,8 @@ static void Rumble::stopEffect(const RumbleEffectSpec* rumbleEffect)
 	if(NULL == rumbleEffect || _rumbleEffectSpec == rumbleEffect)
 	{
 		Rumble::stop();
-		Rumble::execute();
+		Rumble::execute(true);
 	}
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static void Rumble::setAsync(bool async)
-{
-	_async = async;
-	Rumble::stopAllEffects();
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -125,7 +113,6 @@ static void Rumble::reset()
 {
 	Rumble::getInstance();
 	
-	_async = true;
 	_rumbleEffectSpec = NULL;
 	_rumbleCommandIndex = 0;
 	
@@ -168,23 +155,26 @@ bool Rumble::onEvent(ListenerObject eventFirer, uint16 eventCode)
 
 static void Rumble::sendCode(uint8 code)
 {
-	_rumbleCommands[_rumbleCommandIndex++] = code;
+	if(_rumbleCommandIndex < __RUMBLE_TOTAL_COMMANDS - 1)
+	{
+		_rumbleCommands[_rumbleCommandIndex++] = code;
+	}
+	else
+	{
+		Rumble::execute(false);
+
+		if(0 == _rumbleCommandIndex)
+		{
+			_rumbleCommands[_rumbleCommandIndex++] = code;
+		}
+	}
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void Rumble::execute()
+static void Rumble::execute(bool async)
 {
-// Rumble only is called in release mode since emulators that don't implement communications, 
-// lock when trying to broadcast message throught the EXT port
-#ifdef __EMU_ONLY
-#if __EMU_ONLY
-	return;
-#endif
-#endif
-
-#ifdef __RELEASE
-	if(_async)
+	if(async)
 	{
 		Communications::broadcastDataAsync((uint8*)_rumbleCommands, _rumbleCommandIndex, ListenerObject::safeCast(Rumble::getInstance()));
 	}
@@ -193,15 +183,6 @@ static void Rumble::execute()
 		Communications::broadcastData((uint8*)_rumbleCommands, _rumbleCommandIndex);
 		_rumbleCommandIndex = 0;	
 	}
-#endif
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static void Rumble::toggleAsync()
-{
-	_async = !_async;
-	Rumble::stopAllEffects();
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -298,7 +279,7 @@ static void Rumble::stop()
 static void Rumble::stopAllEffects()
 {
 	Rumble::stop();
-	Rumble::execute();
+	Rumble::execute(true);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
