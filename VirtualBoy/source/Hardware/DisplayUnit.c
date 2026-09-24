@@ -439,7 +439,7 @@ static void DisplayUnit::applyColorConfig(DisplayColorConfig displayColorConfig)
 	}
 
 	// Configure brightness
-	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
+	while(0 != (_vipRegisters[__DPSTTS] & __DPBSY));
 	
 	_vipRegisters[__BRTA] = displayColorConfig.colorConfig.brightness.darkRed;
 	_vipRegisters[__BRTB] = displayColorConfig.colorConfig.brightness.mediumRed;
@@ -574,7 +574,7 @@ static bool DisplayUnit::modifyBrightness(uint8 amount, DisplayColorConfig targe
 		}
 	}
 
-	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
+	while(0 != (_vipRegisters[__DPSTTS] & __DPBSY));
 
 	_vipRegisters[__BRTA] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed;
 	_vipRegisters[__BRTB] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed;
@@ -808,12 +808,14 @@ static void DisplayUnit::startDisplaying()
 {
 	_vipRegisters[__REST] = 0;
 	_vipRegisters[__DPCTRL] = (__SYNCE | __RE | __DISP) & ~__LOCK;
-}
+
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static void DisplayUnit::stopDisplaying()
 {
+	while(0 != (_vipRegisters[__DPSTTS] & __DPBSY));
+
 	_vipRegisters[__REST] = 0;
 	_vipRegisters[__DPCTRL] = 0;
 }
@@ -1265,7 +1267,7 @@ static bool DisplayUnit::adjustBrightness(int16 delta, int16 limitDarkRed, int16
 		}
 	}
 
-	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
+	while(0 != (_vipRegisters[__DPSTTS] & __DPBSY));
 
 	_vipRegisters[__BRTA] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.darkRed;
 	_vipRegisters[__BRTB] = _displayUnitConfig.displayColorConfig.colorConfig.brightness.mediumRed;
