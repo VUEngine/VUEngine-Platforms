@@ -25,16 +25,16 @@
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 /// Queue of commands to broadcast
-static uint8 _rumbleCommands[__RUMBLE_TOTAL_COMMANDS]	__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE;
+static uint8 _rumbleCommands[__RUMBLE_TOTAL_COMMANDS] __STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE;
 
 /// Index of the command in the queue to broadcast next
-static uint8 _rumbleCommandIndex						= true;
+static uint8 _rumbleCommandIndex = 0;
 
 /// Rumble effect spec being broadcasted
-static const RumbleEffectSpec* _rumbleEffectSpec		= NULL;
+static const RumbleEffectSpec* _rumbleEffectSpec = NULL;
 
 /// Cached rumble effect to prevent broadcasting again previous send commands
-static RumbleEffectSpec _cachedRumbleEffect				__STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE;
+static RumbleEffectSpec _cachedRumbleEffect __STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE;
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC STATIC METHODS
