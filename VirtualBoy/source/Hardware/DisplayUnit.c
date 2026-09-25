@@ -107,7 +107,7 @@ extern uint32 _dramDirtyStart;
 #define __DIMM_VALUE_1				0x54
 #define __DIMM_VALUE_2				0x50
 
-#define __MAXIMUM_FRAME_CYCLE		5
+#define __MAXIMUM_FRAME_CYCLE		15
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' DATA
@@ -380,7 +380,7 @@ static void DisplayUnit::setFrameCycle(uint8 frameCycle __attribute__((unused)))
 		frameCycle = __MAXIMUM_FRAME_CYCLE;
 	}
 
-	_gameFrameDuration = (__MILLISECONDS_PER_SECOND / __MAXIMUM_FPS) << frameCycle;
+	_gameFrameDuration = (__MILLISECONDS_PER_SECOND / __MAXIMUM_FPS) * (frameCycle + 1);
 
 	_vipRegisters[__FRMCYC] = frameCycle;
 }
@@ -843,6 +843,29 @@ static void DisplayUnit::disableRendering()
 	VIPSpriteManager::disableRendering(VIPSpriteManager::getInstance());
 }
 
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static void DisplayUnit::startListeningForVBlank()
+{
+	_isDrawingAllowed = DisplayUnit::isDrawingAllowed();
+	
+	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
+
+	DisplayUnit::enableInterrupts(__GAMESTART | __XPEND);
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static void DisplayUnit::stopListeningForVBlank()
+{
+	_isDrawingAllowed = DisplayUnit::isDrawingAllowed();
+	
+	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
+
+	DisplayUnit::enableInterrupts(__GAMESTART);
+}
+
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static void DisplayUnit::commitGraphics()
@@ -939,7 +962,7 @@ static void DisplayUnit::processInterrupt(uint16 interrupt)
 
 	for(uint32 i = 0; i < sizeof(interruptTable) / sizeof(uint16); i++)
 	{
-		switch(interrupt & interruptTable[i])
+		switch(interrupt & interruptTable[i] & _vipRegisters[__INTENB])
 		{
 			case __FRAMESTART:
 			{
@@ -1031,9 +1054,9 @@ static void DisplayUnit::enableInterrupts(uint16 interruptCode)
 	interruptCode |= _customInterrupts;
 
 #ifndef __SHIPPING
-	_vipRegisters[__INTENB] = interruptCode | __FRAMESTART | __TIMEERR | __SCANERR;
+	_vipRegisters[__INTENB] = interruptCode | __TIMEERR | __SCANERR;
 #else
-	_vipRegisters[__INTENB] = interruptCode | __FRAMESTART;
+	_vipRegisters[__INTENB] = interruptCode;
 #endif
 }
 
