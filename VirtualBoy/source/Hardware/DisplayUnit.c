@@ -849,8 +849,6 @@ static void DisplayUnit::disableRendering()
 static void DisplayUnit::startListeningForVBlank()
 {
 	_isDrawingAllowed = DisplayUnit::isDrawingAllowed();
-	
-	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
 
 	DisplayUnit::enableInterrupts(__GAMESTART | __XPEND);
 }
@@ -860,8 +858,6 @@ static void DisplayUnit::startListeningForVBlank()
 static void DisplayUnit::stopListeningForVBlank()
 {
 	_isDrawingAllowed = DisplayUnit::isDrawingAllowed();
-	
-	while(_isDrawingAllowed && 0 != (_vipRegisters[__XPSTTS] & __XPBSY));
 
 	DisplayUnit::enableInterrupts(__GAMESTART);
 }
