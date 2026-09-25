@@ -107,6 +107,8 @@ extern uint32 _dramDirtyStart;
 #define __DIMM_VALUE_1				0x54
 #define __DIMM_VALUE_2				0x50
 
+#define __MAXIMUM_FRAME_CYCLE		5
+
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' DATA
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -373,9 +375,9 @@ static void DisplayUnit::enableMultiplexedInterrupts(uint32 enabledMultiplexedIn
 
 static void DisplayUnit::setFrameCycle(uint8 frameCycle __attribute__((unused)))
 {
-	if(3 < frameCycle)
+	if(__MAXIMUM_FRAME_CYCLE < frameCycle)
 	{
-		frameCycle = 3;
+		frameCycle = __MAXIMUM_FRAME_CYCLE;
 	}
 
 	_gameFrameDuration = (__MILLISECONDS_PER_SECOND / __MAXIMUM_FPS) << frameCycle;
