@@ -40,6 +40,9 @@ extern uint8* const _hardwareRegisters;
 // CLASS' ATTRIBUTES
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+/// Timer configuration to restore
+static TimerConfiguration _timerConfiguration;
+
 /// Elapsed milliseconds since the last call to reset
 static uint32 _elapsedMilliseconds = 0;
 
@@ -115,12 +118,21 @@ static void Timer::interruptHandler()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void Timer::configure(TimerConfig timerConfig)
+static void Timer::setConfiguration(TimerConfiguration timerConfiguration)
 {
-	Timer::setResolution(timerConfig.resolution);
-	Timer::setTargetTimePerInterruptUnits(timerConfig.targetTimePerInterrupttUnits);
-	Timer::setTargetTimePerInterrupt(timerConfig.targetTimePerInterrupt);
+	_timerConfiguration = timerConfiguration;
+	
+	Timer::setResolution(timerConfiguration.resolution);
+	Timer::setTargetTimePerInterruptUnits(timerConfiguration.targetTimePerInterrupttUnits);
+	Timer::setTargetTimePerInterrupt(timerConfiguration.targetTimePerInterrupt);
 	Timer::applySettings(true);
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static TimerConfiguration Timer::getConfiguration()
+{
+	return _timerConfiguration;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

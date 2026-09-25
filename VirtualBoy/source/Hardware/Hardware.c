@@ -247,7 +247,7 @@ static void Hardware::printStackStatus(int32 x, int32 y, bool resumed)
 
 static void Hardware::stablizeDisplay()
 {
-	TimerConfig timerConfig =
+	TimerConfiguration timerConfiguration =
 	{
 		/// Timer's resolution (__TIMER_100US or __TIMER_20US)
 		__TIMER_100US,
@@ -260,7 +260,7 @@ static void Hardware::stablizeDisplay()
 	};
 
 	Hardware::enableInterrupts();
-	Timer::configure(timerConfig);
+	Timer::setConfiguration(timerConfiguration);
 	Timer::wait(4000);
 	Timer::disable();
 	Hardware::disableInterrupts();

@@ -106,7 +106,7 @@ enum TimerResolutionScales
 	kMS,				// Milliseconds
 };
 
-typedef struct TimerConfig
+typedef struct TimerConfiguration
 {
 	/// Timer's resolution (__TIMER_100US or __TIMER_20US)
 	uint16 resolution;
@@ -117,7 +117,7 @@ typedef struct TimerConfig
 	/// Timer interrupt's target time units kMS or kUS
 	uint16 targetTimePerInterrupttUnits;
 
-} TimerConfig;
+} TimerConfiguration;
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // SOUND UNIT
