@@ -421,8 +421,6 @@ static void DisplayUnit::applyColorConfig(DisplayColorConfig displayColorConfig)
 	_vipRegisters[__JPLT2] = displayColorConfig.paletteConfig.object.jplt2;
 	_vipRegisters[__JPLT3] = displayColorConfig.paletteConfig.object.jplt3;
 
-	int32 i, value;
-
 	// Use the default column table as fallback
 	if(displayColorConfig.columnTableSpec == NULL)
 	{
@@ -430,9 +428,9 @@ static void DisplayUnit::applyColorConfig(DisplayColorConfig displayColorConfig)
 	}
 
 	// Write column table
-	for(i = 0; i < 256; i++)
+	for(int32 i = 0; i < 256; i++)
 	{
-		value = (displayColorConfig.columnTableSpec->mirror && (i > (__COLUMN_TABLE_ENTRIES / 2 - 1)))
+		int32 value = (displayColorConfig.columnTableSpec->mirror && (i > (__COLUMN_TABLE_ENTRIES / 2 - 1)))
 			? displayColorConfig.columnTableSpec->columnTable[(__COLUMN_TABLE_ENTRIES - 1) - i]
 			: displayColorConfig.columnTableSpec->columnTable[i];
 
@@ -816,10 +814,10 @@ static void DisplayUnit::startDisplaying()
 
 static void DisplayUnit::stopDisplaying()
 {
-	while(0 != (_vipRegisters[__DPSTTS] & __DPBSY));
-
 	_vipRegisters[__REST] = 0;
 	_vipRegisters[__DPCTRL] = 0;
+
+	while(0 != (_vipRegisters[__DPSTTS] & __DPBSY));
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
