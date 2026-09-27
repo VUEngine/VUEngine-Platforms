@@ -144,6 +144,8 @@ secure void BgmapTextureManager::clearDRAM()
 	uint16* bgmapStartAddress = (uint16*)__BGMAP_SPACE_BASE_ADDRESS;
 	uint16* paramTableEnd = (uint16*)ParamTableManager::getParamTableEnd(ParamTableManager::getInstance());
 
+	CACHE_RESET;
+
 	// Clear every bgmap segment
 	for(; bgmapStartAddress < paramTableEnd; bgmapStartAddress++)
 	{
