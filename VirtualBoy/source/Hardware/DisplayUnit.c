@@ -683,6 +683,8 @@ static void DisplayUnit::clearGraphicMemory()
 	WorldAttributes* worldAttributesBaseAddress = (WorldAttributes*)__WORLD_SPACE_BASE_ADDRESS;
 	ObjectAttributes* objectAttributesBaseAddress = (ObjectAttributes*)__OBJECT_SPACE_BASE_ADDRESS;
 
+	CACHE_RESET;
+
 	for(int32 i = 0; i < __TOTAL_WORLD_LAYERS; i++)
 	{
 		_worldAttributesCache[i] = (WorldAttributes)
