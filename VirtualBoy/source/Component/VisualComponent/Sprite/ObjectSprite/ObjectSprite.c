@@ -144,7 +144,7 @@ int16 ObjectSprite::doRender(int16 index)
 				continue;
 			}
 
-			_objectAttributesCache[index - jDisplacement] = 
+			_objectAttributesCache[index - jDisplacement - j] = 
 				(ObjectAttributes)
 				{
 					outputX,
