@@ -119,6 +119,10 @@ class ObjectSprite : Sprite
 	/// @param frame: Current animation frame 
 	override void setMultiframe(uint16 frame);
 
+	/// Set the position cache.
+	/// @param position: Position cache to save
+	override void setPosition(const PixelVector* position);
+
 	/// Set the sprite's rotation.
 	/// @param rotation: Rotation to apply to the sprite 
 	override void setRotation(const Rotation* rotation);
@@ -131,10 +135,6 @@ class ObjectSprite : Sprite
 	/// @param x: Screen x coordinate where to print
 	/// @param y: Screen y coordinate where to print
 	override void print(int32 x, int32 y);
-
-	/// Set the container (SPT) within which this sprite must be drawn.
-	/// @param objectSpriteContainer: SPT container 
-	void setObjectSpriteContainer(ObjectSpriteContainer objectSpriteContainer);
 }
 
 #endif

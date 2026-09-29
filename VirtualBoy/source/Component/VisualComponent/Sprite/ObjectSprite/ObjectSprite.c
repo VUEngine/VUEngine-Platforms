@@ -16,6 +16,7 @@
 #include <ObjectSpriteContainer.h>
 #include <ObjectTexture.h>
 #include <Printer.h>
+#include <VIPSpriteManager.h>
 
 #include "ObjectSprite.h"
 
@@ -172,6 +173,21 @@ void ObjectSprite::setMultiframe(uint16 frame)
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+void ObjectSprite::setPosition(const PixelVector* position)
+{
+	int16 z = this->position.z;
+	
+	Base::setPosition(this, position);
+	
+	if(z != this->position.z || NULL == this->objectSpriteContainer)
+	{
+		this->objectSpriteContainer =
+			VIPSpriteManager::getObjectSpriteContainer(VIPSpriteManager::getInstance(), this->position.z + this->displacement.z);
+	}
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 void ObjectSprite::setRotation(const Rotation* rotation)
 {
 	this->rotation = *rotation;
@@ -296,21 +312,6 @@ void ObjectSprite::print(int32 x, int32 y)
 
 	this->transparency = transparency;
 }
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-void ObjectSprite::setObjectSpriteContainer(ObjectSpriteContainer objectSpriteContainer)
-{
-	NM_ASSERT(!isDeleted(objectSpriteContainer), "ObjectSprite::setObjectSpriteContainer: NULL container");
-	
-	if(NULL == objectSpriteContainer)
-	{
-		return;
-	}
-	
-	this->objectSpriteContainer = objectSpriteContainer;
-}
-
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 

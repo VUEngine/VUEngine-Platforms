@@ -87,6 +87,11 @@ singleton class VIPSpriteManager : ListenerObject
 	/// @return The index of the list in which a sprite must be registered
 	uint16 getSpriteListIndex(Sprite sprite);
 
+	/// Retrieve the object sprite container closer to the provided coordinate.
+	/// @param z: Coordinate to use as reference
+	/// @return The container closer to the z coordinate
+	ObjectSpriteContainer getObjectSpriteContainer(int16 z);
+
 	/// Print OBJECT related stats.
 	/// @param x: Screen x coordinate where to print
 	/// @param y: Screen y coordinate where to print

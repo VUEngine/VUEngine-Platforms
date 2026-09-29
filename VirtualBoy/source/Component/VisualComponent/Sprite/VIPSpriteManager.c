@@ -240,19 +240,7 @@ uint16 VIPSpriteManager::getSpriteListIndex(Sprite sprite)
 	ClassPointer classPointer = Sprite::getBasicType(sprite);
 	
 	if(typeofclass(ObjectSprite) == classPointer)
-	{
-		int16 z = 0;
-
-		if(NULL != sprite->transformation)
-		{
-			z = __METERS_TO_PIXELS(sprite->transformation->position.z);
-		}
-
-		ObjectSprite::setObjectSpriteContainer
-		(
-			ObjectSprite::safeCast(sprite), VIPSpriteManager::getObjectSpriteContainer(this, z + sprite->displacement.z)
-		);
-		
+	{		
 		return kSpriteListObject;
 	}
 
@@ -461,7 +449,7 @@ void VIPSpriteManager::configureObjectSprites
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-ObjectSpriteContainer VIPSpriteManager::getObjectSpriteContainer(fixed_t z)
+ObjectSpriteContainer VIPSpriteManager::getObjectSpriteContainer(int16 z)
 {
 	ObjectSpriteContainer objectSpriteContainer = NULL;
 
