@@ -242,7 +242,7 @@ int16 BgmapSprite::doRender(int16 index)
 	}
 
 	if (__WORLD_SIZE_DISPLACEMENT >= w)
-	{		
+	{
 		return 0;
 	}
 
@@ -272,7 +272,7 @@ int16 BgmapSprite::doRender(int16 index)
 
 	_worldAttributesCache[index] = 
 		(WorldAttributes)
-		{	
+		{
 			this->head | (BgmapTexture::safeCast(this->texture))->segment,
 			gx,
 			gp,

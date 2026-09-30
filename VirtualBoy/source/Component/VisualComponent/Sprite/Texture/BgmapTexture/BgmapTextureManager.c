@@ -298,7 +298,7 @@ secure BgmapTexture BgmapTextureManager::getTexture
 				BgmapTexture::increaseUsageCount(bgmapTexture);
 			}
 			else
-			{			
+			{
 				// Load a new texture
 				bgmapTexture = 
 					BgmapTextureManager::allocateTexture(this, bgmapTextureSpec, minimumSegment, mustLiveAtEvenSegment, scValue);

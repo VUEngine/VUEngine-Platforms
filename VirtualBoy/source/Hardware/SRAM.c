@@ -80,7 +80,7 @@ static bool SRAM::read(uint8* destination, int32 memberOffset, int32 dataSize, b
 		}		
 	}
 	else
-	{		
+	{
 		for(int32 i = 0; i < dataSize; i++)
 		{
 			destination[i] = source[i] & 0x00FF;

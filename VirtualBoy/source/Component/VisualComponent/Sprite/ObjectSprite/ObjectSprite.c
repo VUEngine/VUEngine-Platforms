@@ -121,7 +121,7 @@ int16 ObjectSprite::doRender(int16 index)
 		if((unsigned)(outputY - yLimit) > (unsigned)(cameraFrustumY1 - yLimit))
 		{
 			for (int16 j = 0; j < cols; j++)
-			{				
+			{
 				_objectAttributesCache[index - jDisplacement - j].head = __OBJECT_SPRITE_TILE_HIDE_MASK;
 			}
 

@@ -274,7 +274,7 @@ static bool FrameBuffers::shrinkLineToScreenSpace
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static bool FrameBuffers::drawPoint(PixelVector point, int32 color, uint8 bufferIndex, bool interlaced)
-{	
+{
 	if(interlaced)
 	{
 		uint32 buffer = _currentDrawingFrameBufferSet | (bufferIndex << __FRAME_BUFFER_SIDE_BIT_INDEX);

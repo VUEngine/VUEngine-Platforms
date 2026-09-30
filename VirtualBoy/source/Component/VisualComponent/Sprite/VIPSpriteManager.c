@@ -240,7 +240,7 @@ uint16 VIPSpriteManager::getSpriteListIndex(Sprite sprite)
 	ClassPointer classPointer = Sprite::getBasicType(sprite);
 	
 	if(typeofclass(ObjectSprite) == classPointer)
-	{		
+	{
 		return kSpriteListObject;
 	}
 

@@ -192,7 +192,7 @@ void VSUSoundTrack::constructor(const VSUSoundTrackSpec* vusSoundTrackSpec)
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 void VSUSoundTrack::destructor()
-{	
+{
 	// Always explicitly call the base's destructor 
 	Base::destructor();
 }

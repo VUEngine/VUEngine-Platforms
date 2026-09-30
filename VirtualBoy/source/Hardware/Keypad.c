@@ -73,35 +73,35 @@ static void Keypad::enable()
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static void Keypad::disable()
-{	
+{
 	_enabled = false;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static int32 Keypad::isEnabled()
-{	
+{
 	return _enabled;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static void Keypad::enableDummyKey()
-{	
+{
 	_userInput.dummyKey = K_ANY;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static void Keypad::disableDummyKey()
-{	
+{
 	_userInput.dummyKey = K_NON;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static void Keypad::registerInput(uint16 inputToRegister)
-{	
+{
 #ifdef __TOOLS
 	inputToRegister = __KEY_PRESSED | __KEY_RELEASED | __KEY_HOLD;
 #endif
@@ -120,7 +120,7 @@ static UserInput Keypad::getUserInput()
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static uint32 Keypad::getAccumulatedUserInput()
-{	
+{
 	return _accumulatedUserInput;
 }
 
@@ -128,7 +128,7 @@ static uint32 Keypad::getAccumulatedUserInput()
 
 #ifndef __SHIPPING
 static void Keypad::printUserInput(int32 x, int32 y)
-{	
+{
 	int32 xDisplacement = 13;
 
 	PRINT_TEXT("USER INPUT:", x, y++);

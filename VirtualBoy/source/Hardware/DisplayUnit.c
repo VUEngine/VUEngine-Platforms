@@ -533,7 +533,7 @@ static bool DisplayUnit::modifyBrightness(uint8 amount, DisplayColorConfig targe
 	bool darkRedDone = 0 == darkRedDelta;
 
 	if(!brightRedDone)
-	{	
+	{
 		if(__ABS(brightRedDelta) <=  amount * __ABS(brightRedDelta) / minimumDelta)
 		{
 			brightRedDone= true;

@@ -518,7 +518,7 @@ static void SoundUnit::configureSoundSource
 	soundSource->SxRAM = soundSourceEntry.waveform->index;
 
 	if(NULL != soundSourceConfigurationRequest->SxMOD)
-	{		
+	{
 		uint8* modulationData = __MODULATION_DATA;
 
 		for(int16 i = 0; i <= __MODULATION_DATA_ENTRIES; i++)
@@ -538,7 +538,7 @@ static SoundSourceEntry SoundUnit::configureSoundSourceEntry
 	SoundSourceEntry soundSourceEntry = {-1, NULL};
 
 	if(NULL != waveFormData)
-	{	
+	{
 		soundSourceEntry.waveform = SoundUnit::findWaveform(waveFormData, priority, stolenWaveform);
 
 		if(NULL != soundSourceEntry.waveform)
@@ -736,7 +736,7 @@ static Waveform* SoundUnit::findWaveform(const WaveformData* waveFormData, uint8
 		if(NULL != _waveforms[i].data && waveFormData->crc == _waveforms[i].crc)
 		{
 			if(!_waveforms[i].inUse)
-			{				
+			{
 				SoundUnit::setWaveform(stolenWaveform, waveFormData);
 			}
 
@@ -755,7 +755,7 @@ static Waveform* SoundUnit::findWaveform(const WaveformData* waveFormData, uint8
 
 	// Try to steal a waveform
 	if(NULL != stolenWaveform)
-	{		
+	{
 		for(int16 i = 0; i < __TOTAL_POTENTIAL_NORMAL_CHANNELS; i++)
 		{
 			if(stolenWaveform == _soundSourceConfigurations[i].waveform)

@@ -100,7 +100,7 @@ void MBgmapSprite::releaseTexture()
 			BgmapTexture bgmapTexture = BgmapTexture::safeCast(node->data);
 
 			if(!isDeleted(bgmapTexture))
-			{				
+			{
 				TextureManager::release(Texture::safeCast(bgmapTexture));
 			}
 		}
@@ -227,7 +227,7 @@ int16 MBgmapSprite::doRender(int16 index)
 
 	_worldAttributesCache[index] = 
 		(WorldAttributes)
-		{	
+		{
 			this->head | (BgmapTexture::safeCast(this->texture))->segment | ((MBgmapSpriteSpec*)this->componentSpec)->scValue,
 			gx,
 			gp,
