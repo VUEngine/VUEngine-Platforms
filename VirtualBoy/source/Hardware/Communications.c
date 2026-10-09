@@ -191,10 +191,13 @@ static void Communications::reset()
 
 static void Communications::enableCommunications(ListenerObject scope)
 {
+	// This prevents games from start a new communications from a specific state
+/*
 	if(_connected || kCommunicationsStatusReset != _status)
 	{
 		return;
 	}
+*/
 
 	Communications::endCommunications();
 
