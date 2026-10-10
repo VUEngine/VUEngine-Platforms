@@ -191,13 +191,10 @@ static void Communications::reset()
 
 static void Communications::enableCommunications(ListenerObject scope)
 {
-	// This prevents games from start a new communications from a specific state
-/*
-	if(_connected || kCommunicationsStatusReset != _status)
+	if(kCommunicationsStatusReset != _status)
 	{
 		return;
 	}
-*/
 
 	Communications::endCommunications();
 
@@ -339,10 +336,8 @@ static bool Communications::broadcastData(uint8* data, int32 numberOfBytes)
 
 	_broadcast = kCommunicationsBroadcastSync;
 
-	while(0 < numberOfBytes)
+	while(0 < numberOfBytes && Communications::sendPayload(*data, false))
 	{
-		Communications::sendPayload(*data, false);
-
 		while(Communications::isTransmitting());
 		_status = kCommunicationsStatusIdle;
 
@@ -367,9 +362,7 @@ static bool Communications::broadcastDataAsync(uint8* data, int32 numberOfBytes,
 
 	_broadcast = kCommunicationsBroadcastAsync;
 
-	Communications::sendDataAsync(data, numberOfBytes, scope);
-
-	return true;
+	return Communications::sendDataAsync(data, numberOfBytes, scope);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -386,10 +379,7 @@ static bool Communications::sendAndReceiveData(uint32 message, uint8* data, int3
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static bool Communications::sendAndReceiveDataAsync
-(
-	uint32 message, uint8* data, int32 numberOfBytes, ListenerObject scope
-)
+static bool Communications::sendAndReceiveDataAsync(uint32 message, uint8* data, int32 numberOfBytes, ListenerObject scope)
 {
 	if(kCommunicationsStatusReset == _status)
 	{
@@ -486,7 +476,6 @@ static void Communications::print(int32 x, int32 y)
 	PRINT_TEXT(__COM_AS_REMOTE == _communicationMode ? "Remote" : "Master ", x + valueDisplacement, y++);
 
 	PRINT_TEXT("Channel: ", x, y);
-	PRINT_TEXT(Communications::isAuxChannelOpen() ? "Aux Open    " : "Aux Closed ", x + valueDisplacement, y++);
 	PRINT_TEXT(Communications::isRemoteReady() ? "Comms Open    " : "Comms Closed ", x + valueDisplacement, y++);
 
 	PRINT_TEXT("Transmission: ", x, y);
@@ -523,13 +512,6 @@ static bool Communications::isTransmitting()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static bool Communications::managesChannel()
-{
-	return !Communications::isMaster();
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
 static bool Communications::isHandshakeIncoming()
 {
 	// Try to close the communication channel
@@ -545,20 +527,6 @@ static bool Communications::isHandshakeIncoming()
 static bool Communications::isRemoteReady()
 {
 	return 0 == (_communicationRegisters[__CCSR] & 0x01) ? true : false;
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static bool Communications::isCommunicationControlInterrupt()
-{
-	return 0 == (_communicationRegisters[__CCSR] & __COM_DISABLE_INTERRUPT);
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static bool Communications::isAuxChannelOpen()
-{
-	return _communicationRegisters[__CCSR] & 0x01 ? true : false;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -780,21 +748,21 @@ static void Communications::setReady(bool ready)
 		{
 			if(_broadcast)
 			{
-				_communicationRegisters[__CCSR] &= (~0x02);
+				_communicationRegisters[__CCSR] &= (~__COM_PENDING);
 			}
 			else
 			{
-				_communicationRegisters[__CCSR] |= 0x02;
+				_communicationRegisters[__CCSR] |= __COM_PENDING;
 			}
 		}
 		else
 		{
-			_communicationRegisters[__CCSR] &= (~0x02);
+			_communicationRegisters[__CCSR] &= (~__COM_PENDING);
 		}
 	}
 	else
 	{
-		_communicationRegisters[__CCSR] |= 0x02;
+		_communicationRegisters[__CCSR] |= __COM_PENDING;
 	}
 }
 
@@ -842,9 +810,44 @@ static bool Communications::sendAndReceivePayload(uint8 payload, bool async)
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static bool Communications::startDataTransmission(uint8* data, int32 numberOfBytes, bool sendingData)
+static void Communications::sendData(uint8* data, int32 numberOfBytes)
 {
-	if((sendingData && NULL == data) || 0 >= numberOfBytes || !Communications::isFreeForTransmissions())
+	if(Communications::prepareForDataTransmission(data, numberOfBytes))
+	{
+		_syncSentByte = data;
+
+		while(0 < _numberOfBytesPendingTransmission && Communications::sendPayload(*_syncSentByte, false))
+		{
+			while(kCommunicationsStatusIdle != _status);
+		}
+	
+		_syncSentByte = NULL;
+	}
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static void Communications::receiveData(uint8* data, int32 numberOfBytes)
+{
+	if(Communications::prepareForDataTransmission(data, numberOfBytes))
+	{		
+		_syncReceivedByte = data;
+
+		while(0 < _numberOfBytesPendingTransmission && Communications::receivePayload(false))
+		{
+			while(kCommunicationsStatusIdle != _status);
+		}
+
+		_syncReceivedByte = NULL;
+	}
+
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static bool Communications::prepareForDataTransmission(uint8* data, int32 numberOfBytes)
+{
+	if(NULL == data || 0 >= numberOfBytes || !Communications::isFreeForTransmissions())
 	{
 		return false;
 	}
@@ -865,34 +868,7 @@ static bool Communications::startDataTransmission(uint8* data, int32 numberOfByt
 	_syncReceivedByte = NULL;
 	_asyncSentByte = NULL;
 	_asyncReceivedByte = NULL;
-
-	if(sendingData)
-	{
-		_syncSentByte = data;
-	}
-	else
-	{
-		_syncReceivedByte = data;
-	}
-
 	_numberOfBytesPendingTransmission = numberOfBytes;
-
-	while(0 < _numberOfBytesPendingTransmission)
-	{
-		if(sendingData)
-		{
-			Communications::sendPayload(*_syncSentByte, false);
-		}
-		else
-		{
-			Communications::receivePayload(false);
-		}
-
-		while(kCommunicationsStatusIdle != _status);
-	}
-
-	_status = kCommunicationsStatusIdle;
-	_syncSentByte = _syncReceivedByte = NULL;
 
 	return true;
 }
@@ -942,23 +918,7 @@ static bool Communications::sendDataAsync(uint8* data, int32 numberOfBytes, List
 	// Copy the data
 	Mem::copyBYTE((uint8*)_sentData, data, numberOfBytes);
 
-	Communications::sendPayload(*_asyncSentByte, true);
-
-	return true;
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static bool Communications::sendData(uint8* data, int32 numberOfBytes)
-{
-	return Communications::startDataTransmission(data, numberOfBytes, true);
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static bool Communications::receiveData(uint8* data, int32 numberOfBytes)
-{
-	return Communications::startDataTransmission(data, numberOfBytes, false);
+	return Communications::sendPayload(*_asyncSentByte, true);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -1093,7 +1053,7 @@ static void Communications::processInterrupt()
 {
 	int32 status = _status;
 	_status = kCommunicationsStatusIdle;
-
+	
 	switch(status)
 	{
 		case kCommunicationsStatusSendingHandshake:
@@ -1135,7 +1095,7 @@ static void Communications::processInterrupt()
 
 				if(0 < --_numberOfBytesPendingTransmission)
 				{
-					Communications::receivePayload(false);
+					Communications::receivePayload(true);
 				}
 				else
 				{
