@@ -203,6 +203,19 @@ static void Communications::enableCommunications(ListenerObject scope)
 		Communications::addEventListener(Communications::getInstance(), scope, kEventCommunicationsConnected);
 	}
 
+	if(_connected)
+	{
+		if(kCommunicationsStatusReset == _status)
+		{
+			_status = kCommunicationsStatusIdle;
+		}
+
+		Communications::fireEvent(Communications::getInstance(), kEventCommunicationsConnected);
+		Communications::removeEventListeners(Communications::getInstance(), NULL, kEventCommunicationsConnected);
+
+		return;
+	}
+
 	// If handshake is taking place
 	if(Communications::isHandshakeIncoming())
 	{
