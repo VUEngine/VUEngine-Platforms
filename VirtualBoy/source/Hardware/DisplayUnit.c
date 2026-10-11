@@ -378,16 +378,14 @@ static void DisplayUnit::enableMultiplexedInterrupts(uint32 enabledMultiplexedIn
 
 static void DisplayUnit::suspendInterrupts()
 {
-	Hardware::suspendInterrupts();
-//	DisplayUnit::disableInterrupts();
+	DisplayUnit::disableInterrupts();
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static void DisplayUnit::resumeInterrupts()
 {
-	Hardware::resumeInterrupts();
-//	DisplayUnit::enableInterrupts(_interruptCode);
+	DisplayUnit::enableInterrupts(_interruptCode);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -1079,8 +1077,6 @@ static void DisplayUnit::enableInterrupts(uint16 interruptCode)
 	{
 		return;
 	}
-
-	_vipRegisters[__INTCLR] = _vipRegisters[__INTPND];
 
 	_interruptCode = interruptCode;
 
