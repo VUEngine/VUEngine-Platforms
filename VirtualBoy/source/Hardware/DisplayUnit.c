@@ -162,6 +162,9 @@ static bool _isDrawingAllowed 						= false;
 /// If false, no interrupts are enable
 static bool _allowInterrupts 						= false;
 
+/// Current interrupt configuration
+static uint16 _interruptCode 						= 0;
+
 /// If true, a VIP interrupt happened while in the midst of GAMESTART
 static volatile bool _processingGAMESTART 			= false;
 
@@ -369,6 +372,22 @@ static void DisplayUnit::enableMultiplexedInterrupts(uint32 enabledMultiplexedIn
 #else
 	_enabledMultiplexedInterrupts = kVIPNoMultiplexedInterrupts;
 #endif
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static void DisplayUnit::suspendInterrupts()
+{
+	Hardware::suspendInterrupts();
+//	DisplayUnit::disableInterrupts();
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static void DisplayUnit::resumeInterrupts()
+{
+	Hardware::resumeInterrupts();
+//	DisplayUnit::enableInterrupts(_interruptCode);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -669,6 +688,7 @@ static void DisplayUnit::reset()
 	_isDrawingAllowed = false;
 	_enabledMultiplexedInterrupts = kVIPNoMultiplexedInterrupts;
 	_allowInterrupts = true;
+	_interruptCode = 0;
  
 	DisplayUnit::lowerBrightness(0);
 	DisplayUnit::removePostProcessingEffects();
@@ -840,6 +860,7 @@ static void DisplayUnit::stopDisplaying()
 
 static void DisplayUnit::startRendering()
 {
+	DisplayUnit::suspendInterrupts();
 	VIPSpriteManager::startRendering(VIPSpriteManager::getInstance());
 }
 
@@ -848,6 +869,7 @@ static void DisplayUnit::startRendering()
 static void DisplayUnit::stopRendering()
 {
 	VIPSpriteManager::stopRendering(VIPSpriteManager::getInstance());
+	DisplayUnit::resumeInterrupts();
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -856,7 +878,6 @@ static void DisplayUnit::disableRendering()
 {
 	VIPSpriteManager::disableRendering(VIPSpriteManager::getInstance());
 }
-
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -1061,12 +1082,12 @@ static void DisplayUnit::enableInterrupts(uint16 interruptCode)
 
 	_vipRegisters[__INTCLR] = _vipRegisters[__INTPND];
 
-	interruptCode |= _customInterrupts;
+	_interruptCode = interruptCode;
 
 #ifndef __SHIPPING
-	_vipRegisters[__INTENB] = interruptCode | __TIMEERR | __SCANERR;
+	_vipRegisters[__INTENB] = _interruptCode | _customInterrupts | __TIMEERR | __SCANERR;
 #else
-	_vipRegisters[__INTENB] = interruptCode;
+	_vipRegisters[__INTENB] = _interruptCode | _customInterrupts;
 #endif
 }
 

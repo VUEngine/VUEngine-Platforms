@@ -284,6 +284,7 @@ static void Profiler::computeLap(const char* processName, uint32 lapType, bool i
 
 	if(0 > elapsedTime)
 	{
+		Hardware::resumeInterrupts();
 		return;
 	}
 

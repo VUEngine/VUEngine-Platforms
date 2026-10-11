@@ -20,7 +20,7 @@
 
 #define __CPU_HALT							asm("halt"::)
 #define __CPU_ENABLE_INTERRUPTS				asm("cli")
-#define __CPU_SUSPEND_INTERRUPTS			asm("sei")
+#define __CPU_DISABLE_INTERRUPTS			asm("sei")
 
 #define __CPU_SET_INTERRUPT_LEVEL(level)	asm									\
 											(									\
