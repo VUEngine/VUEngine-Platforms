@@ -199,6 +199,8 @@ void ObjectSprite::setRotation(const Rotation* rotation)
 		__FAR,
 	};
 
+	uint16 head = this->head;
+
 	if(__LEFT == normalizedDirection.x)
 	{
 		this->head |= 0x2000;
@@ -215,6 +217,11 @@ void ObjectSprite::setRotation(const Rotation* rotation)
 	else if(__DOWN == normalizedDirection.y)
 	{
 		this->head &= 0xEFFF;
+	}
+
+	if(0 == (head ^ this->head))
+	{
+		return;
 	}
 
 	this->xDisplacementIncrement = 8;
