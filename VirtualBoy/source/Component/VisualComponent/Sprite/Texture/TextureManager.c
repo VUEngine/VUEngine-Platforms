@@ -45,8 +45,7 @@ static ObjectTextureManager _objectTextureManager = NULL;
 
 static void TextureManager::reset()
 {
-	_bgmapTextureManager = BgmapTextureManager::getInstance();
-	_objectTextureManager = ObjectTextureManager::getInstance();
+	TextureManager::loadManagers();
 
 	BgmapTextureManager::reset(_bgmapTextureManager);
 	ObjectTextureManager::reset(_objectTextureManager);
@@ -56,6 +55,8 @@ static void TextureManager::reset()
 
 static Texture TextureManager::get(ClassPointer textureClass, const TextureSpec* textureSpec)
 {
+	TextureManager::loadManagers();
+
 	if(NULL == textureSpec)
 	{
 		return NULL;
@@ -87,6 +88,8 @@ static Texture TextureManager::get(ClassPointer textureClass, const TextureSpec*
 
 static void TextureManager::release(Texture texture)
 {
+	TextureManager::loadManagers();
+
 	if(__IS_INSTANCE_OF(BgmapTexture, texture))
 	{
 		BgmapTextureManager::releaseTexture(_bgmapTextureManager, BgmapTexture::safeCast(texture));
@@ -101,6 +104,8 @@ static void TextureManager::release(Texture texture)
 
 static void TextureManager::updateTextures(int16 maximumTextureRowsToWrite, bool defer)
 {
+	TextureManager::loadManagers();
+
 	void updateTextures(VirtualList textures, int16 maximumTextureRowsToWrite, bool defer)
 	{
 		if(NULL == textures)
@@ -142,6 +147,8 @@ static void TextureManager::updateTextures(int16 maximumTextureRowsToWrite, bool
 
 static void TextureManager::loadTextures(const TextureSpec** textureSpecs)
 {
+	TextureManager::loadManagers();
+
 	BgmapTextureManager::loadTextures(_bgmapTextureManager, textureSpecs);
 }
 
@@ -149,7 +156,28 @@ static void TextureManager::loadTextures(const TextureSpec** textureSpecs)
 
 static void TextureManager::clearGraphicMemory()
 {
+	TextureManager::loadManagers();
+	
 	BgmapTextureManager::clearDRAM(_bgmapTextureManager);
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// CLASS' PRIVATE STATIC METHODS
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static void TextureManager::loadManagers()
+{
+	if(NULL == _bgmapTextureManager)
+	{
+		_bgmapTextureManager = BgmapTextureManager::getInstance();
+	}
+
+	if(NULL == _objectTextureManager)
+	{
+		_objectTextureManager = ObjectTextureManager::getInstance();
+	}
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
