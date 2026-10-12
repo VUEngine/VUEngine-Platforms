@@ -198,6 +198,7 @@ void VIPSpriteManager::disableRendering()
 void VIPSpriteManager::commitGraphics()
 {
 #ifdef __DEBUGGING_SPRITES
+	extern int32 _writtenObjectTiles;
 	_writtenObjectTiles = __TOTAL_OBJECTS - *this->objectIndex;
 #endif
 
