@@ -1094,7 +1094,8 @@ static void FrameBuffers::reset()
 
 	FrameBuffers::setFrustum((CameraFrustum)
 	{
-		0, 0, 0, __SCREEN_WIDTH - 1, __SCREEN_HEIGHT - 1, 8191
+		0, 0, 0, __SCREEN_WIDTH - 1, __SCREEN_HEIGHT - 1, 8191, 
+		__SCREEN_WIDTH, __SCREEN_HEIGHT, 8191
 	});
 
 	void clearBuffer(uint16 buffer)
