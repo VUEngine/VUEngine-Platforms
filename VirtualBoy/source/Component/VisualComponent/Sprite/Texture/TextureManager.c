@@ -31,6 +31,13 @@ friend class VirtualNode;
 friend class VirtualList;
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// CLASS' DATA
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static BgmapTextureManager _bgmapTextureManager = NULL;
+static ObjectTextureManager _objectTextureManager = NULL;
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC STATIC METHODS
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -38,16 +45,16 @@ friend class VirtualList;
 
 static void TextureManager::reset()
 {
-	BgmapTextureManager::reset(BgmapTextureManager::getInstance());
-	ObjectTextureManager::reset(ObjectTextureManager::getInstance());
+	_bgmapTextureManager = BgmapTextureManager::getInstance();
+	_objectTextureManager = ObjectTextureManager::getInstance();
+
+	BgmapTextureManager::reset(_bgmapTextureManager);
+	ObjectTextureManager::reset(_objectTextureManager);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static Texture TextureManager::get
-(
-	ClassPointer textureClass, const TextureSpec* textureSpec
-)
+static Texture TextureManager::get(ClassPointer textureClass, const TextureSpec* textureSpec)
 {
 	if(NULL == textureSpec)
 	{
@@ -55,19 +62,22 @@ static Texture TextureManager::get
 	}
 
 	if(typeofclass(BgmapTexture) == textureClass)
-	{
-		return 
-			Texture::safeCast
-			(
-				BgmapTextureManager::getTexture
-				(
-					BgmapTextureManager::getInstance(), (BgmapTextureSpec*)textureSpec, 0, false, 0
-				)
-			);
+	{		
+		BgmapTexture bgmapTexture = BgmapTextureManager::getTexture(_bgmapTextureManager, (BgmapTextureSpec*)textureSpec, 0, false, 0);
+
+		if(!isDeleted(bgmapTexture))
+		{
+			return Texture::safeCast(bgmapTexture);
+		}
 	}
 	else if(typeofclass(ObjectTexture) == textureClass)
 	{
-		return Texture::safeCast(ObjectTextureManager::getTexture(ObjectTextureManager::getInstance(), (ObjectTextureSpec*)textureSpec));
+		ObjectTexture objectTexture = ObjectTextureManager::getTexture(_objectTextureManager, (ObjectTextureSpec*)textureSpec);
+
+		if(!isDeleted(objectTexture))
+		{
+			return Texture::safeCast(objectTexture);
+		}
 	}
 
 	return NULL;	
@@ -79,11 +89,11 @@ static void TextureManager::release(Texture texture)
 {
 	if(__IS_INSTANCE_OF(BgmapTexture, texture))
 	{
-		BgmapTextureManager::releaseTexture(BgmapTextureManager::getInstance(), BgmapTexture::safeCast(texture));
+		BgmapTextureManager::releaseTexture(_bgmapTextureManager, BgmapTexture::safeCast(texture));
 	}
 	else if(__IS_INSTANCE_OF(ObjectTexture, texture))
 	{
-		ObjectTextureManager::releaseTexture(ObjectTextureManager::getInstance(), ObjectTexture::safeCast(texture));
+		ObjectTextureManager::releaseTexture(_objectTextureManager, ObjectTexture::safeCast(texture));
 	}	
 }
 
@@ -124,25 +134,22 @@ static void TextureManager::updateTextures(int16 maximumTextureRowsToWrite, bool
 		}
 	}
 
-	BgmapTextureManager::updateTextures(BgmapTextureManager::getInstance(), updateTextures, maximumTextureRowsToWrite, defer);
-	ObjectTextureManager::updateTextures(ObjectTextureManager::getInstance(), updateTextures, maximumTextureRowsToWrite, defer);
+	BgmapTextureManager::updateTextures(_bgmapTextureManager, updateTextures, maximumTextureRowsToWrite, defer);
+	ObjectTextureManager::updateTextures(_objectTextureManager, updateTextures, maximumTextureRowsToWrite, defer);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static void TextureManager::loadTextures(const TextureSpec** textureSpecs)
 {
-	BgmapTextureManager::loadTextures
-	(
-		BgmapTextureManager::getInstance(), textureSpecs
-	);
+	BgmapTextureManager::loadTextures(_bgmapTextureManager, textureSpecs);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 static void TextureManager::clearGraphicMemory()
 {
-	BgmapTextureManager::clearDRAM(BgmapTextureManager::getInstance());
+	BgmapTextureManager::clearDRAM(_bgmapTextureManager);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
