@@ -235,14 +235,14 @@ void ObjectSprite::setRotation(const Rotation* rotation)
 	this->cols = this->halfWidth >> 2;
 	this->rows = this->halfHeight >> 2;
 
-	if(this->head & 0x2000)
+	if(0 != (0x2000 & this->head))
 	{
 		this->xDisplacementIncrement = -8;
 		this->halfWidth = -this->halfWidth;
 		this->xDisplacementDelta = __OBJECT_SPRITE_FLIP_X_DISPLACEMENT;
 	}
 
-	if(this->head & 0x1000)
+	if(0 != (0x1000 & this->head))
 	{
 		this->yDisplacementIncrement = -8;
 		this->halfHeight = -this->halfHeight;
