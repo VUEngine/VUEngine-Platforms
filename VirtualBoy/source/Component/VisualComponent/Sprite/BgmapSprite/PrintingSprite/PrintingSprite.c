@@ -319,17 +319,22 @@ void PrintingSprite::destructor()
 
 int16 PrintingSprite::doRender(int16 index)
 {
-	WorldAttributes* worldPointer = &_worldAttributesCache[index];
-
-	worldPointer->mx = this->bgmapTextureSource.mx;
-	worldPointer->mp = this->bgmapTextureSource.mp;
-	worldPointer->my = this->bgmapTextureSource.my;
-	worldPointer->gx = this->position.x;
-	worldPointer->gp = this->position.parallax;
-	worldPointer->gy = this->position.y;
-	worldPointer->w = this->halfWidth << 1;
-	worldPointer->h = this->halfHeight << 1;
-	worldPointer->head = __WORLD_ON | __WORLD_BGMAP | __WORLD_OVR |  (BgmapTexture::safeCast(this->texture))->segment;
+	_worldAttributesCache[index] = 
+		(WorldAttributes)
+		{
+			__WORLD_ON | __WORLD_BGMAP | __WORLD_OVR |  (BgmapTexture::safeCast(this->texture))->segment,
+			this->position.x,
+			this->position.parallax,
+			this->position.y,
+			this->bgmapTextureSource.mx,
+			this->bgmapTextureSource.mp,
+			this->bgmapTextureSource.my,
+			this->halfWidth << 1,
+			this->halfHeight << 1,
+			0,
+			0,
+			{0, 0, 0, 0, 0}
+		};
 
 	return 1;
 }
