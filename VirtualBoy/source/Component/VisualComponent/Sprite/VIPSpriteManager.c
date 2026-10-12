@@ -82,7 +82,10 @@ static const SpriteSpec ObjectSpriteContainerSpec =
 		0, // y
 		0, // z
 		0, // parallax
-	}
+	},
+
+	// Flag that determines which transformation elements affect the sprite (position, rotation, scale)
+	__VALID_TRANSFORMATION
 };
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

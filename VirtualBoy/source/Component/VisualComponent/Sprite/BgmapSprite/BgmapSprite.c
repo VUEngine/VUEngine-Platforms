@@ -374,7 +374,7 @@ void BgmapSprite::setScale(const PixelScale* scale)
 		return;
 	}
 
-	this->scale = *scale;
+	Base::setScale(this, scale);
 
 	if(0 != (__WORLD_AFFINE & this->head))
 	{

@@ -267,6 +267,9 @@ const PrintingSpriteSpec DefaultPrintingSpriteSpec =
 				0, // z
 				0, // parallax
 			},
+
+			// Flag that determines which transformation elements affect the sprite (position, rotation, scale)
+			__VALID_TRANSFORMATION
 		},
 
 		// Flag to indicate in which display to show the texture (__WORLD_ON, __WORLD_LON or __WORLD_RON)
