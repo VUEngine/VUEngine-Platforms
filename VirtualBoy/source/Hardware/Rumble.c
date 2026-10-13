@@ -46,16 +46,6 @@ static bool _lock = false;
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void Rumble::lock(uint32 delay)
-{
-	_lock = true;
-	
-	Rumble::discardMessages(Rumble::getInstance(), kMessageUnlockRumble);
-	Rumble::sendMessageToSelf(Rumble::getInstance(), kMessageUnlockRumble, delay, 0);
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
 static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool override)
 {
 	if(NULL == rumbleEffect || _lock)
@@ -106,6 +96,14 @@ static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool overr
 	Rumble::setFrequency(rumbleEffect->frequency);
 	Rumble::setEffect(rumbleEffect->effect);
 	Rumble::execute(true);
+
+	_lock = 0 < rumbleEffect->delay;
+	
+	if(_lock)
+	{
+		Rumble::discardMessages(Rumble::getInstance(), kMessageUnlockRumble);
+		Rumble::sendMessageToSelf(Rumble::getInstance(), kMessageUnlockRumble, rumbleEffect->delay, 0);
+	}
 
 	return true;
 }

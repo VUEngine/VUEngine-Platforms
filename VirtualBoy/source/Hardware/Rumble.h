@@ -35,6 +35,9 @@ typedef struct RumbleEffectSpec
 	/// Stop before starting
 	bool stop;
 
+	/// Delay to block other effects canceling this one
+	uint32 delay;
+
 } RumbleEffectSpec;
 
 /// A RumbleEffect spec that is stored in ROM
@@ -53,10 +56,6 @@ typedef const RumbleEffectSpec RumbleEffectROMSpec;
 singleton class Rumble : ListenerObject
 {
 	/// @publicsection
-
-	/// Reject start effect requests by the specified amount of time.
-	/// @param delay: Amount of time to lock the requests
-	static void lock(uint32 delay);
 
 	/// Start a rumble effect configured with the provided spec.
 	/// @param rumbleEffectSpec: Specification of the rumble effect to play
