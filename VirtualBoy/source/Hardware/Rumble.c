@@ -48,7 +48,7 @@ static bool _lock = false;
 
 static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool override)
 {
-	if(NULL == rumbleEffect || _lock)
+	if(NULL == rumbleEffect || (_lock && !override))
 	{
 		return false;
 	}
