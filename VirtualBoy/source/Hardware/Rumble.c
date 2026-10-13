@@ -17,6 +17,7 @@
 #endif
 #include <DebugConfig.h>
 #include <Singleton.h>
+#include <Telegram.h>
 
 #include "Rumble.h"
 
@@ -36,15 +37,28 @@ static const RumbleEffectSpec* _rumbleEffectSpec = NULL;
 /// Cached rumble effect to prevent broadcasting again previous send commands
 static RumbleEffectSpec _cachedRumbleEffect __STATIC_SINGLETONS_DATA_SECTION_ATTRIBUTE;
 
+/// Flag to reject incoming effect requests
+static bool _lock = false;
+
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC STATIC METHODS
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+static void Rumble::lock(uint32 delay)
+{
+	_lock = true;
+	
+	Rumble::discardMessages(Rumble::getInstance(), kMessageUnlockRumble);
+	Rumble::sendMessageToSelf(Rumble::getInstance(), kMessageUnlockRumble, delay, 0);
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool override)
 {
-	if(NULL == rumbleEffect)
+	if(NULL == rumbleEffect || _lock)
 	{
 		return false;
 	}
@@ -115,6 +129,7 @@ static void Rumble::reset()
 	
 	_rumbleEffectSpec = NULL;
 	_rumbleCommandIndex = 0;
+	_lock = false;
 	
 	_cachedRumbleEffect.frequency = 0;
 
@@ -129,6 +144,21 @@ static void Rumble::reset()
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC METHODS
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+bool Rumble::handleMessage(Telegram telegram)
+{
+	switch(Telegram::getMessage(telegram))
+	{
+		case kMessageUnlockRumble:
+		{
+			_lock = false;
+
+			return true;
+		}
+	}
+
+	return Base::handleMessage(this, telegram);
+}
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 

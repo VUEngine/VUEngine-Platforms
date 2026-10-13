@@ -54,6 +54,10 @@ singleton class Rumble : ListenerObject
 {
 	/// @publicsection
 
+	/// Reject start effect requests by the specified amount of time.
+	/// @param delay: Amount of time to lock the requests
+	static void lock(uint32 delay);
+
 	/// Start a rumble effect configured with the provided spec.
 	/// @param rumbleEffectSpec: Specification of the rumble effect to play
 	/// @param override: If true, any playing effect will be overrode
@@ -73,6 +77,11 @@ singleton class Rumble : ListenerObject
 	/// @param eventCode: Code of the firing event
 	/// @return False if the listener has to be removed; true to keep it
 	override bool onEvent(ListenerObject eventFirer, uint16 eventCode);
+
+	/// Process a Telegram.
+	/// @param telegram: Telegram to process
+	/// @return True if the Telegram was processed
+	override bool handleMessage(Telegram telegram);
 }
 
 #endif
