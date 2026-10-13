@@ -35,8 +35,8 @@ typedef struct RumbleEffectSpec
 	/// Stop before starting
 	bool stop;
 
-	/// Delay to block other effects canceling this one
-	uint32 delay;
+	/// Time the effect lasts in milliseconds
+	uint32 duration;
 
 } RumbleEffectSpec;
 
@@ -60,8 +60,9 @@ singleton class Rumble : ListenerObject
 	/// Start a rumble effect configured with the provided spec.
 	/// @param rumbleEffectSpec: Specification of the rumble effect to play
 	/// @param override: If true, any playing effect will be overrode
+	/// @param lock: If true, further requests will be ignored by the time the current effect lasts
 	/// @return True if the effect was started
-	static bool startEffect(const RumbleEffectSpec* rumbleEffectSpec, bool override);
+	static bool startEffect(const RumbleEffectSpec* rumbleEffectSpec, bool override, bool lock);
 
 	/// Stop a rumble effect configured with the provided spec.
 	/// @param rumbleEffectSpec: Specification of the rumble effect to stop; if NULL,

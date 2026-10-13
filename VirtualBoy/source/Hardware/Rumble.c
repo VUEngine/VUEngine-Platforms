@@ -46,7 +46,7 @@ static bool _lock = false;
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool override)
+static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool override, bool lock)
 {
 	if(NULL == rumbleEffect || (_lock && !override))
 	{
@@ -97,12 +97,14 @@ static bool Rumble::startEffect(const RumbleEffectSpec* rumbleEffect, bool overr
 	Rumble::setEffect(rumbleEffect->effect);
 	Rumble::execute(true);
 
-	_lock = 0 < rumbleEffect->delay;
+	_lock = false;
 	
-	if(_lock)
+	if(lock && 0 < rumbleEffect->duration)
 	{
+		_lock = true;
+		
 		Rumble::discardMessages(Rumble::getInstance(), kMessageUnlockRumble);
-		Rumble::sendMessageToSelf(Rumble::getInstance(), kMessageUnlockRumble, rumbleEffect->delay, 0);
+		Rumble::sendMessageToSelf(Rumble::getInstance(), kMessageUnlockRumble, rumbleEffect->duration, 0);
 	}
 
 	return true;
@@ -124,6 +126,8 @@ static void Rumble::stopEffect(const RumbleEffectSpec* rumbleEffect)
 static void Rumble::reset()
 {
 	Rumble::getInstance();
+
+	Rumble::discardMessages(Rumble::getInstance(), kMessageUnlockRumble);
 	
 	_rumbleEffectSpec = NULL;
 	_rumbleCommandIndex = 0;
