@@ -9,8 +9,8 @@
 
 /* This is based on Thunderstrucks' Rumble Pak library */
 
-#ifndef __RUMBLE_MANAGER_H_
-#define __RUMBLE_MANAGER_H_
+#ifndef __RUMBLE_H_
+#define __RUMBLE_H_
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // INCLUDES
