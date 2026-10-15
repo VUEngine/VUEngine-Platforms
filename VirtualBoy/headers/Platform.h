@@ -12,6 +12,8 @@
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 #include <Constants.h>
+#include <Events.h>
+#include <Messages.h>
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CPU
@@ -330,6 +332,16 @@ typedef struct SoundSourceConfigurationRequest
 // DISPLAY UNIT
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+// Interrupts
+#define __TIMEERR								0x8000
+#define __XPEND									0x4000
+#define __SBHIT									0x2000
+#define __FRAMESTART							0x0010
+#define __GAMESTART								0x0008
+#define __RFBEND								0x0004
+#define __LFBEND								0x0002
+#define __SCANERR								0x0001
+
 #define __BRIGHTNESS_REPEAT_ENTRIES 			96
 #define __COLUMN_TABLE_ENTRIES					256
 #define __TOTAL_OBJECT_SEGMENTS 				4
@@ -468,7 +480,17 @@ typedef struct DisplayUnitConfig
 
 enum PlatformMessages
 {
-	kMessageUnlockRumble = kMessageLastEngine + 1
+	kMessageUnlockRumble = kMessagePlatformFirst + 1
+};
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// EVENTS
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+enum PlatformEvents
+{
+	kEventDisplayUnitLeftFrameBufferEnd = kEventPlatformFirst + 1,
+	kEventDisplayUnitRightFrameBufferEnd
 };
 
 #endif

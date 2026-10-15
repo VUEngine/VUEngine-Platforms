@@ -46,15 +46,6 @@ extern uint32 _dramDirtyStart;
 // CLASS' MACROS
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-#define __TIMEERR					0x8000
-#define __XPEND						0x4000
-#define __SBHIT						0x2000
-#define __FRAMESTART				0x0010
-#define __GAMESTART					0x0008
-#define __RFBEND					0x0004
-#define __LFBEND					0x0002
-#define __SCANERR					0x0001
-
 #define __LOCK						0x0400	// VPU SELECT __CTA
 #define __SYNCE						0x0200	// L,R_SYNC TO VPU
 #define __RE						0x0100	// MEMORY REFLASH CYCLE ON
@@ -983,6 +974,8 @@ static void DisplayUnit::processInterrupt(uint16 interrupt)
 		__FRAMESTART,
 		__GAMESTART,
 		__XPEND,
+		__LFBEND,
+		__RFBEND,
 #ifndef __SHIPPING
 		__TIMEERR,
 		__SCANERR
@@ -1051,6 +1044,19 @@ static void DisplayUnit::processInterrupt(uint16 interrupt)
 				break;
 			}
 #ifndef __SHIPPING
+
+			case __LFBEND:
+			{
+				DisplayUnit::fireEvent(DisplayUnit::getInstance(), kEventDisplayUnitLeftFrameBufferEnd);
+				break;
+			}
+
+			case __RFBEND:
+			{
+				DisplayUnit::fireEvent(DisplayUnit::getInstance(), kEventDisplayUnitRightFrameBufferEnd);
+				break;
+			}
+
 			case __TIMEERR:
 			{
 				DisplayUnit::fireEvent(DisplayUnit::getInstance(), kEventDisplayUnitTimeError);
