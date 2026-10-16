@@ -77,7 +77,7 @@ typedef struct ColumnTableCalibration
 
 
 /// Calibration used unless the game sets its own
-const ColumnTableCalibration _defaultColumnTableCalibration =
+const ColumnTableCalibration DefaultColumnTableCalibration =
 {
 	// Reference table. NULL: the one the display unit is currently configured with
 	NULL,
@@ -97,7 +97,7 @@ const ColumnTableCalibration _defaultColumnTableCalibration =
 static const ColumnTableEffectSpec* _columnTableEffectSpec 	= NULL;
 
 /// Hardware calibration the lengths are computed against
-static const ColumnTableCalibration* _columnTableCalibration = &_defaultColumnTableCalibration;
+static const ColumnTableCalibration* _columnTableCalibration = &DefaultColumnTableCalibration;
 
 /// Table the lengths are measured against. It is read in place, never copied, so it has
 /// to stay in memory while an effect plays
@@ -107,32 +107,12 @@ static const ColumnTableSpec* _referenceColumnTableSpec 	= NULL;
 /// of the spec's curves and is advanced once per displayed frame
 static uint16 _age											= 0;
 
-/// True while the effect is playing and rewriting the column tables. When it turns false,
-/// the tables are back to their normal lengths and nothing is rebuilt. Written from both
-/// the game loop and the interrupt handler
-static volatile bool _active								= false;
-
-/// True while this class is registered with the display unit and its interrupts are enabled
-static bool _listening										= false;
-
 /// True once the lengths of the coming frame are computed and waiting to be written
 static bool _tablesBuilt									= false;
-
-/// Number of groups, among the visible ones, whose length had to be limited in the last
-/// frame because the effect asked for more than the hardware can do
-static uint16 _clampedGroups								= 0;
-
-/// Column table pointer at the start of each eye's display
-static uint8 _startLeft										= 0;
-static uint8 _startRight									= 0;
 
 /// Base address of the column tables in VIP memory
 static uint16* const _columnTableBaseAddressLeft 			= (uint16*)0x0003DC00;
 static uint16* const _columnTableBaseAddressRight 			= (uint16*)0x0003DE00;
-
-/// How much of the curves applies to this frame, in 1/256 of a pixel
-static int32 _shiftAmount									= 0;
-static int32 _depthAmount									= 0;
 
 /// Position in the reference table that the time lookups walk from: the group it stands on
 /// and the time at which the reference table reaches that group's left edge, in units of 200 ns.
@@ -153,15 +133,23 @@ static uint8 _lengthsRight[__COLUMN_TABLE_GROUPS];
 
 static void ColumnTable::reset()
 {
-	_active = false;
 	_tablesBuilt = false;
 	_columnTableEffectSpec = NULL;
-	_columnTableCalibration = &_defaultColumnTableCalibration;
+	_columnTableCalibration = &DefaultColumnTableCalibration;
 	_referenceColumnTableSpec = NULL;
 	_age = 0;
-	_clampedGroups = 0;
 
-	ColumnTable::stopListening();
+	DisplayUnit::removeEventListener
+	(
+		DisplayUnit::getInstance(), ListenerObject::safeCast(ColumnTable::getInstance()), kEventDisplayUnitLeftFrameBufferEnd
+	);
+
+	DisplayUnit::removeEventListener
+	(
+		DisplayUnit::getInstance(), ListenerObject::safeCast(ColumnTable::getInstance()), kEventDisplayUnitRightFrameBufferEnd
+	);
+
+	DisplayUnit::enableCustomInterrupts(0);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -169,7 +157,7 @@ static void ColumnTable::reset()
 static void ColumnTable::setCalibration(const ColumnTableCalibration* columnTableCalibration)
 {
 	// It is picked up by the next effect started
-	_columnTableCalibration = NULL != columnTableCalibration ? columnTableCalibration : &_defaultColumnTableCalibration;
+	_columnTableCalibration = NULL != columnTableCalibration ? columnTableCalibration : &DefaultColumnTableCalibration;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -181,19 +169,25 @@ static void ColumnTable::startEffect(const ColumnTableEffectSpec* columnTableEff
 		return;
 	}
 
-	// The interrupt handler must never see an effect that is half set up
-	_active = false;
 	_tablesBuilt = false;
 
 	_columnTableEffectSpec = columnTableEffectSpec;
 	_age = 0;
-	_clampedGroups = 0;
 
 	ColumnTable::loadReference();
-	ColumnTable::measureStarts();
-	ColumnTable::startListening();
 
-	_active = true;
+	DisplayUnit::addEventListener
+	(
+		DisplayUnit::getInstance(), ListenerObject::safeCast(ColumnTable::getInstance()), kEventDisplayUnitLeftFrameBufferEnd
+	);
+
+	DisplayUnit::addEventListener
+	(
+		DisplayUnit::getInstance(), ListenerObject::safeCast(ColumnTable::getInstance()), kEventDisplayUnitRightFrameBufferEnd
+	);
+
+	// The mask only reaches the VIP when the interrupts are enabled again
+	DisplayUnit::enableCustomInterrupts(__LFBEND | __RFBEND);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -210,30 +204,6 @@ static void ColumnTable::stopEffect(const ColumnTableEffectSpec* columnTableEffe
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static bool ColumnTable::isActive()
-{
-	return _active;
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static uint16 ColumnTable::getClampedGroups()
-{
-	return _clampedGroups;
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static void ColumnTable::measureStarts()
-{
-	uint16 columnTablePointer = _vipRegisters[__CTA];
-
-	_startLeft = (uint8)(columnTablePointer & 0xFF);
-	_startRight = (uint8)(columnTablePointer >> 8);
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC METHODS
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -241,24 +211,18 @@ static void ColumnTable::measureStarts()
 
 bool ColumnTable::onEvent(ListenerObject eventFirer __attribute__((unused)), uint16 eventCode)
 {
-	if(!_active)
-	{
-		return true;
-	}
-
 	switch(eventCode)
 	{
 		case kEventDisplayUnitLeftFrameBufferEnd:
 
 			// The right eye is being displayed: compute into RAM, the VIP is not touched yet
-			ColumnTable::evaluate();
-			ColumnTable::buildTables();
+			return ColumnTable::buildTables();
 			break;
 
 		case kEventDisplayUnitRightFrameBufferEnd:
 
 			// Both eyes are done: write the lengths before the next left eye starts
-			ColumnTable::commit();
+			return ColumnTable::commit();
 			break;
 	}
 
@@ -273,65 +237,13 @@ bool ColumnTable::onEvent(ListenerObject eventFirer __attribute__((unused)), uin
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void ColumnTable::startListening()
-{
-	if(_listening)
-	{
-		return;
-	}
-
-	ColumnTable columnTable = ColumnTable::getInstance();
-	DisplayUnit displayUnit = DisplayUnit::getInstance();
-
-	DisplayUnit::addEventListener
-	(
-		displayUnit, ListenerObject::safeCast(columnTable), kEventDisplayUnitLeftFrameBufferEnd
-	);
-
-	DisplayUnit::addEventListener
-	(
-		displayUnit, ListenerObject::safeCast(columnTable), kEventDisplayUnitRightFrameBufferEnd
-	);
-
-	// The mask only reaches the VIP when the interrupts are enabled again
-	DisplayUnit::enableCustomInterrupts(__LFBEND | __RFBEND);
-	DisplayUnit::resumeInterrupts();
-
-	_listening = true;
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static void ColumnTable::stopListening()
-{
-	if(!_listening)
-	{
-		return;
-	}
-
-	_listening = false;
-
-	ColumnTable columnTable = ColumnTable::getInstance();
-	DisplayUnit displayUnit = DisplayUnit::getInstance();
-
-	DisplayUnit::removeEventListener
-	(
-		displayUnit, ListenerObject::safeCast(columnTable), kEventDisplayUnitLeftFrameBufferEnd
-	);
-
-	DisplayUnit::removeEventListener
-	(
-		displayUnit, ListenerObject::safeCast(columnTable), kEventDisplayUnitRightFrameBufferEnd
-	);
-
-	DisplayUnit::enableCustomInterrupts(0);
-	DisplayUnit::resumeInterrupts();
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
 static void ColumnTable::loadReference()
 {
+	if(NULL == _columnTableCalibration)
+	{
+		return;
+	}
+	
 	const ColumnTableSpec* columnTableSpec = _columnTableCalibration->reference;
 
 	if(NULL == columnTableSpec)
@@ -351,42 +263,21 @@ static void ColumnTable::loadReference()
 
 static uint8 ColumnTable::getReferenceLength(uint8 index)
 {
-	const ColumnTableSpec* columnTableSpec = _referenceColumnTableSpec;
-
 	// Same lookup the display unit uses when it writes the table
 	return (uint8)
 	(
-		(columnTableSpec->mirror && (index > (__COLUMN_TABLE_ENTRIES / 2 - 1)))
-			? columnTableSpec->columnTable[(__COLUMN_TABLE_ENTRIES - 1) - index]
-			: columnTableSpec->columnTable[index]
+		(_referenceColumnTableSpec->mirror && (index > ((__COLUMN_TABLE_ENTRIES >> 1) - 1)))
+			? _referenceColumnTableSpec->columnTable[(__COLUMN_TABLE_ENTRIES - 1) - index]
+			: _referenceColumnTableSpec->columnTable[index]
 	);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void ColumnTable::evaluate()
+static int32 ColumnTable::getPosition(int32 group, bool rightEye, int32 shiftAmount, int32 depthAmount)
 {
-	const ColumnTableEffectSpec* spec = _columnTableEffectSpec;
-
-	_shiftAmount = 0;
-	_depthAmount = 0;
-
-	// Past the last frame both amounts stay at zero, and zero is the plain table
-	if(_age < spec->frames)
-	{
-		_shiftAmount = (spec->shiftCurve[_age] * spec->strength) >> __COLUMN_TABLE_STRENGTH_SHIFT;
-		_depthAmount = (spec->depthCurve[_age] * spec->strength) >> __COLUMN_TABLE_STRENGTH_SHIFT;
-	}
-}
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-static int32 ColumnTable::getPosition(int32 group, bool rightEye)
-{
-	const ColumnTableEffectSpec* spec = _columnTableEffectSpec;
-
-	int32 shift = (_shiftAmount * spec->shiftProfile[group]) >> __COLUMN_TABLE_PROFILE_SHIFT;
-	int32 depth = (_depthAmount * spec->depthProfile[group]) >> __COLUMN_TABLE_PROFILE_SHIFT;
+	int32 shift = (shiftAmount * _columnTableEffectSpec->shiftProfile[group]) >> __COLUMN_TABLE_PROFILE_SHIFT;
+	int32 depth = (depthAmount * _columnTableEffectSpec->depthProfile[group]) >> __COLUMN_TABLE_PROFILE_SHIFT;
 
 	int32 at = group * __COLUMN_TABLE_GROUP_UNITS + shift;
 
@@ -396,35 +287,59 @@ static int32 ColumnTable::getPosition(int32 group, bool rightEye)
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void ColumnTable::buildTables()
+static inline uint8 ColumnTable::getStartLeft()
 {
-	_clampedGroups = 0;
-
-	ColumnTable::buildEye(_lengthsLeft, false, _startLeft);
-	ColumnTable::buildEye(_lengthsRight, true, _startRight);
-
-	_tablesBuilt = true;
+	return (uint8)(_vipRegisters[__CTA] & 0xFF);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void ColumnTable::buildEye(uint8* lengths, bool rightEye, uint8 start)
+static inline uint8 ColumnTable::getStartRight()
+{
+	return (uint8)(_vipRegisters[__CTA] >> 8);
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static bool ColumnTable::buildTables()
+{
+	// Column table pointer at the start of each eye's display
+	ColumnTable::buildDisplay(_lengthsLeft, false, ColumnTable::getStartLeft());
+	ColumnTable::buildDisplay(_lengthsRight, true, ColumnTable::getStartRight());
+
+	_tablesBuilt = true;
+
+	return _columnTableEffectSpec->frames <= _age;
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+static void ColumnTable::buildDisplay(uint8* lengths, bool rightEye, uint8 start)
 {
 	int32 minimumLength = _columnTableCalibration->minimumLength + 1;
-	int32 shownEdge = __COLUMN_TABLE_GROUPS * __COLUMN_TABLE_GROUP_UNITS;
 	int32 elapsed = 0;
+
+	/// How much of the curves applies to this frame, in 1/256 of a pixel
+	int32 shiftAmount = 0;
+	int32 depthAmount = 0;
+
+	// Past the last frame both amounts stay at zero, and zero is the plain table
+	if(_age < _columnTableEffectSpec->frames)
+	{
+		shiftAmount = (_columnTableEffectSpec->shiftCurve[_age] * _columnTableEffectSpec->strength) >> __COLUMN_TABLE_STRENGTH_SHIFT;
+		depthAmount = (_columnTableEffectSpec->depthCurve[_age] * _columnTableEffectSpec->strength) >> __COLUMN_TABLE_STRENGTH_SHIFT;
+	}
 
 	// Walk the reference table from its first group
 	_cursorGroup = 0;
 	_cursorTime = 0;
 
 	// The left edge cannot move, so everything is measured from where it is
-	int32 origin = ColumnTable::getPosition(0, rightEye);
-	int32 position = origin;
+	int32 origin = ColumnTable::getPosition(0, rightEye, shiftAmount, depthAmount);
 
 	for(int32 group = 0; group < __COLUMN_TABLE_GROUPS; group++)
 	{
-		int32 nextPosition = ColumnTable::getPosition(group + 1, rightEye);
+		int32 nextPosition = ColumnTable::getPosition(group + 1, rightEye, shiftAmount, depthAmount);
 		int32 target = ColumnTable::timeAt(start, nextPosition - origin);
 
 		// Time this group needs to end where the target says, as a length rounded to the
@@ -432,25 +347,18 @@ static void ColumnTable::buildEye(uint8* lengths, bool rightEye, uint8 start)
 		int32 length = ((target - elapsed) + (1 << (__COLUMN_TABLE_GROUP_TIME_SHIFT - 1))) 
 			>> __COLUMN_TABLE_GROUP_TIME_SHIFT;
 
-		// Groups pushed past the right edge are given the least time on purpose, so
-		// only the visible ones count as clamped
-		bool visible = position - origin < shownEdge;
-
 		if(length < minimumLength)
 		{
 			length = minimumLength;
-			_clampedGroups += visible;
 		}
 		else if(__COLUMN_TABLE_MAXIMUM_LENGTH < length)
 		{
 			length = __COLUMN_TABLE_MAXIMUM_LENGTH;
-			_clampedGroups += visible;
 		}
 
 		elapsed += length << __COLUMN_TABLE_GROUP_TIME_SHIFT;
 
 		lengths[group] = (uint8)(length - 1);
-		position = nextPosition;
 	}
 }
 
@@ -458,7 +366,7 @@ static void ColumnTable::buildEye(uint8* lengths, bool rightEye, uint8 start)
 
 static int32 ColumnTable::timeAt(uint8 start, int32 position)
 {
-	if(position <= 0)
+	if(0 >= position)
 	{
 		return 0;
 	}
@@ -498,12 +406,12 @@ static int32 ColumnTable::timeAt(uint8 start, int32 position)
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void ColumnTable::commit()
+static bool ColumnTable::commit()
 {
 	// A frame that started after the left eye's computation has nothing to write
 	if(!_tablesBuilt)
 	{
-		return;
+		return false;
 	}
 
 	// The repeats are read now, so a brightness effect that changed them meanwhile is kept
@@ -514,17 +422,20 @@ static void ColumnTable::commit()
 		brightnessRepeatSpec = (BrightnessRepeatSpec*)&DefaultBrightnessRepeatSpec;
 	}
 
+	uint8 startLeft = ColumnTable::getStartLeft();
+	uint8 startRight = ColumnTable::getStartRight();
+
 	for(int32 group = 0; group < __COLUMN_TABLE_GROUPS; group++)
 	{
 		uint16 repeat = (uint16)
 		(
-			(brightnessRepeatSpec->mirror && (group > (__BRIGHTNESS_REPEAT_ENTRIES / 2 - 1)))
+			(brightnessRepeatSpec->mirror && (group > ((__BRIGHTNESS_REPEAT_ENTRIES >> 1) - 1)))
 				? brightnessRepeatSpec->brightnessRepeat[__BRIGHTNESS_REPEAT_ENTRIES - 1 - group]
 				: brightnessRepeatSpec->brightnessRepeat[group]
 		);
 
-		_columnTableBaseAddressLeft[(uint8)(_startLeft - group)] = (uint16)(((repeat & 0xFF) << 8) | _lengthsLeft[group]);
-		_columnTableBaseAddressRight[(uint8)(_startRight - group)] = (uint16)(((repeat & 0xFF) << 8) | _lengthsRight[group]);
+		_columnTableBaseAddressLeft[(uint8)(startLeft - group)] = (uint16)(((repeat & 0xFF) << 8) | _lengthsLeft[group]);
+		_columnTableBaseAddressRight[(uint8)(startRight - group)] = (uint16)(((repeat & 0xFF) << 8) | _lengthsRight[group]);
 	}
 
 	_tablesBuilt = false;
@@ -533,11 +444,12 @@ static void ColumnTable::commit()
 	// as the normal ones before the effect lets go
 	if(_columnTableEffectSpec->frames <= _age)
 	{
-		_active = false;
-		return;
+		return true;
 	}
 
 	_age++;
+
+	return false;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
