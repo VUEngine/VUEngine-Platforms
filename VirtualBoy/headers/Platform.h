@@ -342,6 +342,8 @@ typedef struct SoundSourceConfigurationRequest
 #define __LFBEND								0x0002
 #define __SCANERR								0x0001
 
+#define __CTA									0x18  // Column Table Pointer
+
 #define __BRIGHTNESS_REPEAT_ENTRIES 			96
 #define __COLUMN_TABLE_ENTRIES					256
 #define __TOTAL_OBJECT_SEGMENTS 				4
