@@ -75,9 +75,6 @@ typedef struct ColumnTableCalibration
 
 } ColumnTableCalibration;
 
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-// CLASS' ATTRIBUTES
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 /// Calibration used unless the game sets its own
 const ColumnTableCalibration _defaultColumnTableCalibration =
@@ -92,11 +89,19 @@ const ColumnTableCalibration _defaultColumnTableCalibration =
 	96
 };
 
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// CLASS' ATTRIBUTES
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 /// The effect being played: the curves over time and the profiles across the screen.
 static const ColumnTableEffectSpec* _columnTableEffectSpec 	= NULL;
 
 /// Hardware calibration the lengths are computed against
 static const ColumnTableCalibration* _columnTableCalibration = &_defaultColumnTableCalibration;
+
+/// Table the lengths are measured against. It is read in place, never copied, so it has
+/// to stay in memory while an effect plays
+static const ColumnTableSpec* _referenceColumnTableSpec 	= NULL;
 
 /// Number of frames played since the effect started. It selects the current entry
 /// of the spec's curves and is advanced once per displayed frame
@@ -110,7 +115,7 @@ static volatile bool _active								= false;
 /// True while this class is registered with the display unit and its interrupts are enabled
 static bool _listening										= false;
 
-/// True once the tables of the coming frame are computed and waiting to be written
+/// True once the lengths of the coming frame are computed and waiting to be written
 static bool _tablesBuilt									= false;
 
 /// Number of groups, among the visible ones, whose length had to be limited in the last
@@ -125,23 +130,20 @@ static uint8 _startRight									= 0;
 static uint16* const _columnTableBaseAddressLeft 			= (uint16*)0x0003DC00;
 static uint16* const _columnTableBaseAddressRight 			= (uint16*)0x0003DE00;
 
-/// Column lengths of the reference table, all entries, with the mirror already applied
-static uint8 _referenceLengths[__COLUMN_TABLE_ENTRIES];
+/// How much of the curves applies to this frame, in 1/256 of a pixel
+static int32 _shiftAmount									= 0;
+static int32 _depthAmount									= 0;
 
-/// Time at which the reference table reaches each group edge, in units of 200 ns
-static int32 _referenceTimes[__COLUMN_TABLE_REACH + 1];
+/// Position in the reference table that the time lookups walk from: the group it stands on
+/// and the time at which the reference table reaches that group's left edge, in units of 200 ns.
+/// It starts over for each eye and only moves as far as positions are displaced
+static int32 _cursorGroup									= 0;
+static int32 _cursorTime									= 0;
 
-/// Brightness repeat of each group, taken from the display unit's current configuration
-static uint8 _repeats[__COLUMN_TABLE_GROUPS];
-
-/// Where the left edge of each group should land for each eye, in 1/256 of a pixel.
-/// The extra entry is the right edge of the last group
-static int32 _positionsLeft[__COLUMN_TABLE_GROUPS + 1];
-static int32 _positionsRight[__COLUMN_TABLE_GROUPS + 1];
-
-/// Column tables computed for the coming frame, written to the VIP once both eyes are displayed
-static uint16 _tableLeft[__COLUMN_TABLE_ENTRIES];
-static uint16 _tableRight[__COLUMN_TABLE_ENTRIES];
+/// Column length minus one of every group, computed for the coming frame and written to the
+/// VIP once both eyes are displayed. Entries the display never reaches are left alone
+static uint8 _lengthsLeft[__COLUMN_TABLE_GROUPS];
+static uint8 _lengthsRight[__COLUMN_TABLE_GROUPS];
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // CLASS' PUBLIC STATIC METHODS
@@ -155,6 +157,7 @@ static void ColumnTable::reset()
 	_tablesBuilt = false;
 	_columnTableEffectSpec = NULL;
 	_columnTableCalibration = &_defaultColumnTableCalibration;
+	_referenceColumnTableSpec = NULL;
 	_age = 0;
 	_clampedGroups = 0;
 
@@ -254,7 +257,7 @@ bool ColumnTable::onEvent(ListenerObject eventFirer __attribute__((unused)), uin
 
 		case kEventDisplayUnitRightFrameBufferEnd:
 
-			// Both eyes are done: write the tables before the next left eye starts
+			// Both eyes are done: write the lengths before the next left eye starts
 			ColumnTable::commit();
 			break;
 	}
@@ -341,38 +344,22 @@ static void ColumnTable::loadReference()
 		columnTableSpec = (ColumnTableSpec*)&DefaultColumnTableSpec;
 	}
 
-	for(int32 i = 0; i < __COLUMN_TABLE_ENTRIES; i++)
-	{
-		// Same lookup the display unit uses when it writes the table
-		_referenceLengths[i] = (uint8)
-		(
-			(columnTableSpec->mirror && (i > (__COLUMN_TABLE_ENTRIES / 2 - 1)))
-				? columnTableSpec->columnTable[(__COLUMN_TABLE_ENTRIES - 1) - i]
-				: columnTableSpec->columnTable[i]
-		);
-	}
+	_referenceColumnTableSpec = columnTableSpec;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void ColumnTable::loadRepeats()
+static uint8 ColumnTable::getReferenceLength(uint8 index)
 {
-	const BrightnessRepeatSpec* brightnessRepeatSpec = DisplayUnit::getColorConfig().colorConfig.brightnessRepeat;
+	const ColumnTableSpec* columnTableSpec = _referenceColumnTableSpec;
 
-	if(NULL == brightnessRepeatSpec)
-	{
-		brightnessRepeatSpec = (BrightnessRepeatSpec*)&DefaultBrightnessRepeatSpec;
-	}
-
-	for(int32 group = 0; group < __COLUMN_TABLE_GROUPS; group++)
-	{
-		_repeats[group] = (uint8)
-		(
-			(brightnessRepeatSpec->mirror && (group > (__BRIGHTNESS_REPEAT_ENTRIES / 2 - 1)))
-				? brightnessRepeatSpec->brightnessRepeat[__BRIGHTNESS_REPEAT_ENTRIES - 1 - group]
-				: brightnessRepeatSpec->brightnessRepeat[group]
-		);
-	}
+	// Same lookup the display unit uses when it writes the table
+	return (uint8)
+	(
+		(columnTableSpec->mirror && (index > (__COLUMN_TABLE_ENTRIES / 2 - 1)))
+			? columnTableSpec->columnTable[(__COLUMN_TABLE_ENTRIES - 1) - index]
+			: columnTableSpec->columnTable[index]
+	);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -381,27 +368,30 @@ static void ColumnTable::evaluate()
 {
 	const ColumnTableEffectSpec* spec = _columnTableEffectSpec;
 
-	int32 shiftAmount = 0;
-	int32 depthAmount = 0;
+	_shiftAmount = 0;
+	_depthAmount = 0;
 
 	// Past the last frame both amounts stay at zero, and zero is the plain table
 	if(_age < spec->frames)
 	{
-		shiftAmount = (spec->shiftCurve[_age] * spec->strength) >> __COLUMN_TABLE_STRENGTH_SHIFT;
-		depthAmount = (spec->depthCurve[_age] * spec->strength) >> __COLUMN_TABLE_STRENGTH_SHIFT;
+		_shiftAmount = (spec->shiftCurve[_age] * spec->strength) >> __COLUMN_TABLE_STRENGTH_SHIFT;
+		_depthAmount = (spec->depthCurve[_age] * spec->strength) >> __COLUMN_TABLE_STRENGTH_SHIFT;
 	}
+}
 
-	for(int32 group = 0; group <= __COLUMN_TABLE_GROUPS; group++)
-	{
-		int32 shift = (shiftAmount * spec->shiftProfile[group]) >> __COLUMN_TABLE_PROFILE_SHIFT;
-		int32 depth = (depthAmount * spec->depthProfile[group]) >> __COLUMN_TABLE_PROFILE_SHIFT;
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-		int32 at = group * __COLUMN_TABLE_GROUP_UNITS + shift;
+static int32 ColumnTable::getPosition(int32 group, bool rightEye)
+{
+	const ColumnTableEffectSpec* spec = _columnTableEffectSpec;
 
-		// Disparity is right minus left and is split between the eyes
-		_positionsLeft[group] = at - (depth >> 1);
-		_positionsRight[group] = at + depth - (depth >> 1);
-	}
+	int32 shift = (_shiftAmount * spec->shiftProfile[group]) >> __COLUMN_TABLE_PROFILE_SHIFT;
+	int32 depth = (_depthAmount * spec->depthProfile[group]) >> __COLUMN_TABLE_PROFILE_SHIFT;
+
+	int32 at = group * __COLUMN_TABLE_GROUP_UNITS + shift;
+
+	// Disparity is right minus left and is split between the eyes
+	return rightEye ? at + depth - (depth >> 1) : at - (depth >> 1);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -410,41 +400,32 @@ static void ColumnTable::buildTables()
 {
 	_clampedGroups = 0;
 
-	ColumnTable::loadRepeats();
-	ColumnTable::buildEye(_tableLeft, _positionsLeft, _startLeft);
-	ColumnTable::buildEye(_tableRight, _positionsRight, _startRight);
+	ColumnTable::buildEye(_lengthsLeft, false, _startLeft);
+	ColumnTable::buildEye(_lengthsRight, true, _startRight);
 
 	_tablesBuilt = true;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void ColumnTable::buildEye(uint16* table, const int32* positions, uint8 start)
+static void ColumnTable::buildEye(uint8* lengths, bool rightEye, uint8 start)
 {
-	// Entries nobody displays keep the reference lengths
-	for(int32 i = 0; i < __COLUMN_TABLE_ENTRIES; i++)
-	{
-		table[i] = _referenceLengths[i];
-	}
-
-	// Time at which the reference table reaches each group edge. Group k of an eye uses
-	// the entry start - k
-	_referenceTimes[0] = 0;
-
-	for(int32 group = 0; group < __COLUMN_TABLE_REACH; group++)
-	{
-		_referenceTimes[group + 1] = _referenceTimes[group] 
-			+ __COLUMN_TABLE_COLUMNS_PER_GROUP * (_referenceLengths[(uint8)(start - group)] + 1);
-	}
-
 	int32 minimumLength = _columnTableCalibration->minimumLength + 1;
 	int32 shownEdge = __COLUMN_TABLE_GROUPS * __COLUMN_TABLE_GROUP_UNITS;
 	int32 elapsed = 0;
 
+	// Walk the reference table from its first group
+	_cursorGroup = 0;
+	_cursorTime = 0;
+
+	// The left edge cannot move, so everything is measured from where it is
+	int32 origin = ColumnTable::getPosition(0, rightEye);
+	int32 position = origin;
+
 	for(int32 group = 0; group < __COLUMN_TABLE_GROUPS; group++)
 	{
-		// The left edge cannot move, so everything is measured from where it is
-		int32 target = ColumnTable::timeAt(start, positions[group + 1] - positions[0]);
+		int32 nextPosition = ColumnTable::getPosition(group + 1, rightEye);
+		int32 target = ColumnTable::timeAt(start, nextPosition - origin);
 
 		// Time this group needs to end where the target says, as a length rounded to the
 		// nearest, so that the error never adds up across the screen
@@ -453,7 +434,7 @@ static void ColumnTable::buildEye(uint16* table, const int32* positions, uint8 s
 
 		// Groups pushed past the right edge are given the least time on purpose, so
 		// only the visible ones count as clamped
-		bool visible = positions[group] - positions[0] < shownEdge;
+		bool visible = position - origin < shownEdge;
 
 		if(length < minimumLength)
 		{
@@ -468,7 +449,8 @@ static void ColumnTable::buildEye(uint16* table, const int32* positions, uint8 s
 
 		elapsed += length << __COLUMN_TABLE_GROUP_TIME_SHIFT;
 
-		table[(uint8)(start - group)] = (uint16)((_repeats[group] << 8) | (length - 1));
+		lengths[group] = (uint8)(length - 1);
+		position = nextPosition;
 	}
 }
 
@@ -482,18 +464,36 @@ static int32 ColumnTable::timeAt(uint8 start, int32 position)
 	}
 
 	int32 group = position >> __COLUMN_TABLE_FRACTION_BITS;
+	int32 fraction = position & (__COLUMN_TABLE_GROUP_UNITS - 1);
 
 	if(__COLUMN_TABLE_REACH <= group)
 	{
-		return _referenceTimes[__COLUMN_TABLE_REACH] << __COLUMN_TABLE_FRACTION_BITS;
+		group = __COLUMN_TABLE_REACH;
+		fraction = 0;
+	}
+
+	// Group k of an eye uses the entry start - k. Positions only move a few groups from
+	// one lookup to the next, so walking from the last one is cheap
+	while(_cursorGroup < group)
+	{
+		_cursorTime += __COLUMN_TABLE_COLUMNS_PER_GROUP
+			* (ColumnTable::getReferenceLength((uint8)(start - _cursorGroup)) + 1);
+		_cursorGroup++;
+	}
+
+	while(group < _cursorGroup)
+	{
+		_cursorGroup--;
+		_cursorTime -= __COLUMN_TABLE_COLUMNS_PER_GROUP
+			* (ColumnTable::getReferenceLength((uint8)(start - _cursorGroup)) + 1);
 	}
 
 	// The reference table is calibrated so that columns are evenly spaced, so a position
 	// a fraction into a group is reached that fraction into the group's time
-	return (_referenceTimes[group] << __COLUMN_TABLE_FRACTION_BITS) 
-		+ __COLUMN_TABLE_COLUMNS_PER_GROUP 
-			* (_referenceLengths[(uint8)(start - group)] + 1) 
-			* (position & (__COLUMN_TABLE_GROUP_UNITS - 1));
+	return (_cursorTime << __COLUMN_TABLE_FRACTION_BITS)
+		+ __COLUMN_TABLE_COLUMNS_PER_GROUP
+			* (ColumnTable::getReferenceLength((uint8)(start - group)) + 1)
+			* fraction;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -506,10 +506,25 @@ static void ColumnTable::commit()
 		return;
 	}
 
-	for(int32 i = 0; i < __COLUMN_TABLE_ENTRIES; i++)
+	// The repeats are read now, so a brightness effect that changed them meanwhile is kept
+	const BrightnessRepeatSpec* brightnessRepeatSpec = DisplayUnit::getColorConfig().colorConfig.brightnessRepeat;
+
+	if(NULL == brightnessRepeatSpec)
 	{
-		_columnTableBaseAddressLeft[i] = _tableLeft[i];
-		_columnTableBaseAddressRight[i] = _tableRight[i];
+		brightnessRepeatSpec = (BrightnessRepeatSpec*)&DefaultBrightnessRepeatSpec;
+	}
+
+	for(int32 group = 0; group < __COLUMN_TABLE_GROUPS; group++)
+	{
+		uint16 repeat = (uint16)
+		(
+			(brightnessRepeatSpec->mirror && (group > (__BRIGHTNESS_REPEAT_ENTRIES / 2 - 1)))
+				? brightnessRepeatSpec->brightnessRepeat[__BRIGHTNESS_REPEAT_ENTRIES - 1 - group]
+				: brightnessRepeatSpec->brightnessRepeat[group]
+		);
+
+		_columnTableBaseAddressLeft[(uint8)(_startLeft - group)] = (uint16)(((repeat & 0xFF) << 8) | _lengthsLeft[group]);
+		_columnTableBaseAddressRight[(uint8)(_startRight - group)] = (uint16)(((repeat & 0xFF) << 8) | _lengthsRight[group]);
 	}
 
 	_tablesBuilt = false;

@@ -7,8 +7,6 @@
  * that was distributed with this source code.
  */
 
-/* This is based on Thunderstrucks' ColumnTable Pak library */
-
 #ifndef __COLUMN_TABLE_H_
 #define __COLUMN_TABLE_H_
 

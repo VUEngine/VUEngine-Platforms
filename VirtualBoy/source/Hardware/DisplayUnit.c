@@ -77,6 +77,7 @@ extern uint32 _dramDirtyStart;
 #define __REST						0x15  // Brightness Idle
 
 #define __FRMCYC					0x17  // Frame Repeat
+#define __CTA						0x18  // Column Table Pointer
 
 #define __XPSTTS					0x20  // Drawing Status
 #define __XPCTRL					0x21  // Drawing Control
@@ -1046,13 +1047,13 @@ static void DisplayUnit::processInterrupt(uint16 interrupt)
 
 			case __LFBEND:
 			{
-//				DisplayUnit::fireEvent(DisplayUnit::getInstance(), kEventDisplayUnitLeftFrameBufferEnd);
+				DisplayUnit::fireEvent(DisplayUnit::getInstance(), kEventDisplayUnitLeftFrameBufferEnd);
 				break;
 			}
 
 			case __RFBEND:
 			{
-//				DisplayUnit::fireEvent(DisplayUnit::getInstance(), kEventDisplayUnitRightFrameBufferEnd);
+				DisplayUnit::fireEvent(DisplayUnit::getInstance(), kEventDisplayUnitRightFrameBufferEnd);
 				break;
 			}
 
