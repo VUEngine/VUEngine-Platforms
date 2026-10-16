@@ -249,7 +249,7 @@ static void DisplayUnit::interruptHandler()
 	_currentInterrupt = _vipRegisters[__INTPND];
 
 	// Clear interrupts
-	DisplayUnit::clearInterrupts();
+	DisplayUnit::clearInterrupts(_currentInterrupt);
 
 	if(kVIPNoMultiplexedInterrupts != _enabledMultiplexedInterrupts)
 	{
@@ -768,7 +768,7 @@ static void DisplayUnit::clearGraphicMemory()
 static void DisplayUnit::startMemoryRefresh()
 {
 	_vipRegisters[__FRMCYC] = 0;
-	_vipRegisters[__DPCTRL] = _vipRegisters[__DPSTTS] | (__SYNCE | __RE);
+	_vipRegisters[__DPCTRL] = _vipRegisters[__DPSTTS] | __RE;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -831,6 +831,8 @@ static void DisplayUnit::stopDrawing()
 
 static void DisplayUnit::startDisplaying()
 {
+	for(uint32 guard = 5000000; 0 == (_vipRegisters[__DPSTTS] & __SCANRDY) && 0 != --guard;);
+
 	_vipRegisters[__REST] = 0;
 	_vipRegisters[__DPCTRL] = (__SYNCE | __RE | __DISP) & ~__LOCK;
 }
@@ -1043,7 +1045,6 @@ static void DisplayUnit::processInterrupt(uint16 interrupt)
 #endif
 				break;
 			}
-#ifndef __SHIPPING
 
 			case __LFBEND:
 			{
@@ -1057,6 +1058,7 @@ static void DisplayUnit::processInterrupt(uint16 interrupt)
 				break;
 			}
 
+#ifndef __SHIPPING
 			case __TIMEERR:
 			{
 				DisplayUnit::fireEvent(DisplayUnit::getInstance(), kEventDisplayUnitTimeError);
@@ -1066,7 +1068,6 @@ static void DisplayUnit::processInterrupt(uint16 interrupt)
 			case __SCANERR:
 			{
 				DisplayUnit::fireEvent(DisplayUnit::getInstance(), kEventDisplayUnitScanError);
-
 				Error::triggerException("DisplayUnit::servo error", NULL);
 				break;
 			}
@@ -1102,9 +1103,9 @@ static void DisplayUnit::disableInterrupts()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-static void DisplayUnit::clearInterrupts()
+static void DisplayUnit::clearInterrupts(uint16 interrupts)
 {
-	_vipRegisters[__INTCLR] = _vipRegisters[__INTPND];
+	_vipRegisters[__INTCLR] = interrupts;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
