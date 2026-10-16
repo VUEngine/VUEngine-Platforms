@@ -216,13 +216,13 @@ bool ColumnTable::onEvent(ListenerObject eventFirer __attribute__((unused)), uin
 		case kEventDisplayUnitLeftFrameBufferEnd:
 
 			// The right eye is being displayed: compute into RAM, the VIP is not touched yet
-			return ColumnTable::buildTables();
+			return !ColumnTable::buildTables();
 			break;
 
 		case kEventDisplayUnitRightFrameBufferEnd:
 
 			// Both eyes are done: write the lengths before the next left eye starts
-			return ColumnTable::commit();
+			return !ColumnTable::commit();
 			break;
 	}
 
