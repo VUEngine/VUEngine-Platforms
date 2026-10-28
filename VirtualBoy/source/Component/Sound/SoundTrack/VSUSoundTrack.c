@@ -139,6 +139,8 @@ void VSUSoundTrack::sendSoundRequest
 		{
 			// Requester object
 			this->id,
+			// Requester spec
+			(uint32)this->soundTrackSpec,
 			// Time when the configuration elapses
 			__FIX7_9_EXT_DIV(__I_TO_FIX7_9_EXT(soundTrackKeyframe.tick), targetTimerResolutionFactor),
 			// Sound source type

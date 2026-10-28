@@ -85,8 +85,11 @@ static void SoundUnit::applySoundSourceConfiguration(const SoundSourceConfigurat
 	SoundSourceEntry soundSourceEntry = 
 		SoundUnit::findSoundSource
 		(
-			soundSourceConfigurationRequest->requesterId, soundSourceConfigurationRequest->type, 
-			soundSourceConfigurationRequest->priority, soundSourceConfigurationRequest->SxRAM
+			soundSourceConfigurationRequest->requesterId, 
+			soundSourceConfigurationRequest->requesterSpec,
+			soundSourceConfigurationRequest->type, 
+			soundSourceConfigurationRequest->priority, 
+			soundSourceConfigurationRequest->SxRAM
 		);
 
 	if(0 > soundSourceEntry.soundSourceIndex)
@@ -342,6 +345,7 @@ static void SoundUnit::reset()
 	for(int16 i = 0; i < __TOTAL_SOUND_SOURCES; i++)
 	{
 		_soundSourceConfigurations[i].requesterId = -1;
+		_soundSourceConfigurations[i].requesterSpec = -1;
 		_soundSourceConfigurations[i].soundSource = &_soundSources[i];
 		_soundSourceConfigurations[i].waveform = NULL;
 		_soundSourceConfigurations[i].timeout = 0;
@@ -373,6 +377,7 @@ static void SoundUnit::stopAllSounds()
 	for(int16 i = 0; i < __TOTAL_SOUND_SOURCES; i++)
 	{
 		_soundSourceConfigurations[i].requesterId = -1;
+		_soundSourceConfigurations[i].requesterSpec = -1;
 		_soundSourceConfigurations[i].waveform = NULL;
 		_soundSourceConfigurations[i].timeout = 0;
 		_soundSourceConfigurations[i].SxLRV = 0;
@@ -449,36 +454,38 @@ static void SoundUnit::configureSoundSource
 	}
 
 	_haveUsedSoundSources = true;
+	bool newRequesterId = _soundSourceConfigurations[i].requesterId != soundSourceConfigurationRequest->requesterId;
 
 	bool setSxINT =
 		0 != (__SET_SxINT_FLAG & soundSourceConfigurationRequest->SxINT)
 		||
 		_soundSourceConfigurations[i].SxINT != soundSourceConfigurationRequest->SxINT
 		||
-		(_soundSourceConfigurations[i].requesterId != soundSourceConfigurationRequest->requesterId);
+		newRequesterId;
 
 	bool setSxEV0 =
 		0 != (__SET_SxEV0_FLAG & soundSourceConfigurationRequest->SxEV1)
 		||
 		_soundSourceConfigurations[i].SxEV0 != soundSourceConfigurationRequest->SxEV0
 		||
-		(_soundSourceConfigurations[i].requesterId != soundSourceConfigurationRequest->requesterId);
+		newRequesterId;
 
 	bool setSxEV1 =
 		0 != (__SET_SxEV1_FLAG & soundSourceConfigurationRequest->SxEV1)
 		||
 		_soundSourceConfigurations[i].SxEV1 != soundSourceConfigurationRequest->SxEV1
 		||
-		(_soundSourceConfigurations[i].requesterId != soundSourceConfigurationRequest->requesterId);
+		newRequesterId;
 
 	bool setSxSWP =
 		0 != (__SET_SxSWP_FLAG & soundSourceConfigurationRequest->SxEV1)
 		||
 		_soundSourceConfigurations[i].SxSWP != soundSourceConfigurationRequest->SxSWP
 		||
-		(_soundSourceConfigurations[i].requesterId != soundSourceConfigurationRequest->requesterId);
+		newRequesterId;
 
 	_soundSourceConfigurations[i].requesterId = soundSourceConfigurationRequest->requesterId;
+	_soundSourceConfigurations[i].requesterSpec = soundSourceConfigurationRequest->requesterSpec;
 	_soundSourceConfigurations[i].waveform = soundSourceEntry.waveform;
 	_soundSourceConfigurations[i].timeout = _ticks + soundSourceConfigurationRequest->timeout;
 	_soundSourceConfigurations[i].SxINT = soundSourceConfigurationRequest->SxINT;
@@ -558,7 +565,7 @@ static SoundSourceEntry SoundUnit::configureSoundSourceEntry
 
 static SoundSourceEntry SoundUnit::findSoundSource
 (
-	uint32 requesterId, uint32 soundSourceType, uint8 priority, const WaveformData* waveFormData
+	uint32 requesterId, uint32 requesterSpec, uint32 soundSourceType, uint8 priority, const WaveformData* waveFormData
 )
 {
 	SoundSourceEntry soundSourceEntry = {-1, NULL};
@@ -601,9 +608,19 @@ static SoundSourceEntry SoundUnit::findSoundSource
 			continue;
 		}
 
-		if(_soundSourceConfigurations[i].priority >= priority)
+		if(_soundSourceConfigurations[i].requesterSpec == requesterSpec)
 		{
-			continue;
+			if(_soundSourceConfigurations[i].priority > priority)
+			{
+				continue;
+			}
+		}
+		else
+		{
+			if(_soundSourceConfigurations[i].priority >= priority)
+			{
+				continue;
+			}
 		}
 
 		if
@@ -653,6 +670,7 @@ static void SoundUnit::releaseSoundSources()
 		if(_ticks > _soundSourceConfigurations[i].timeout)
 		{
 			_soundSourceConfigurations[i].requesterId = -1;
+			_soundSourceConfigurations[i].requesterSpec = -1;
 			_soundSourceConfigurations[i].timeout = 0;
 			_soundSourceConfigurations[i].waveform = NULL;
 			_soundSourceConfigurations[i].SxINT |= __SOUND_WRAPPER_STOP_SOUND;
@@ -687,8 +705,11 @@ static void SoundUnit::dispatchQueuedSoundSourceConfigurations()
 		SoundSourceEntry soundSourceEntry = 
 			SoundUnit::findSoundSource
 			(
-				queuedSoundSourceConfigurationRequest->requesterId, queuedSoundSourceConfigurationRequest->type, 
-				queuedSoundSourceConfigurationRequest->priority, queuedSoundSourceConfigurationRequest->SxRAM
+				queuedSoundSourceConfigurationRequest->requesterId,
+				queuedSoundSourceConfigurationRequest->requesterSpec,
+				queuedSoundSourceConfigurationRequest->type,
+				queuedSoundSourceConfigurationRequest->priority,
+				queuedSoundSourceConfigurationRequest->SxRAM
 			);
 
 		if(0 <= soundSourceEntry.soundSourceIndex)

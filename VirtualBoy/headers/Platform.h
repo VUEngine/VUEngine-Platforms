@@ -233,6 +233,9 @@ typedef struct SoundSourceConfiguration
 	/// Requester Id
 	uint32 requesterId;
 
+	/// Requester Spec
+	uint32 requesterSpec;
+
 	/// VSU sound source to configure
 	SoundSource* soundSource;
 
@@ -286,6 +289,9 @@ typedef struct SoundSourceConfigurationRequest
 {
 	/// Requester Id
 	uint32 requesterId;
+
+	/// Requester spec
+	uint32 requesterSpec;
 
 	/// Time when the configuration elapses
 	uint32 timeout;
