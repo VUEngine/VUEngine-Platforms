@@ -113,10 +113,14 @@ static void SoundUnit::stopSoundSourcesUsedBy(uint32 requesterId)
 	{
 		if(requesterId == _soundSourceConfigurations[i].requesterId)
 		{
+			_soundSourceConfigurations[i].requesterId = 0;
+			_soundSourceConfigurations[i].requesterSpec = 0;
+			_soundSourceConfigurations[i].timeout = 0;
 			_soundSourceConfigurations[i].timeout = 0;
 			_soundSourceConfigurations[i].waveform = NULL;
 			_soundSourceConfigurations[i].SxINT = 0;
 			_soundSourceConfigurations[i].soundSource->SxINT = 0;
+			_soundSourceConfigurations[i].priority = -1;
 		}
 	}	
 
@@ -329,7 +333,7 @@ static void SoundUnit::reset()
 
 	for(int16 i = __TOTAL_NORMAL_CHANNELS; i < __TOTAL_NORMAL_CHANNELS + __TOTAL_MODULATION_CHANNELS; i++)
 	{
-		_soundSourceConfigurations[i].type = kSoundSourceModulation | kSoundSourceNormal;
+		_soundSourceConfigurations[i].type = kSoundSourceModulation;
 	}
 
 	for
@@ -344,8 +348,8 @@ static void SoundUnit::reset()
 
 	for(int16 i = 0; i < __TOTAL_SOUND_SOURCES; i++)
 	{
-		_soundSourceConfigurations[i].requesterId = -1;
-		_soundSourceConfigurations[i].requesterSpec = -1;
+		_soundSourceConfigurations[i].requesterId = 0;
+		_soundSourceConfigurations[i].requesterSpec = 0;
 		_soundSourceConfigurations[i].soundSource = &_soundSources[i];
 		_soundSourceConfigurations[i].waveform = NULL;
 		_soundSourceConfigurations[i].timeout = 0;
@@ -376,8 +380,8 @@ static void SoundUnit::stopAllSounds()
 {
 	for(int16 i = 0; i < __TOTAL_SOUND_SOURCES; i++)
 	{
-		_soundSourceConfigurations[i].requesterId = -1;
-		_soundSourceConfigurations[i].requesterSpec = -1;
+		_soundSourceConfigurations[i].requesterId = 0;
+		_soundSourceConfigurations[i].requesterSpec = 0;
 		_soundSourceConfigurations[i].waveform = NULL;
 		_soundSourceConfigurations[i].timeout = 0;
 		_soundSourceConfigurations[i].SxLRV = 0;
@@ -568,8 +572,6 @@ static SoundSourceEntry SoundUnit::findSoundSource
 	uint32 requesterId, uint32 requesterSpec, uint32 soundSourceType, uint8 priority, const WaveformData* waveFormData
 )
 {
-	SoundSourceEntry soundSourceEntry = {-1, NULL};
-
 	// First try to find a sound source that has previously assigned to the same requesterId
 	for(int16 i = 0; i < __TOTAL_SOUND_SOURCES; i++)
 	{
@@ -644,7 +646,7 @@ static SoundSourceEntry SoundUnit::findSoundSource
 			);
 	}
 
-	return soundSourceEntry;
+	return (SoundSourceEntry){-1, NULL};
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -669,8 +671,8 @@ static void SoundUnit::releaseSoundSources()
 		/// arrives in during the same timer interrupt as this.
 		if(_ticks > _soundSourceConfigurations[i].timeout)
 		{
-			_soundSourceConfigurations[i].requesterId = -1;
-			_soundSourceConfigurations[i].requesterSpec = -1;
+			_soundSourceConfigurations[i].requesterId = 0;
+			_soundSourceConfigurations[i].requesterSpec = 0;
 			_soundSourceConfigurations[i].timeout = 0;
 			_soundSourceConfigurations[i].waveform = NULL;
 			_soundSourceConfigurations[i].SxINT |= __SOUND_WRAPPER_STOP_SOUND;

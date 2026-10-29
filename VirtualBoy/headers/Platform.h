@@ -158,9 +158,9 @@ typedef struct TimerConfiguration
 /// @memberof VSUManager
 enum SoundSourceTypes
 {
-	kSoundSourceNormal = (1 << 0),
-	kSoundSourceModulation = (1 << 1),
-	kSoundSourceNoise = (1 << 2),
+	kSoundSourceNormal 		= (1 << 0),
+	kSoundSourceModulation 	= (1 << 1),
+	kSoundSourceNoise 		= (1 << 2),
 };
 
 /// Playback types
