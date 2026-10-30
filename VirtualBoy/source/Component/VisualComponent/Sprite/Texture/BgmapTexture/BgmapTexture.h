@@ -84,6 +84,10 @@ class BgmapTexture : Texture
 	/// Rewrite graphical data to the allocated BGMAP space.
 	override void rewrite();
 
+	/// Retrieve the texture manager for this texture.
+	/// @return The manager's intance that handles this texture
+	override TextureManager getTextureManager();
+
 	/// Set the BGMAP segment where the graphical data is allocated.
 	/// @param segment: BGMAP segment where the graphical data is allocated
 	void setSegment(int8 segment);

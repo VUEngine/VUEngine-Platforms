@@ -107,6 +107,13 @@ void BgmapTexture::rewrite()
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+TextureManager BgmapTexture::getTextureManager()
+{
+	return TextureManager::safeCast(BgmapTextureManager::getInstance());
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 void BgmapTexture::setSegment(int8 segment)
 {
 	this->segment = segment;

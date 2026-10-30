@@ -13,11 +13,12 @@
 
 #include <stdio.h>
 
-#include <BgmapTexture.h>
+#include <BgmapTextureManager.h>
 #include <Communications.h>
 #include <FrameBuffers.h>
 #include <DebugConfig.h>
 #include <Keypad.h>
+#include <ObjectTextureManager.h>
 #include <Printer.h>
 #include <Rumble.h>
 #include <SoundManager.h>
@@ -114,6 +115,9 @@ static void Hardware::initialize()
 
 	// Reset the hardware managers
 	Hardware::reset();
+
+	TextureManager::registerManager(TextureManager::safeCast(BgmapTextureManager::getInstance()));
+	TextureManager::registerManager(TextureManager::safeCast(ObjectTextureManager::getInstance()));
 
 #ifndef __DISABLE_DISPLAY_STABILIZATION
 	// Wait for the display to stablize

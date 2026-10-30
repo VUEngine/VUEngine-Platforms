@@ -35,52 +35,59 @@ friend class VirtualNode;
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+secure ClassPointer ObjectTextureManager::getTextureClass()
+{
+	return typeofclass(ObjectTexture);
+}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+secure void ObjectTextureManager::clear()
+{}
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 secure void ObjectTextureManager::reset()
 {
-	VirtualList::deleteData(this->objectTextures);
+	VirtualList::deleteData(this->textures);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-secure void ObjectTextureManager::updateTextures(UpdateTextures updateTextures, int16 maximumTextureRowsToWrite, bool defer)
-{
-	if(NULL != updateTextures)
-	{
-		updateTextures(this->objectTextures, maximumTextureRowsToWrite, defer);
-	}
-}
+secure void ObjectTextureManager::load(const TextureSpec** textureSpecs __attribute__((unused)))
+{}
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-secure ObjectTexture ObjectTextureManager::getTexture(ObjectTextureSpec* objectTextureSpec)
+secure Texture ObjectTextureManager::get(const TextureSpec* textureSpec)
 {
-	NM_ASSERT(NULL != objectTextureSpec, "ObjectTextureManager::getTexture: NULL objectTextureSpec");
+	NM_ASSERT(NULL != textureSpec, "ObjectTextureManager::getTexture: NULL textureSpec");
 
-	if(NULL == objectTextureSpec)
+	if(NULL == textureSpec)
 	{
 		return NULL;
 	}
 
 	static uint16 textureNextId = 0;
 
-	ObjectTexture objectTexture = new ObjectTexture(objectTextureSpec, textureNextId++);
+	ObjectTexture objectTexture = new ObjectTexture((ObjectTextureSpec*)textureSpec, textureNextId++);
 
-	VirtualList::pushBack(this->objectTextures, objectTexture);
+	VirtualList::pushBack(this->textures, objectTexture);
 	
 	ObjectTexture::prepare(objectTexture);
 
-	return objectTexture;
+	return Texture::safeCast(objectTexture);
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-secure void ObjectTextureManager::releaseTexture(ObjectTexture objectTexture)
+secure void ObjectTextureManager::release(Texture texture)
 {
-	NM_ASSERT(!isDeleted(objectTexture), "ObjectTextureManager::releaseTexture: trying to release an invalid objectTexture");
+	NM_ASSERT(!isDeleted(texture), "ObjectTextureManager::releaseTexture: trying to release an invalid objectTexture");
 
-	VirtualList::removeData(this->objectTextures, objectTexture);
+	VirtualList::removeData(this->textures, texture);
 
-	delete objectTexture;
+	delete texture;
 }
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -96,7 +103,7 @@ void ObjectTextureManager::constructor()
 	// Always explicitly call the base's constructor 
 	Base::constructor();
 	
-	this->objectTextures = new VirtualList();
+	this->textures = new VirtualList();
 
 	ObjectTextureManager::reset(this);
 }
@@ -105,11 +112,11 @@ void ObjectTextureManager::constructor()
 
 void ObjectTextureManager::destructor()
 {
-	if(!isDeleted(this->objectTextures))
+	if(!isDeleted(this->textures))
 	{
-		VirtualList::deleteData(this->objectTextures);
-		delete this->objectTextures;
-		this->objectTextures = NULL;
+		VirtualList::deleteData(this->textures);
+		delete this->textures;
+		this->textures = NULL;
 	}
 
 	// Always explicitly call the base's destructor 

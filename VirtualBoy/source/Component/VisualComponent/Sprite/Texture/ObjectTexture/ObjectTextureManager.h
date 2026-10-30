@@ -14,7 +14,6 @@
 // INCLUDES
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-#include <Object.h>
 #include <ObjectTexture.h>
 #include <TextureManager.h>
 
@@ -27,30 +26,33 @@
 /// Inherits from Texture
 ///
 /// Manages textures for OBJECT space.
-singleton class ObjectTextureManager : Object
+singleton class ObjectTextureManager : TextureManager
 {
-	// List of textures with BGMAP space allocated for them
-	VirtualList objectTextures;
-
 	/// @publicsection
 
-	/// Reset the manager's state.
-	void reset();
+	/// Retrieve the class type of the managed textures.
+	/// @return ClassPointer to the type of textures
+	override ClassPointer getTextureClass();
 
-	/// Update texture pending rewriting of data in DRAM.
-	/// @param maximumTextureRowsToWrite: Number of texture rows to write during this call
-	/// @param defer: If true, the texture data is written overtime; otherwise
-	/// all is written in a single pass
-	void updateTextures(UpdateTextures updateTextures, int16 maximumTextureRowsToWrite, bool defer);
+	/// Erase the contents of graphics memory space.
+	override void clear();
+
+	/// Reset the manager's state.
+	override void reset();
+
+	/// Load textures in function of the provided array of specs.
+	/// @param textureSpecs: Array of texture specs in function of which to load textures 
+	override void load(const TextureSpec** textureSpecs);
 
 	/// Retrieve a texture initialized with the provided spec.
-	/// @param objectTextureSpec: Spec to use to initilize the desired texture
+	/// @param textureSpec: Spec to use to initilize the desired texture
 	/// @return Texture initialized with the provided spec
-	ObjectTexture getTexture(ObjectTextureSpec* objectTextureSpec);
+	override Texture get(const TextureSpec* textureSpec);
 
 	/// Release a texture.
-	/// @param objectTexture: Texture to release
-	void releaseTexture(ObjectTexture objectTexture);
+	/// @param texture: Texture to release
+	override void release(Texture texture);
+
 }
 
 #endif

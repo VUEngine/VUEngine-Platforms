@@ -51,6 +51,10 @@ class ObjectTexture : Texture
 	/// @param objectTextureSpec: Specification that determines how to configure the texture
 	/// @param id: Texture's identificator
 	void constructor(const ObjectTextureSpec* objectTextureSpec, uint16 id);
+
+	/// Retrieve the texture manager for this texture.
+	/// @return The manager's intance that handles this texture
+	override TextureManager getTextureManager();
 }
 
 #endif

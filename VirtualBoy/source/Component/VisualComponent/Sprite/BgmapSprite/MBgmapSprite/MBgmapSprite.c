@@ -52,7 +52,7 @@ void MBgmapSprite::constructor(Entity owner, const MBgmapSpriteSpec* mBgmapSprit
 
 	if(!isDeleted(this->texture))
 	{
-		TextureManager::release(this->texture);
+		TextureManager::releaseTexture(this->texture);
 		this->texture = NULL;
 	}
 
@@ -101,7 +101,7 @@ void MBgmapSprite::releaseTexture()
 
 			if(!isDeleted(bgmapTexture))
 			{
-				TextureManager::release(Texture::safeCast(bgmapTexture));
+				TextureManager::releaseTexture(Texture::safeCast(bgmapTexture));
 			}
 		}
 
@@ -318,7 +318,7 @@ void MBgmapSprite::loadMapTexture(TextureSpec* textureSpec, bool isFirstTextureA
 	BgmapTexture bgmapTexture = 
 		BgmapTexture::safeCast
 		(
-			BgmapTextureManager::getTexture
+			BgmapTextureManager::getBgmapTexture
 			(
 				BgmapTextureManager::getInstance(), (BgmapTextureSpec*)textureSpec, minimumSegment, 
 				isFirstTextureAndHasMultipleTextures, ((MBgmapSpriteSpec*)this->componentSpec)->scValue

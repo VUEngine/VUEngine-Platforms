@@ -14,7 +14,6 @@
 // INCLUDES
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-#include <Object.h>
 #include <BgmapTexture.h>
 #include <TextureManager.h>
 
@@ -47,11 +46,8 @@ enum OffsetIndex
 /// Inherits from Texture
 ///
 /// Allocates BGMAP space for textures.
-singleton class BgmapTextureManager : Object
+singleton class BgmapTextureManager : TextureManager
 {
-	// List of textures with BGMAP space allocated for them
-	VirtualList bgmapTextures;
-
 	/// Used tiles per BGMAP segment
 	uint16 usedTiles[__MAX_NUMBER_OF_BGMAPS_SEGMENTS];
 
@@ -77,17 +73,36 @@ singleton class BgmapTextureManager : Object
 	/// @param y: Screen y coordinate where to print
 	static void print(int32 x, int32 y);
 
+	/// Retrieve the class type of the managed textures.
+	/// @return ClassPointer to the type of textures
+	override ClassPointer getTextureClass();
+
+	/// Erase the contents of graphics memory space.
+	override void clear();
+
 	/// Reset the manager's state.
-	void reset();
+	override void reset();
 
-	/// Erase the contents of BGMAP memory space.
-	void clearDRAM();
+	/// Load textures in function of the provided array of specs.
+	/// @param textureSpecs: Array of texture specs in function of which to load textures 
+	override void load(const TextureSpec** textureSpecs);
 
-	/// Update texture pending rewriting of data in DRAM.
-	/// @param maximumTextureRowsToWrite: Number of texture rows to write during this call
-	/// @param defer: If true, the texture data is written overtime; otherwise
-	/// all is written in a single pass
-	void updateTextures(UpdateTextures updateTextures, int16 maximumTextureRowsToWrite, bool defer);
+	/// Retrieve a texture initialized with the provided spec.
+	/// @param textureSpec: Spec to use to initilize the desired texture
+	/// @return Texture initialized with the provided spec
+	override Texture get(const TextureSpec* textureSpec);
+
+	/// Release a texture.
+	/// @param texture: Texture to release
+	override void release(Texture texture);
+
+	/// Retrieve a texture initialized with the provided spec.
+	/// @param bgmapTextureSpec: Spec to use to initilize the desired texture
+	/// @param minimumSegment: Minimum BGMAP segment where to allocate the texture
+	/// @param mustLiveAtEvenSegment: Required BGMAP segment where to allocate the texture
+	/// @param scValue: SC configuration value for multi segment textures
+	/// @return Texture initialized with the provided spec
+	BgmapTexture getBgmapTexture(BgmapTextureSpec* bgmapTextureSpec, int16 minimumSegment, bool mustLiveAtEvenSegment, uint32 scValue);
 
 	/// Clear the data in the BGMAP spaced defined by the provided segment.
 	/// @param segment: Index of the BGMAP segment to clear
@@ -100,22 +115,6 @@ singleton class BgmapTextureManager : Object
 	/// Retrieve the number of available BGMAP segments to allocate textures.
 	/// @return Number of available BGMAP segments to allocate textures
 	int8 getAvailableBgmapSegmentsForTextures();
-
-	/// Load textures in function of the provided array of specs.
-	/// @param textureSpecs: Array of texture specs in function of which to load textures 
-	void loadTextures(const TextureSpec** textureSpecs);
-
-	/// Retrieve a texture initialized with the provided spec.
-	/// @param bgmapTextureSpec: Spec to use to initilize the desired texture
-	/// @param minimumSegment: Minimum BGMAP segment where to allocate the texture
-	/// @param mustLiveAtEvenSegment: Required BGMAP segment where to allocate the texture
-	/// @param scValue: SC configuration value for multi segment textures
-	/// @return Texture initialized with the provided spec
-	BgmapTexture getTexture(BgmapTextureSpec* bgmapTextureSpec, int16 minimumSegment, bool mustLiveAtEvenSegment, uint32 scValue);
-
-	/// Release a texture.
-	/// @param bgmapTexture: Texture to release
-	void releaseTexture(BgmapTexture bgmapTexture);
 
 	/// Retrieve the X coordinate in BGMAP space for the texture ID provided.
 	/// @param id: Texture's id
